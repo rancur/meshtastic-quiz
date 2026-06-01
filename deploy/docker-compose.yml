@@ -1,0 +1,37 @@
+# Meshtastic Quiz — docker-compose deployment.
+#
+# Pattern: a small long-running companion container that talks to your MeshMonitor
+# instance's REST API. Put your real values in a .env file next to this compose file
+# (copy ../.env.example). The .env is gitignored.
+#
+# If your MeshMonitor runs in Docker on the same host, attach this container to the same
+# network so it can resolve MeshMonitor by service name (e.g. http://meshmonitor:3001).
+# Set the network name below to match your MeshMonitor stack's network.
+
+services:
+  meshtastic-quiz:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    image: meshtastic-quiz:latest
+    container_name: meshtastic-quiz
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      TZ: ${TZ:-UTC}
+    volumes:
+      # persist leaderboard + cursor across restarts
+      - meshquiz-data:/app/data
+    networks:
+      - meshmonitor
+
+volumes:
+  meshquiz-data:
+
+networks:
+  meshmonitor:
+    # Set to your MeshMonitor stack's docker network so service-name resolution works.
+    # Example: name: meshmonitor_default
+    external: true
+    name: ${MESHMONITOR_DOCKER_NETWORK:-meshmonitor_default}

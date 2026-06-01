@@ -1,0 +1,30 @@
+# --- secrets / deployment-specific (NEVER commit) ---
+.env
+*.env
+!.env.example
+
+# runtime state (leaderboard, cursor)
+data/state.json
+meshquiz/data/state.json
+
+# python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# editors / os
+.DS_Store
+.idea/
+.vscode/
+*.swp

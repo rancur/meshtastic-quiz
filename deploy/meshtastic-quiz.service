@@ -1,0 +1,26 @@
+# systemd unit alternative (no Docker). Install to /etc/systemd/system/.
+# Edit the paths/User to match your install, and put config in an EnvironmentFile.
+#
+#   sudo cp deploy/meshtastic-quiz.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now meshtastic-quiz
+#
+[Unit]
+Description=Meshtastic Quiz (Buzz trivia bot)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# Adjust to the user + checkout path on your machine.
+User=meshquiz
+WorkingDirectory=/opt/meshtastic-quiz
+EnvironmentFile=/opt/meshtastic-quiz/.env
+ExecStart=/usr/bin/python3 -m meshquiz
+Restart=on-failure
+RestartSec=5
+# the bot writes its state file under STATE_PATH; ensure it's writable
+StateDirectory=meshtastic-quiz
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,2786 @@
+[
+  {
+    "category": "Science",
+    "difficulty": "easy",
+    "question": "What gas do plants absorb?",
+    "options": [
+      "Oxygen",
+      "CO2",
+      "Nitrogen",
+      "Helium"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Science",
+    "difficulty": "easy",
+    "question": "What is H2O?",
+    "options": [
+      "Salt",
+      "Water",
+      "Acid",
+      "Sugar"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Science",
+    "difficulty": "easy",
+    "question": "How many bones in adult human body?",
+    "options": [
+      "106",
+      "206",
+      "306",
+      "150"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Science",
+    "difficulty": "easy",
+    "question": "What planet is the Red Planet?",
+    "options": [
+      "Venus",
+      "Mars",
+      "Jupiter",
+      "Saturn"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Science",
+    "difficulty": "med",
+    "question": "Speed of light approx (km/s)?",
+    "options": [
+      "3k",
+      "30k",
+      "300k",
+      "3M"
+    ],
+    "answer": 2
+  },
+  {
+    "category": "Science",
+    "difficulty": "med",
+    "question": "What organ pumps blood?",
+    "options": [
+      "Liver",
+      "Lung",
+      "Heart",
+      "Kidney"
+    ],
+    "answer": 2
+  },
+  {
+    "category": "Science",
+    "difficulty": "med",
+    "question": "Chemical symbol for gold?",
+    "options": [
+      "Go",
+      "Gd",
+      "Au",
+      "Ag"
+    ],
+    "answer": 2
+  },
+  {
+    "category": "Science",
+    "difficulty": "med",
+    "question": "Powerhouse of the cell?",
+    "options": [
+      "Nucleus",
+      "Ribosome",
+      "Mitochondria",
+      "Golgi"
+    ],
+    "answer": 2
+  },
+  {
+    "category": "Science",
+    "difficulty": "hard",
+    "question": "Who proposed general relativity?",
+    "options": [
+      "Newton",
+      "Einstein",
+      "Bohr",
+      "Hawking"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Science",
+    "difficulty": "hard",
+    "question": "Hardest natural substance?",
+    "options": [
+      "Iron",
+      "Quartz",
+      "Diamond",
+      "Titanium"
+    ],
+    "answer": 2
+  },
+  {
+    "category": "Science",
+    "difficulty": "easy",
+    "question": "What do bees make?",
+    "options": [
+      "Milk",
+      "Honey",
+      "Silk",
+      "Wax only"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Science",
+    "difficulty": "med",
+    "question": "Closest star to Earth?",
+    "options": [
+      "Sirius",
+      "Sun",
+      "Vega",
+      "Polaris"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Science",
+    "difficulty": "med",
+    "question": "What is frozen water?",
+    "options": [
+      "Steam",
+      "Ice",
+      "Mist",
+      "Snow only"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Science",
+    "difficulty": "hard",
+    "question": "Number of elements (approx)?",
+    "options": [
+      "88",
+      "98",
+      "118",
+      "150"
+    ],
+    "answer": 2
+  },
+  {
+    "category": "Science",
+    "difficulty": "med",
+    "question": "Gas most abundant in air?",
+    "options": [
+      "Oxygen",
+      "CO2",
+      "Nitrogen",
+      "Argon"
+    ],
+    "answer": 2
+  },
+  {
+    "category": "Science",
+    "difficulty": "easy",
+    "question": "Largest planet?",
+    "options": [
+      "Earth",
+      "Mars",
+      "Jupiter",
+      "Neptune"
+    ],
+    "answer": 2
+  },
+  {
+    "category": "Science",
+    "difficulty": "med",
+    "question": "What measures earthquakes?",
+    "options": [
+      "Barometer",
+      "Richter",
+      "Thermo",
+      "Geiger"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Science",
+    "difficulty": "hard",
+    "question": "DNA stands for?",
+    "options": [
+      "Deoxyribo NA",
+      "Di-Nitro A",
+      "Double NA",
+      "Dyna NA"
+    ],
+    "answer": 0
+  },
+  {
+    "category": "Science",
+    "difficulty": "easy",
+    "question": "Animals that lay eggs and fly?",
+    "options": [
+      "Fish",
+      "Birds",
+      "Cats",
+      "Snakes"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Science",
+    "difficulty": "med",
+    "question": "Light from Sun takes ~? to Earth",
+    "options": [
+      "8 sec",
+      "8 min",
+      "8 hr",
+      "8 day"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "History",
+    "difficulty": "easy",
+    "question": "Who was first US president?",
+    "options": [
+      "Lincoln",
+      "Washington",
+      "Adams",
+      "Jefferson"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "History",
+    "difficulty": "med",
+    "question": "WWII ended in what year?",
+    "options": [
+      "1918",
+      "1939",
+      "1945",
+      "1950"
+    ],
+    "answer": 2
+  },
+  {
+    "category": "History",
+    "difficulty": "med",
+    "question": "Great Wall is in?",
+    "options": [
+      "India",
+      "China",
+      "Japan",
+      "Korea"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "History",
+    "difficulty": "hard",
+    "question": "Who painted the Mona Lisa?",
+    "options": [
+      "Raphael",
+      "Da Vinci",
+      "Monet",
+      "Picasso"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "History",
+    "difficulty": "med",
+    "question": "Ancient pyramids built by?",
+    "options": [
+      "Romans",
+      "Greeks",
+      "Egyptians",
+      "Aztecs"
+    ],
+    "answer": 2
+  },
+  {
+    "category": "History",
+    "difficulty": "hard",
+    "question": "Year man first walked on Moon?",
+    "options": [
+      "1959",
+      "1969",
+      "1979",
+      "1989"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "History",
+    "difficulty": "med",
+    "question": "Titanic sank in?",
+    "options": [
+      "1905",
+      "1912",
+      "1920",
+      "1931"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "History",
+    "difficulty": "easy",
+    "question": "Statue of Liberty gifted by?",
+    "options": [
+      "UK",
+      "France",
+      "Spain",
+      "Italy"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "History",
+    "difficulty": "hard",
+    "question": "Who discovered America 1492?",
+    "options": [
+      "Magellan",
+      "Columbus",
+      "Cook",
+      "Drake"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "History",
+    "difficulty": "med",
+    "question": "Roman numeral for 50?",
+    "options": [
+      "V",
+      "X",
+      "L",
+      "C"
+    ],
+    "answer": 2
+  },
+  {
+    "category": "History",
+    "difficulty": "med",
+    "question": "First man in space?",
+    "options": [
+      "Glenn",
+      "Gagarin",
+      "Armstrong",
+      "Aldrin"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "History",
+    "difficulty": "hard",
+    "question": "Berlin Wall fell in?",
+    "options": [
+      "1979",
+      "1985",
+      "1989",
+      "1991"
+    ],
+    "answer": 2
+  },
+  {
+    "category": "History",
+    "difficulty": "easy",
+    "question": "Knights wore?",
+    "options": [
+      "Silk",
+      "Armor",
+      "Robes",
+      "Furs"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "History",
+    "difficulty": "med",
+    "question": "Declaration of Indep. year?",
+    "options": [
+      "1492",
+      "1776",
+      "1812",
+      "1865"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "History",
+    "difficulty": "hard",
+    "question": "Who was Egyptian boy king?",
+    "options": [
+      "Ramses",
+      "Tut",
+      "Nefer",
+      "Khufu"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Geography",
+    "difficulty": "easy",
+    "question": "Largest ocean?",
+    "options": [
+      "Atlantic",
+      "Indian",
+      "Pacific",
+      "Arctic"
+    ],
+    "answer": 2
+  },
+  {
+    "category": "Geography",
+    "difficulty": "easy",
+    "question": "Capital of France?",
+    "options": [
+      "Lyon",
+      "Paris",
+      "Nice",
+      "Rome"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Geography",
+    "difficulty": "med",
+    "question": "Longest river?",
+    "options": [
+      "Amazon",
+      "Nile",
+      "Yangtze",
+      "Congo"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Geography",
+    "difficulty": "med",
+    "question": "Tallest mountain?",
+    "options": [
+      "K2",
+      "Everest",
+      "Denali",
+      "Alps"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Geography",
+    "difficulty": "hard",
+    "question": "Smallest country?",
+    "options": [
+      "Monaco",
+      "Nauru",
+      "Vatican",
+      "Malta"
+    ],
+    "answer": 2
+  },
+  {
+    "category": "Geography",
+    "difficulty": "easy",
+    "question": "Capital of Japan?",
+    "options": [
+      "Osaka",
+      "Tokyo",
+      "Kyoto",
+      "Seoul"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Geography",
+    "difficulty": "med",
+    "question": "Largest desert?",
+    "options": [
+      "Gobi",
+      "Sahara",
+      "Arctic",
+      "Mojave"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Geography",
+    "difficulty": "med",
+    "question": "How many continents?",
+    "options": [
+      "5",
+      "6",
+      "7",
+      "8"
+    ],
+    "answer": 2
+  },
+  {
+    "category": "Geography",
+    "difficulty": "hard",
+    "question": "Country with most people?",
+    "options": [
+      "USA",
+      "India",
+      "China",
+      "Brazil"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Geography",
+    "difficulty": "easy",
+    "question": "Capital of England?",
+    "options": [
+      "Leeds",
+      "London",
+      "York",
+      "Bath"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Geography",
+    "difficulty": "med",
+    "question": "Sahara is on which continent?",
+    "options": [
+      "Asia",
+      "Africa",
+      "Europe",
+      "S.Am"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Geography",
+    "difficulty": "hard",
+    "question": "Which is a US state?",
+    "options": [
+      "Ontario",
+      "Alberta",
+      "Texas",
+      "Sonora"
+    ],
+    "answer": 2
+  },
+  {
+    "category": "Geography",
+    "difficulty": "easy",
+    "question": "Capital of Italy?",
+    "options": [
+      "Milan",
+      "Rome",
+      "Turin",
+      "Pisa"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Geography",
+    "difficulty": "med",
+    "question": "Which is an island nation?",
+    "options": [
+      "Peru",
+      "Chad",
+      "Japan",
+      "Mali"
+    ],
+    "answer": 2
+  },
+  {
+    "category": "Geography",
+    "difficulty": "hard",
+    "question": "Great Barrier Reef is near?",
+    "options": [
+      "Brazil",
+      "Australia",
+      "Kenya",
+      "India"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Tech",
+    "difficulty": "easy",
+    "question": "What does CPU stand for?",
+    "options": [
+      "Central Proc Unit",
+      "Core Pwr U",
+      "Comp Pers U",
+      "Ctrl Proc U"
+    ],
+    "answer": 0
+  },
+  {
+    "category": "Tech",
+    "difficulty": "med",
+    "question": "Who founded Microsoft?",
+    "options": [
+      "Jobs",
+      "Gates",
+      "Musk",
+      "Bezos"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Tech",
+    "difficulty": "med",
+    "question": "HTML is used for?",
+    "options": [
+      "Math",
+      "Web pages",
+      "Music",
+      "3D"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Tech",
+    "difficulty": "hard",
+    "question": "What year iPhone launched?",
+    "options": [
+      "2005",
+      "2007",
+      "2009",
+      "2011"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Tech",
+    "difficulty": "easy",
+    "question": "What stores files on a PC?",
+    "options": [
+      "RAM",
+      "Disk",
+      "GPU",
+      "PSU"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Tech",
+    "difficulty": "med",
+    "question": "Python is a?",
+    "options": [
+      "Snake only",
+      "Language",
+      "Game",
+      "Browser"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Tech",
+    "difficulty": "hard",
+    "question": "What does HTTP stand for start?",
+    "options": [
+      "HyperText",
+      "HighThru",
+      "HostText",
+      "HotTrans"
+    ],
+    "answer": 0
+  },
+  {
+    "category": "Tech",
+    "difficulty": "med",
+    "question": "Founder of Tesla/SpaceX?",
+    "options": [
+      "Gates",
+      "Musk",
+      "Page",
+      "Cook"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Tech",
+    "difficulty": "easy",
+    "question": "What connects to WiFi?",
+    "options": [
+      "Router",
+      "Toaster",
+      "Mouse only",
+      "Cable only"
+    ],
+    "answer": 0
+  },
+  {
+    "category": "Tech",
+    "difficulty": "hard",
+    "question": "Binary uses which digits?",
+    "options": [
+      "0-9",
+      "0 and 1",
+      "1-2",
+      "A-F"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Tech",
+    "difficulty": "med",
+    "question": "What is LoRa used for?",
+    "options": [
+      "Cooking",
+      "Long radio",
+      "Photos",
+      "Gaming"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Tech",
+    "difficulty": "med",
+    "question": "Open-source mesh radio project?",
+    "options": [
+      "Meshtastic",
+      "Bluetooth",
+      "Zigbee",
+      "NFC"
+    ],
+    "answer": 0
+  },
+  {
+    "category": "Tech",
+    "difficulty": "easy",
+    "question": "Which is a search engine?",
+    "options": [
+      "Excel",
+      "Google",
+      "Word",
+      "Paint"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Tech",
+    "difficulty": "hard",
+    "question": "RAM stands for?",
+    "options": [
+      "Random Acc Mem",
+      "Read All Mem",
+      "Rapid Mem",
+      "Run App Mem"
+    ],
+    "answer": 0
+  },
+  {
+    "category": "Tech",
+    "difficulty": "med",
+    "question": "GPU is best at?",
+    "options": [
+      "Storage",
+      "Graphics",
+      "Cooling",
+      "Audio"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Pop",
+    "difficulty": "easy",
+    "question": "Wizard boy with a scar?",
+    "options": [
+      "Frodo",
+      "Harry P",
+      "Percy",
+      "Luke"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Pop",
+    "difficulty": "med",
+    "question": "Who sang Thriller?",
+    "options": [
+      "Prince",
+      "Jackson",
+      "Bowie",
+      "Sting"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Pop",
+    "difficulty": "easy",
+    "question": "Yellow cartoon family?",
+    "options": [
+      "Griffins",
+      "Simpsons",
+      "Belchers",
+      "Smiths"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Pop",
+    "difficulty": "med",
+    "question": "Star Wars hero with lightsaber?",
+    "options": [
+      "Han",
+      "Luke",
+      "Yoda",
+      "Leia"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Pop",
+    "difficulty": "hard",
+    "question": "Director of Titanic film?",
+    "options": [
+      "Spielberg",
+      "Cameron",
+      "Nolan",
+      "Scott"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Pop",
+    "difficulty": "easy",
+    "question": "Mickey is a?",
+    "options": [
+      "Dog",
+      "Mouse",
+      "Duck",
+      "Bear"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Pop",
+    "difficulty": "med",
+    "question": "Friends was set in?",
+    "options": [
+      "LA",
+      "NYC",
+      "Chicago",
+      "Boston"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Pop",
+    "difficulty": "hard",
+    "question": "Who plays Iron Man?",
+    "options": [
+      "Evans",
+      "Downey Jr",
+      "Hemsworth",
+      "Ruffalo"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Pop",
+    "difficulty": "easy",
+    "question": "Spongebob lives in a?",
+    "options": [
+      "Tree",
+      "Pineapple",
+      "Cave",
+      "Boat"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Pop",
+    "difficulty": "med",
+    "question": "Frozen princess who sings Let It Go?",
+    "options": [
+      "Anna",
+      "Elsa",
+      "Belle",
+      "Moana"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Pop",
+    "difficulty": "med",
+    "question": "Band with Hey Jude?",
+    "options": [
+      "Stones",
+      "Beatles",
+      "Queen",
+      "U2"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Pop",
+    "difficulty": "hard",
+    "question": "Game of Thrones house with wolf?",
+    "options": [
+      "Lannister",
+      "Stark",
+      "Targ",
+      "Bolton"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Pop",
+    "difficulty": "easy",
+    "question": "Batman's city?",
+    "options": [
+      "Metropolis",
+      "Gotham",
+      "Star City",
+      "Central"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Pop",
+    "difficulty": "med",
+    "question": "Pikachu is from?",
+    "options": [
+      "Digimon",
+      "Pokemon",
+      "Yugioh",
+      "Mario"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Pop",
+    "difficulty": "hard",
+    "question": "Who wrote Harry Potter?",
+    "options": [
+      "Tolkien",
+      "Rowling",
+      "Martin",
+      "Lewis"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Sports",
+    "difficulty": "easy",
+    "question": "How many players on soccer team?",
+    "options": [
+      "9",
+      "10",
+      "11",
+      "12"
+    ],
+    "answer": 2
+  },
+  {
+    "category": "Sports",
+    "difficulty": "med",
+    "question": "Sport with home runs?",
+    "options": [
+      "Soccer",
+      "Baseball",
+      "Tennis",
+      "Golf"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Sports",
+    "difficulty": "med",
+    "question": "Olympics held every ? years",
+    "options": [
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "answer": 2
+  },
+  {
+    "category": "Sports",
+    "difficulty": "hard",
+    "question": "Most NBA points all-time (career)?",
+    "options": [
+      "Jordan",
+      "James",
+      "Kobe",
+      "Magic"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Sports",
+    "difficulty": "easy",
+    "question": "Sport with rackets and a net?",
+    "options": [
+      "Boxing",
+      "Tennis",
+      "Rugby",
+      "Sumo"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Sports",
+    "difficulty": "med",
+    "question": "Tour de France is what sport?",
+    "options": [
+      "Run",
+      "Cycling",
+      "Swim",
+      "Row"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Sports",
+    "difficulty": "hard",
+    "question": "How many rings in Olympic logo?",
+    "options": [
+      "3",
+      "4",
+      "5",
+      "6"
+    ],
+    "answer": 2
+  },
+  {
+    "category": "Sports",
+    "difficulty": "easy",
+    "question": "Goal of golf: ? strokes",
+    "options": [
+      "Most",
+      "Fewest",
+      "Even",
+      "Random"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Sports",
+    "difficulty": "med",
+    "question": "Super Bowl is in which sport?",
+    "options": [
+      "NBA",
+      "NFL",
+      "MLB",
+      "NHL"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Sports",
+    "difficulty": "hard",
+    "question": "Country that invented sumo?",
+    "options": [
+      "China",
+      "Japan",
+      "Korea",
+      "Thai"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Sports",
+    "difficulty": "easy",
+    "question": "How many holes in golf round?",
+    "options": [
+      "9",
+      "12",
+      "18",
+      "24"
+    ],
+    "answer": 2
+  },
+  {
+    "category": "Sports",
+    "difficulty": "med",
+    "question": "Wimbledon is played on?",
+    "options": [
+      "Clay",
+      "Grass",
+      "Hard",
+      "Sand"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Nature",
+    "difficulty": "easy",
+    "question": "Largest land animal?",
+    "options": [
+      "Lion",
+      "Elephant",
+      "Horse",
+      "Bear"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Nature",
+    "difficulty": "easy",
+    "question": "Fastest land animal?",
+    "options": [
+      "Lion",
+      "Cheetah",
+      "Horse",
+      "Wolf"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Nature",
+    "difficulty": "med",
+    "question": "King of the jungle?",
+    "options": [
+      "Tiger",
+      "Lion",
+      "Bear",
+      "Wolf"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Nature",
+    "difficulty": "med",
+    "question": "Animal known for changing color?",
+    "options": [
+      "Frog",
+      "Chameleon",
+      "Snake",
+      "Owl"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Nature",
+    "difficulty": "hard",
+    "question": "Largest living animal ever?",
+    "options": [
+      "Elephant",
+      "Blue whale",
+      "Shark",
+      "Dino"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Nature",
+    "difficulty": "easy",
+    "question": "Baby dog is called?",
+    "options": [
+      "Kit",
+      "Puppy",
+      "Cub",
+      "Calf"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Nature",
+    "difficulty": "med",
+    "question": "Bird that cannot fly?",
+    "options": [
+      "Eagle",
+      "Penguin",
+      "Crow",
+      "Hawk"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Nature",
+    "difficulty": "hard",
+    "question": "How many legs does a spider have?",
+    "options": [
+      "6",
+      "8",
+      "10",
+      "12"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Nature",
+    "difficulty": "easy",
+    "question": "Bees live in a?",
+    "options": [
+      "Den",
+      "Hive",
+      "Nest only",
+      "Cave"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Nature",
+    "difficulty": "med",
+    "question": "Tallest animal?",
+    "options": [
+      "Elephant",
+      "Giraffe",
+      "Horse",
+      "Camel"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Nature",
+    "difficulty": "med",
+    "question": "What do caterpillars become?",
+    "options": [
+      "Bees",
+      "Butterflies",
+      "Ants",
+      "Moths only"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Nature",
+    "difficulty": "hard",
+    "question": "Group of lions is a?",
+    "options": [
+      "Pack",
+      "Pride",
+      "Herd",
+      "Flock"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Food",
+    "difficulty": "easy",
+    "question": "Main ingredient in guacamole?",
+    "options": [
+      "Tomato",
+      "Avocado",
+      "Lime",
+      "Onion"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Food",
+    "difficulty": "med",
+    "question": "Sushi comes from?",
+    "options": [
+      "China",
+      "Japan",
+      "Korea",
+      "Thai"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Food",
+    "difficulty": "easy",
+    "question": "Pizza originated in?",
+    "options": [
+      "France",
+      "Italy",
+      "Spain",
+      "Greece"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Food",
+    "difficulty": "med",
+    "question": "What bean makes chocolate?",
+    "options": [
+      "Soy",
+      "Cacao",
+      "Coffee",
+      "Vanilla"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Food",
+    "difficulty": "hard",
+    "question": "Saffron comes from a?",
+    "options": [
+      "Root",
+      "Flower",
+      "Leaf",
+      "Seed"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Food",
+    "difficulty": "easy",
+    "question": "What fruit is dried into raisins?",
+    "options": [
+      "Plum",
+      "Grape",
+      "Fig",
+      "Date"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Food",
+    "difficulty": "med",
+    "question": "Espresso is a type of?",
+    "options": [
+      "Tea",
+      "Coffee",
+      "Juice",
+      "Soda"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Food",
+    "difficulty": "hard",
+    "question": "Wasabi is typically what color?",
+    "options": [
+      "Red",
+      "Green",
+      "Yellow",
+      "Brown"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Food",
+    "difficulty": "easy",
+    "question": "Cheese is made from?",
+    "options": [
+      "Milk",
+      "Soy",
+      "Eggs",
+      "Flour"
+    ],
+    "answer": 0
+  },
+  {
+    "category": "Food",
+    "difficulty": "med",
+    "question": "Which is a citrus fruit?",
+    "options": [
+      "Apple",
+      "Lemon",
+      "Pear",
+      "Plum"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Music",
+    "difficulty": "easy",
+    "question": "How many strings on a guitar?",
+    "options": [
+      "4",
+      "5",
+      "6",
+      "7"
+    ],
+    "answer": 2
+  },
+  {
+    "category": "Music",
+    "difficulty": "med",
+    "question": "Beethoven was famously?",
+    "options": [
+      "Blind",
+      "Deaf",
+      "Mute",
+      "Lame"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Music",
+    "difficulty": "med",
+    "question": "Instrument with 88 keys?",
+    "options": [
+      "Guitar",
+      "Piano",
+      "Harp",
+      "Drum"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Music",
+    "difficulty": "hard",
+    "question": "Queen's lead singer?",
+    "options": [
+      "Bowie",
+      "Mercury",
+      "Plant",
+      "Daltrey"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Music",
+    "difficulty": "easy",
+    "question": "A drum is what type of instrument?",
+    "options": [
+      "String",
+      "Percussion",
+      "Wind",
+      "Brass"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Music",
+    "difficulty": "med",
+    "question": "Genre of Bob Marley?",
+    "options": [
+      "Jazz",
+      "Reggae",
+      "Rock",
+      "Pop"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Music",
+    "difficulty": "hard",
+    "question": "How many notes in an octave?",
+    "options": [
+      "6",
+      "7",
+      "8",
+      "12"
+    ],
+    "answer": 2
+  },
+  {
+    "category": "Music",
+    "difficulty": "easy",
+    "question": "Which is a brass instrument?",
+    "options": [
+      "Violin",
+      "Trumpet",
+      "Flute",
+      "Piano"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Math",
+    "difficulty": "easy",
+    "question": "What is 7 x 8?",
+    "options": [
+      "54",
+      "56",
+      "58",
+      "64"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Math",
+    "difficulty": "easy",
+    "question": "What is 100 / 4?",
+    "options": [
+      "20",
+      "25",
+      "30",
+      "40"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Math",
+    "difficulty": "med",
+    "question": "What is 12 squared?",
+    "options": [
+      "124",
+      "144",
+      "154",
+      "121"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Math",
+    "difficulty": "med",
+    "question": "Pi is approximately?",
+    "options": [
+      "2.14",
+      "3.14",
+      "4.13",
+      "1.62"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Math",
+    "difficulty": "hard",
+    "question": "Sum of angles in a triangle?",
+    "options": [
+      "90",
+      "180",
+      "270",
+      "360"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Math",
+    "difficulty": "easy",
+    "question": "How many sides on a hexagon?",
+    "options": [
+      "5",
+      "6",
+      "7",
+      "8"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Math",
+    "difficulty": "med",
+    "question": "What is 15% of 200?",
+    "options": [
+      "20",
+      "30",
+      "40",
+      "50"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Math",
+    "difficulty": "hard",
+    "question": "Next prime after 7?",
+    "options": [
+      "8",
+      "9",
+      "11",
+      "13"
+    ],
+    "answer": 2
+  },
+  {
+    "category": "General",
+    "difficulty": "easy",
+    "question": "How many days in a week?",
+    "options": [
+      "5",
+      "6",
+      "7",
+      "8"
+    ],
+    "answer": 2
+  },
+  {
+    "category": "General",
+    "difficulty": "easy",
+    "question": "What color is the sky on a clear day?",
+    "options": [
+      "Green",
+      "Blue",
+      "Red",
+      "Gray"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "General",
+    "difficulty": "med",
+    "question": "How many colors in a rainbow?",
+    "options": [
+      "5",
+      "6",
+      "7",
+      "8"
+    ],
+    "answer": 2
+  },
+  {
+    "category": "General",
+    "difficulty": "med",
+    "question": "How many minutes in an hour?",
+    "options": [
+      "30",
+      "60",
+      "90",
+      "100"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "General",
+    "difficulty": "easy",
+    "question": "What shape has 4 equal sides?",
+    "options": [
+      "Circle",
+      "Square",
+      "Triangle",
+      "Oval"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "General",
+    "difficulty": "hard",
+    "question": "How many cards in a deck?",
+    "options": [
+      "48",
+      "50",
+      "52",
+      "54"
+    ],
+    "answer": 2
+  },
+  {
+    "category": "General",
+    "difficulty": "easy",
+    "question": "What do you read?",
+    "options": [
+      "Music only",
+      "Book",
+      "Air",
+      "Light"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "General",
+    "difficulty": "med",
+    "question": "How many legs on a tripod?",
+    "options": [
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "General",
+    "difficulty": "med",
+    "question": "Frozen rain is called?",
+    "options": [
+      "Mist",
+      "Hail",
+      "Dew",
+      "Fog"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "General",
+    "difficulty": "hard",
+    "question": "Roman numeral for 1000?",
+    "options": [
+      "D",
+      "M",
+      "C",
+      "L"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Science",
+    "difficulty": "easy",
+    "question": "What do we breathe to live?",
+    "options": [
+      "CO2",
+      "Oxygen",
+      "Helium",
+      "Neon"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Science",
+    "difficulty": "easy",
+    "question": "What is the center of an atom?",
+    "options": [
+      "Shell",
+      "Nucleus",
+      "Orbit",
+      "Field"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Science",
+    "difficulty": "med",
+    "question": "What force pulls us down?",
+    "options": [
+      "Magnet",
+      "Gravity",
+      "Friction",
+      "Drag"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Science",
+    "difficulty": "med",
+    "question": "Boiling point of water (C)?",
+    "options": [
+      "50",
+      "90",
+      "100",
+      "120"
+    ],
+    "answer": 2
+  },
+  {
+    "category": "Science",
+    "difficulty": "med",
+    "question": "Freezing point of water (C)?",
+    "options": [
+      "0",
+      "10",
+      "-10",
+      "32"
+    ],
+    "answer": 0
+  },
+  {
+    "category": "Science",
+    "difficulty": "hard",
+    "question": "What is the smallest unit of life?",
+    "options": [
+      "Atom",
+      "Cell",
+      "Molecule",
+      "Tissue"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Science",
+    "difficulty": "hard",
+    "question": "Element with symbol Fe?",
+    "options": [
+      "Lead",
+      "Iron",
+      "Fluor",
+      "Tin"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Science",
+    "difficulty": "med",
+    "question": "What scientist defined gravity laws?",
+    "options": [
+      "Bohr",
+      "Newton",
+      "Curie",
+      "Tesla"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Science",
+    "difficulty": "easy",
+    "question": "What do you call frozen rain crystals?",
+    "options": [
+      "Rain",
+      "Snow",
+      "Mist",
+      "Dew"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Science",
+    "difficulty": "hard",
+    "question": "How many planets in our system?",
+    "options": [
+      "7",
+      "8",
+      "9",
+      "10"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Science",
+    "difficulty": "med",
+    "question": "What part of the eye senses light?",
+    "options": [
+      "Iris",
+      "Retina",
+      "Lens",
+      "Pupil"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Science",
+    "difficulty": "hard",
+    "question": "Half of 0 K is roughly?",
+    "options": [
+      "0 K",
+      "150 K",
+      "-273 C",
+      "Cold"
+    ],
+    "answer": 0
+  },
+  {
+    "category": "History",
+    "difficulty": "easy",
+    "question": "Pharaohs ruled which land?",
+    "options": [
+      "Greece",
+      "Egypt",
+      "Rome",
+      "Persia"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "History",
+    "difficulty": "med",
+    "question": "Who was Queen of England long est. recent?",
+    "options": [
+      "Anne",
+      "Elizabeth II",
+      "Victoria",
+      "Mary"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "History",
+    "difficulty": "med",
+    "question": "The Renaissance began in?",
+    "options": [
+      "France",
+      "Italy",
+      "Spain",
+      "England"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "History",
+    "difficulty": "hard",
+    "question": "Who led nonviolent India indep.?",
+    "options": [
+      "Nehru",
+      "Gandhi",
+      "Bose",
+      "Patel"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "History",
+    "difficulty": "easy",
+    "question": "Cavemen used tools made of?",
+    "options": [
+      "Plastic",
+      "Stone",
+      "Steel",
+      "Glass"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "History",
+    "difficulty": "med",
+    "question": "Vikings came from?",
+    "options": [
+      "Spain",
+      "Scandinavia",
+      "Egypt",
+      "India"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "History",
+    "difficulty": "hard",
+    "question": "First woman to win a Nobel?",
+    "options": [
+      "Curie",
+      "Franklin",
+      "Meitner",
+      "Lovelace"
+    ],
+    "answer": 0
+  },
+  {
+    "category": "History",
+    "difficulty": "med",
+    "question": "Cold War was between US and?",
+    "options": [
+      "China",
+      "USSR",
+      "Japan",
+      "Cuba"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "History",
+    "difficulty": "easy",
+    "question": "Castles were homes for?",
+    "options": [
+      "Farmers",
+      "Royals",
+      "Sailors",
+      "Monks"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "History",
+    "difficulty": "hard",
+    "question": "Year the US declared independence?",
+    "options": [
+      "1492",
+      "1607",
+      "1776",
+      "1865"
+    ],
+    "answer": 2
+  },
+  {
+    "category": "Geography",
+    "difficulty": "easy",
+    "question": "Capital of the USA?",
+    "options": [
+      "NYC",
+      "DC",
+      "LA",
+      "Chicago"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Geography",
+    "difficulty": "med",
+    "question": "Which country has the Eiffel Tower?",
+    "options": [
+      "Italy",
+      "France",
+      "Spain",
+      "UK"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Geography",
+    "difficulty": "med",
+    "question": "The Amazon rainforest is mostly in?",
+    "options": [
+      "Peru",
+      "Brazil",
+      "Chile",
+      "Cuba"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Geography",
+    "difficulty": "hard",
+    "question": "Which is the largest country by area?",
+    "options": [
+      "China",
+      "Russia",
+      "USA",
+      "Canada"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Geography",
+    "difficulty": "easy",
+    "question": "Capital of Canada?",
+    "options": [
+      "Toronto",
+      "Ottawa",
+      "Quebec",
+      "Calgary"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Geography",
+    "difficulty": "med",
+    "question": "Which sea is the saltiest famous one?",
+    "options": [
+      "Red Sea",
+      "Dead Sea",
+      "Black Sea",
+      "Aral"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Geography",
+    "difficulty": "hard",
+    "question": "Which country spans most time zones?",
+    "options": [
+      "USA",
+      "Russia",
+      "China",
+      "Brazil"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Geography",
+    "difficulty": "easy",
+    "question": "Capital of Spain?",
+    "options": [
+      "Madrid",
+      "Barcelona",
+      "Seville",
+      "Bilbao"
+    ],
+    "answer": 0
+  },
+  {
+    "category": "Geography",
+    "difficulty": "med",
+    "question": "Mount Fuji is in?",
+    "options": [
+      "China",
+      "Japan",
+      "Korea",
+      "Nepal"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Geography",
+    "difficulty": "hard",
+    "question": "Which is a landlocked country?",
+    "options": [
+      "Cuba",
+      "Chad",
+      "Japan",
+      "Italy"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Tech",
+    "difficulty": "easy",
+    "question": "What do you click on a screen with?",
+    "options": [
+      "Pen",
+      "Mouse",
+      "Fork",
+      "Key only"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Tech",
+    "difficulty": "med",
+    "question": "Who co-founded Apple with Wozniak?",
+    "options": [
+      "Gates",
+      "Jobs",
+      "Dell",
+      "Cook"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Tech",
+    "difficulty": "med",
+    "question": "What does WWW stand for start?",
+    "options": [
+      "World Wide",
+      "Web Wave",
+      "Wide Work",
+      "Wired W"
+    ],
+    "answer": 0
+  },
+  {
+    "category": "Tech",
+    "difficulty": "hard",
+    "question": "What language is known for indentation?",
+    "options": [
+      "Java",
+      "Python",
+      "C",
+      "Ruby"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Tech",
+    "difficulty": "easy",
+    "question": "What protects against viruses?",
+    "options": [
+      "Antivirus",
+      "Toaster",
+      "Modem",
+      "Cable"
+    ],
+    "answer": 0
+  },
+  {
+    "category": "Tech",
+    "difficulty": "med",
+    "question": "USB is used to?",
+    "options": [
+      "Cool",
+      "Connect",
+      "Cook",
+      "Charge only"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Tech",
+    "difficulty": "hard",
+    "question": "What is the brain of a computer?",
+    "options": [
+      "GPU",
+      "CPU",
+      "RAM",
+      "SSD"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Tech",
+    "difficulty": "med",
+    "question": "Bluetooth is for?",
+    "options": [
+      "Wired net",
+      "Wireless link",
+      "Power",
+      "Cooling"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Tech",
+    "difficulty": "easy",
+    "question": "Which company makes Android?",
+    "options": [
+      "Apple",
+      "Google",
+      "Sony",
+      "IBM"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Tech",
+    "difficulty": "hard",
+    "question": "What does GPS stand for start?",
+    "options": [
+      "Global Pos",
+      "Grid Pwr",
+      "Geo Path",
+      "Gen Pos"
+    ],
+    "answer": 0
+  },
+  {
+    "category": "Pop",
+    "difficulty": "easy",
+    "question": "Superman is from planet?",
+    "options": [
+      "Mars",
+      "Krypton",
+      "Vulcan",
+      "Tatooine"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Pop",
+    "difficulty": "med",
+    "question": "Who is Mario's brother?",
+    "options": [
+      "Wario",
+      "Luigi",
+      "Yoshi",
+      "Toad"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Pop",
+    "difficulty": "med",
+    "question": "What movie has 'May the Force'?",
+    "options": [
+      "Trek",
+      "Star Wars",
+      "Avatar",
+      "Dune"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Pop",
+    "difficulty": "hard",
+    "question": "Who directed Jurassic Park?",
+    "options": [
+      "Lucas",
+      "Spielberg",
+      "Cameron",
+      "Nolan"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Pop",
+    "difficulty": "easy",
+    "question": "SpongeBob's best friend?",
+    "options": [
+      "Squid",
+      "Patrick",
+      "Krabs",
+      "Sandy"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Pop",
+    "difficulty": "med",
+    "question": "Which is a Marvel hero?",
+    "options": [
+      "Joker",
+      "Thor",
+      "Bane",
+      "Riddler"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Pop",
+    "difficulty": "hard",
+    "question": "Singer known as Queen of Pop?",
+    "options": [
+      "Cher",
+      "Madonna",
+      "Adele",
+      "Sia"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Pop",
+    "difficulty": "easy",
+    "question": "Scooby-Doo is a?",
+    "options": [
+      "Cat",
+      "Dog",
+      "Fox",
+      "Wolf"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Pop",
+    "difficulty": "med",
+    "question": "Hogwarts is from which series?",
+    "options": [
+      "Narnia",
+      "Harry P",
+      "LOTR",
+      "Percy J"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Pop",
+    "difficulty": "hard",
+    "question": "Who voices many Pixar shorts? Studio is?",
+    "options": [
+      "Pixar",
+      "DreamWorks",
+      "Ghibli",
+      "Sony"
+    ],
+    "answer": 0
+  },
+  {
+    "category": "Sports",
+    "difficulty": "easy",
+    "question": "Sport played at Wimbledon?",
+    "options": [
+      "Golf",
+      "Tennis",
+      "Polo",
+      "Darts"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Sports",
+    "difficulty": "med",
+    "question": "How many bases in baseball?",
+    "options": [
+      "3",
+      "4",
+      "5",
+      "6"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Sports",
+    "difficulty": "med",
+    "question": "A hat-trick is 3 of what?",
+    "options": [
+      "Fouls",
+      "Goals",
+      "Cards",
+      "Subs"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Sports",
+    "difficulty": "hard",
+    "question": "Country that hosts the Tour de France?",
+    "options": [
+      "Italy",
+      "France",
+      "Spain",
+      "Belgium"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Sports",
+    "difficulty": "easy",
+    "question": "What sport uses a puck?",
+    "options": [
+      "Soccer",
+      "Hockey",
+      "Rugby",
+      "Polo"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Sports",
+    "difficulty": "med",
+    "question": "A marathon is about how many miles?",
+    "options": [
+      "13",
+      "20",
+      "26",
+      "31"
+    ],
+    "answer": 2
+  },
+  {
+    "category": "Sports",
+    "difficulty": "hard",
+    "question": "How many players on a basketball court (per team)?",
+    "options": [
+      "4",
+      "5",
+      "6",
+      "7"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Sports",
+    "difficulty": "easy",
+    "question": "A 'strike' is a term in?",
+    "options": [
+      "Bowling",
+      "Chess",
+      "Swim",
+      "Golf"
+    ],
+    "answer": 0
+  },
+  {
+    "category": "Nature",
+    "difficulty": "easy",
+    "question": "What animal says 'moo'?",
+    "options": [
+      "Pig",
+      "Cow",
+      "Dog",
+      "Cat"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Nature",
+    "difficulty": "med",
+    "question": "Largest big cat?",
+    "options": [
+      "Lion",
+      "Tiger",
+      "Jaguar",
+      "Puma"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Nature",
+    "difficulty": "med",
+    "question": "What do pandas mainly eat?",
+    "options": [
+      "Meat",
+      "Bamboo",
+      "Fish",
+      "Fruit"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Nature",
+    "difficulty": "hard",
+    "question": "A baby kangaroo is a?",
+    "options": [
+      "Cub",
+      "Joey",
+      "Kit",
+      "Calf"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Nature",
+    "difficulty": "easy",
+    "question": "Which animal has a trunk?",
+    "options": [
+      "Horse",
+      "Elephant",
+      "Lion",
+      "Zebra"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Nature",
+    "difficulty": "med",
+    "question": "Owls are mostly active at?",
+    "options": [
+      "Noon",
+      "Night",
+      "Dawn",
+      "Dusk only"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Nature",
+    "difficulty": "hard",
+    "question": "What gas do plants release in day?",
+    "options": [
+      "CO2",
+      "Oxygen",
+      "Methane",
+      "Argon"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Nature",
+    "difficulty": "easy",
+    "question": "Fish breathe using?",
+    "options": [
+      "Lungs",
+      "Gills",
+      "Skin",
+      "Nose"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Food",
+    "difficulty": "easy",
+    "question": "What is the main grain in bread?",
+    "options": [
+      "Rice",
+      "Wheat",
+      "Corn",
+      "Oat"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Food",
+    "difficulty": "med",
+    "question": "Which country is famous for pasta?",
+    "options": [
+      "France",
+      "Italy",
+      "Spain",
+      "Greece"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Food",
+    "difficulty": "med",
+    "question": "What is tofu made from?",
+    "options": [
+      "Milk",
+      "Soy",
+      "Egg",
+      "Wheat"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Food",
+    "difficulty": "hard",
+    "question": "Which spice is the most expensive?",
+    "options": [
+      "Pepper",
+      "Saffron",
+      "Cumin",
+      "Salt"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Food",
+    "difficulty": "easy",
+    "question": "Which is a breakfast food?",
+    "options": [
+      "Steak",
+      "Pancakes",
+      "Soup",
+      "Salad"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Food",
+    "difficulty": "med",
+    "question": "Sourdough is a type of?",
+    "options": [
+      "Soup",
+      "Bread",
+      "Cheese",
+      "Sauce"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Music",
+    "difficulty": "easy",
+    "question": "Which is a string instrument?",
+    "options": [
+      "Drum",
+      "Violin",
+      "Flute",
+      "Horn"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Music",
+    "difficulty": "med",
+    "question": "A song's words are called?",
+    "options": [
+      "Beat",
+      "Lyrics",
+      "Tempo",
+      "Key"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Music",
+    "difficulty": "hard",
+    "question": "How many lines in a music staff?",
+    "options": [
+      "4",
+      "5",
+      "6",
+      "7"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Music",
+    "difficulty": "easy",
+    "question": "DJ stands for disc?",
+    "options": [
+      "Jumper",
+      "Jockey",
+      "Joiner",
+      "Judge"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Math",
+    "difficulty": "easy",
+    "question": "What is 9 + 6?",
+    "options": [
+      "13",
+      "15",
+      "16",
+      "18"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Math",
+    "difficulty": "easy",
+    "question": "What is half of 50?",
+    "options": [
+      "20",
+      "25",
+      "30",
+      "15"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Math",
+    "difficulty": "med",
+    "question": "What is 6 x 7?",
+    "options": [
+      "36",
+      "42",
+      "48",
+      "49"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "Math",
+    "difficulty": "hard",
+    "question": "What is 2 to the power of 5?",
+    "options": [
+      "16",
+      "25",
+      "32",
+      "64"
+    ],
+    "answer": 2
+  },
+  {
+    "category": "Math",
+    "difficulty": "med",
+    "question": "How many degrees in a circle?",
+    "options": [
+      "180",
+      "270",
+      "360",
+      "400"
+    ],
+    "answer": 2
+  },
+  {
+    "category": "Math",
+    "difficulty": "hard",
+    "question": "Which number is prime?",
+    "options": [
+      "9",
+      "15",
+      "17",
+      "21"
+    ],
+    "answer": 2
+  },
+  {
+    "category": "General",
+    "difficulty": "easy",
+    "question": "How many months in a year?",
+    "options": [
+      "10",
+      "11",
+      "12",
+      "13"
+    ],
+    "answer": 2
+  },
+  {
+    "category": "General",
+    "difficulty": "easy",
+    "question": "What do you use to tell time?",
+    "options": [
+      "Map",
+      "Clock",
+      "Book",
+      "Cup"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "General",
+    "difficulty": "med",
+    "question": "How many hours in a day?",
+    "options": [
+      "12",
+      "20",
+      "24",
+      "30"
+    ],
+    "answer": 2
+  },
+  {
+    "category": "General",
+    "difficulty": "med",
+    "question": "A decade is how many years?",
+    "options": [
+      "5",
+      "10",
+      "20",
+      "100"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "General",
+    "difficulty": "hard",
+    "question": "A century is how many years?",
+    "options": [
+      "10",
+      "50",
+      "100",
+      "1000"
+    ],
+    "answer": 2
+  },
+  {
+    "category": "General",
+    "difficulty": "easy",
+    "question": "What season comes after winter?",
+    "options": [
+      "Fall",
+      "Spring",
+      "Summer",
+      "None"
+    ],
+    "answer": 1
+  },
+  {
+    "category": "General",
+    "difficulty": "med",
+    "question": "How many sides on a stop sign?",
+    "options": [
+      "6",
+      "7",
+      "8",
+      "9"
+    ],
+    "answer": 2
+  },
+  {
+    "category": "General",
+    "difficulty": "hard",
+    "question": "Primary colors are red, blue and?",
+    "options": [
+      "Green",
+      "Yellow",
+      "Orange",
+      "Purple"
+    ],
+    "answer": 1
+  }
+]
