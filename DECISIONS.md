@@ -55,8 +55,66 @@ and bot level (including spam from a different node).
 
 ## Channel gating
 
-All commands and answers are acted on **only** for the configured trivia channel index.
-Traffic on any other channel is ignored. Tested.
+All game commands and answers are acted on **only** for the configured trivia channel
+index. Traffic on any other channel is ignored — **with one deliberate exception** (see
+below). Tested.
+
+## Primary-channel `!trivia` advert — the deliberate exception
+
+To help people discover the game, the bot **also listens on the primary channel**
+(`PRIMARY_CHANNEL_INDEX`, default `0` — typically "MediumFast") for **exactly one**
+command: `!trivia`. When anyone types it there, the bot replies with a short invite and a
+Meshtastic **channel-add deep link** so they can join the trivia channel in one tap.
+
+- This is the *only* command honored on the primary channel. `!starttrivia`,
+  `!leaderboard`, `!help`, tapback reactions, typed answers — all ignored there. The
+  game itself never runs on the primary channel.
+- The reply is **split into two messages**: msg1 = the invite + "add the channel:",
+  msg2 = the add link by itself. The link is ~87 bytes; even though invite+link happens
+  to fit in one 200-byte packet today, keeping the link on its own line guarantees it is
+  never truncated by the defensive byte-trimmer or by a future longer invite string, and
+  it's the form Will specified. Both messages are byte-validated like every other send.
+- The add link is **public** (it only encodes the channel's name/PSK settings, which are
+  meant to be shared) so it is safe to commit. It is configurable via `TRIVIA_ADD_LINK`,
+  and the primary channel index via `PRIMARY_CHANNEL_INDEX`. If
+  `PRIMARY_CHANNEL_INDEX == TRIVIA_CHANNEL_INDEX`, the bot just polls the one channel
+  (no double-fetch) and `!trivia` is simply unhandled there.
+- MeshMonitor read+write on channel 0 was verified against the live instance before
+  shipping (the token has the needed scope; the bot polls both channels each cycle).
+
+## `!help` command
+
+`!help` (trivia channel only) lists every command, one short line each, in a Buzz voice.
+It is emitted as **several tiny messages** rather than one block: each line is well under
+the byte budget and is flood-spaced like any other send, so the help never risks being
+split/truncated by the transport. Tested for content + per-line byte budget.
+
+## Host node as a player (`HOST_CAN_PLAY`) — Will's "launch AND play" ask
+
+Will asked whether the host node ("Will See G2 Base", the node MeshMonitor is bridged to)
+could both *launch* and *play* trivia. The subtlety: **the host PROCESS generates the
+questions**, so if the host node auto-answered it would be cheating.
+
+**Decision — opt-in flag, default OFF, human-only scoring:**
+
+- `HOST_CAN_PLAY=false` (default): the host node is ignored entirely for answers, exactly
+  as before. Safe out of the box.
+- `HOST_CAN_PLAY=true`: a *human* tapback or typed answer **observed on the channel from
+  the host node** is counted as a normal player answer. That's all the flag does.
+
+Why this is safe (the key invariant): the bot **only ever scores inbound traffic it
+observes on the mesh**, and the bot process **never emits an answer** — it sends questions
+and flavor text only, never a reaction or a "1".."4" message. So the host node can *only*
+score when a real person taps an answer on that node's client; the software cannot
+self-answer the questions it just wrote. This is asserted directly in the tests
+(`test_bot_process_never_auto_answers`): with `HOST_CAN_PLAY=true` and no human input, the
+host node never appears as a player and the bot sends zero reactions.
+
+Limitation (documented, not blocking): because answers are deduped by node id and the host
+operator sees the questions in the same MeshMonitor UI that drives the bot, an operator who
+*wants* to cheat could of course read the answer the engine knows. That's a social
+constraint, not a technical one — the same is true of any quiz host. The flag exists for
+the friendly "operator joins in" case; leave it off for competitive play.
 
 ## Bot restart mid-game
 

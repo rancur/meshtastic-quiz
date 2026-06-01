@@ -25,6 +25,8 @@ log = logging.getLogger("meshquiz.bot")
 CMD_START = "!starttrivia"
 CMD_STOP = "!stoptrivia"
 CMD_BOARD = "!leaderboard"
+CMD_HELP = "!help"
+CMD_TRIVIA = "!trivia"  # advert command, usable on the PRIMARY channel only
 
 
 def emoji_to_option(text: str) -> Optional[int]:
@@ -91,22 +93,33 @@ class TriviaBot:
                          was_running=self.engine.running, leaderboard=board)
 
     # ---------- sending (byte budget + flood control) ----------
-    def _send(self, text: str) -> Optional[int]:
+    def _send(self, text: str, channel: Optional[int] = None) -> Optional[int]:
         # enforce byte budget: trim defensively (questions are pre-validated; flavor text
         # is short, but never let a stray long line break the mesh)
         if len(text.encode("utf-8")) > self.cfg.max_payload_bytes:
             text = self._truncate_bytes(text, self.cfg.max_payload_bytes)
+        ch = self.cfg.trivia_channel_index if channel is None else channel
         # min spacing between sends
         gap = self.cfg.min_send_interval_s - (time.monotonic() - self._last_send_s)
         if gap > 0:
             time.sleep(gap)
         try:
-            pkt = self.t.send_message(text, self.cfg.trivia_channel_index)
+            pkt = self.t.send_message(text, ch)
             self._last_send_s = time.monotonic()
             return pkt
         except Exception as e:
             log.error("send failed: %s", e)
             return None
+
+    def _send_lines(self, lines: List[str], channel: Optional[int] = None) -> None:
+        """Send a sequence of messages, each independently byte-validated + flood-spaced.
+
+        Used for multi-message output (e.g. `!help`, the `!trivia` advert+link) so that a
+        block of text is delivered as several tight packets rather than one oversize one.
+        """
+        for line in lines:
+            if line:
+                self._send(line, channel)
 
     @staticmethod
     def _truncate_bytes(text: str, limit: int) -> str:
@@ -155,11 +168,19 @@ class TriviaBot:
         # Overlap the cursor slightly to tolerate out-of-order/late delivery, then dedupe
         # by packet id so we never double-process.
         since_ms = max(0, self._cursor_ms - 10_000)
-        try:
-            msgs = self.t.fetch_messages(self.cfg.trivia_channel_index, since_ms)
-        except Exception as e:
-            log.error("fetch failed: %s", e)
-            msgs = []
+        # Poll the trivia channel AND the primary channel. The primary channel is listened
+        # to ONLY for the `!trivia` advert command (gated in _handle_message); everything
+        # else there is ignored. Skip the second fetch if both indices are the same.
+        channels = [self.cfg.trivia_channel_index]
+        if self.cfg.primary_channel_index != self.cfg.trivia_channel_index:
+            channels.append(self.cfg.primary_channel_index)
+        msgs: List[MeshMessage] = []
+        for ch in channels:
+            try:
+                msgs.extend(self.t.fetch_messages(ch, since_ms))
+            except Exception as e:
+                log.error("fetch failed (channel %s): %s", ch, e)
+        msgs.sort(key=lambda m: m.timestamp_ms)
 
         for m in msgs:
             if m.timestamp_ms > self._cursor_ms:
@@ -179,12 +200,29 @@ class TriviaBot:
         if len(self._processed_pkts) > 5000:
             self._processed_pkts = set(list(self._processed_pkts)[-2000:])
 
+    def _is_own_node(self, node_id: str) -> bool:
+        return bool(self.cfg.bot_node_id) and node_id == self.cfg.bot_node_id
+
     def _handle_message(self, m: MeshMessage, now_s: float):
-        # CHANNEL GATING: only act on the trivia channel.
+        # PRIMARY-CHANNEL EXCEPTION: on the primary channel the bot does ONE thing —
+        # respond to `!trivia` with the advert + channel-add link. Everything else
+        # (including all other commands, reactions, typed answers) is ignored there.
+        if m.channel == self.cfg.primary_channel_index \
+                and m.channel != self.cfg.trivia_channel_index:
+            self._handle_primary(m)
+            return
+
+        # CHANNEL GATING: otherwise only act on the trivia channel.
         if m.channel != self.cfg.trivia_channel_index:
             return
-        # ignore the bot's own node entirely (it doesn't play)
-        if self.cfg.bot_node_id and m.from_node_id == self.cfg.bot_node_id:
+
+        # The host node is normally ignored entirely (it doesn't play). When HOST_CAN_PLAY
+        # is on, a HUMAN tapback/typed answer from the host node IS allowed to score — but
+        # the host node may NOT drive game-control commands here beyond what any player
+        # can do, and the bot PROCESS never emits answers of its own (it only ever sends
+        # questions/flavor text, never reactions). So host-as-player is purely about
+        # counting inbound human answers, never self-answering.
+        if self._is_own_node(m.from_node_id) and not self.cfg.host_can_play:
             return
 
         if m.is_reaction:
@@ -199,11 +237,23 @@ class TriviaBot:
             self._run_actions(self.engine.stop(now_s))
         elif low == CMD_BOARD:
             self._send(self.engine.leaderboard_text())
+        elif low == CMD_HELP:
+            self._send_lines(host.HELP_LINES)
         elif self.cfg.allow_typed_answers and self.engine.running:
             opt = typed_to_option(text)
             if opt is not None:
                 self.engine.submit_answer(m.from_node_id, self._name_for(m.from_node_id),
                                           opt, m.timestamp_ms / 1000.0)
+
+    def _handle_primary(self, m: MeshMessage):
+        """Primary-channel handler: the SOLE allowed command here is `!trivia`."""
+        if m.is_reaction:
+            return
+        if (m.text or "").strip().lower() != CMD_TRIVIA:
+            return
+        # Advert split into two byte-tight messages: intro + the channel-add deep link.
+        self._send_lines([host.TRIVIA_ADVERT_INTRO, self.cfg.add_link],
+                         channel=self.cfg.primary_channel_index)
 
     def _handle_reaction(self, m: MeshMessage, now_s: float):
         if not self.engine.running:

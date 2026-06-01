@@ -34,16 +34,39 @@ their node **long name**.
 
 ## Commands
 
-All commands work **only in the configured trivia channel**:
+Game commands work **only in the configured trivia channel**:
 
 | Command | Effect |
 | --- | --- |
 | `!starttrivia` | Start a game. Idempotent — if one's already running, it just nudges. |
 | `!stoptrivia` | End the current game and print the final leaderboard. |
 | `!leaderboard` | Print the current standings. |
+| `!help` | List all commands (one line each, byte-tight, split across messages). |
 
 **Answering:** tapback react with `1️⃣`/`2️⃣`/`3️⃣`/`4️⃣` on a question. (Typed `1`–`4`
 replies also count if `ALLOW_TYPED_ANSWERS=true`.)
+
+### `!trivia` — the one command that works on the PRIMARY channel
+
+The bot **also listens on the primary channel** (`PRIMARY_CHANNEL_INDEX`, default `0`) for
+exactly **one** command — a deliberate exception to the trivia-channel-only rule:
+
+| Command | Channel | Effect |
+| --- | --- | --- |
+| `!trivia` | primary (e.g. `MediumFast`, index 0) | Bot replies with a short invite **and** a channel-add deep link so people on the main channel can join trivia. |
+
+The advert is sent as **two byte-tight messages** (invite, then the link on its own line
+so the ~90-char link is never truncated). **No other command works on the primary
+channel** — `!starttrivia`, `!leaderboard`, tapbacks, etc. there are ignored. The add link
+is configurable via `TRIVIA_ADD_LINK`.
+
+### Host as a player (`HOST_CAN_PLAY`)
+
+By default the bot ignores its own node entirely. Set `HOST_CAN_PLAY=true` to let whoever
+operates the **host node** (`BOT_NODE_ID`) also play: a *human* tapback or typed answer
+seen from the host node is then counted like any other player's. The **bot process itself
+never auto-answers** — it only ever sends questions and flavor text, never reactions — so
+this can't be used to cheat. See [DECISIONS.md](DECISIONS.md).
 
 ## How it works
 

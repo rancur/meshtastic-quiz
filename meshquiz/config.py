@@ -56,6 +56,16 @@ class Config:
 
     # --- Channel / gating ---
     trivia_channel_index: int = field(default_factory=lambda: _env_int("TRIVIA_CHANNEL_INDEX", 2))
+    # The PRIMARY channel index. The bot also listens here, but ONLY for the `!trivia`
+    # advert command (a deliberate exception to "commands only work in the trivia
+    # channel"). All OTHER commands are ignored on this channel.
+    primary_channel_index: int = field(default_factory=lambda: _env_int("PRIMARY_CHANNEL_INDEX", 0))
+    # The Meshtastic channel-add deep link advertised by `!trivia` on the primary channel.
+    # This is a PUBLIC link (safe to commit). Override per-deployment for your own channel.
+    add_link: str = field(default_factory=lambda: _env(
+        "TRIVIA_ADD_LINK",
+        "https://meshtastic.org/e/?add=true#CgsSATEaBnRyaXZpYRIYCAEY-gEgCygFOAFAB0gBUB5YFGgByAYB",
+    ))
 
     # --- Game timing ---
     question_window_s: int = field(default_factory=lambda: _env_int("QUESTION_WINDOW_S", 90))
@@ -92,6 +102,14 @@ class Config:
     # The bot's own node hex id (e.g. "!abcdef12"), so it can ignore its own reactions.
     # Optional: if blank, self-reactions are simply included (the bot does not react).
     bot_node_id: str = field(default_factory=lambda: _env("BOT_NODE_ID", ""))
+
+    # --- Host-can-play (opt-in; see DECISIONS.md) ---
+    # When true, a HUMAN tapback/typed answer originating from the host node
+    # (`bot_node_id`) is counted as a normal player answer, so the operator of the host
+    # node can both launch AND play. The bot PROCESS still never auto-answers its own
+    # questions — only inbound traffic seen on the channel is ever scored, and the bot
+    # never emits answer reactions. Default false: host node is ignored entirely.
+    host_can_play: bool = field(default_factory=lambda: _env_bool("HOST_CAN_PLAY", False))
 
     def validate(self) -> None:
         if not self.meshmonitor_token:

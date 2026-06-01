@@ -55,6 +55,24 @@ RUNUP_STOP = [
 
 ONLY_IN_CHANNEL = "🤖 Buzz only does trivia in the trivia channel."
 
+# --- !help (in the trivia channel) ---
+# Buzz-flavored, but kept SHORT. Returned as a list of messages so each fits the byte
+# budget; the bot sends them in order (and re-splits defensively if a line is too long).
+HELP_LINES = [
+    "🤖 Buzz here! Commands:",
+    "!starttrivia - start a game",
+    "!stoptrivia - end + show scores",
+    "!leaderboard - standings",
+    "!help - this list",
+    "Answer by tapback 1️⃣2️⃣3️⃣4️⃣ on a question. Brains on!",
+]
+
+# --- !trivia advert (on the PRIMARY channel) ---
+# msg1 = invite + call to action; msg2 = the channel-add deep link. The link alone is
+# ~90 bytes, so it MUST be its own message (see DECISIONS.md). The link itself comes from
+# config (Config.add_link) so it is never hard-coded twice.
+TRIVIA_ADVERT_INTRO = "🎮 Buzz runs live TRIVIA on the 'trivia' channel! Tapback to play. Add the channel:"
+
 
 def pick(lines: List[str], **fmt) -> str:
     return random.choice(lines).format(**fmt)
