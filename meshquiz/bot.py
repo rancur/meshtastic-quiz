@@ -114,12 +114,42 @@ class TriviaBot:
     def _send_lines(self, lines: List[str], channel: Optional[int] = None) -> None:
         """Send a sequence of messages, each independently byte-validated + flood-spaced.
 
-        Used for multi-message output (e.g. `!help`, the `!trivia` advert+link) so that a
+        Used for multi-message output (e.g. the `!trivia` advert+link) so that a
         block of text is delivered as several tight packets rather than one oversize one.
         """
         for line in lines:
             if line:
                 self._send(line, channel)
+
+    @staticmethod
+    def _pack_lines(lines: List[str], limit: int, sep: str = "\n") -> List[str]:
+        """Pack a list of lines into the MINIMUM number of messages, each <= limit bytes.
+
+        Greedy bin-packing on line boundaries: lines are joined with `sep` and a new
+        message is started only when adding the next line would exceed the byte budget.
+        Never splits a line mid-word. If a single line is itself over budget it becomes
+        its own message (the caller's `_send` truncates defensively as a last resort).
+        Used by `!help` so the help text goes out as one message (or the fewest possible),
+        never one-message-per-rule.
+        """
+        msgs: List[str] = []
+        cur = ""
+        sep_b = len(sep.encode("utf-8"))
+        for line in lines:
+            if not line:
+                continue
+            if not cur:
+                cur = line
+                continue
+            # would appending `sep + line` to the current message stay within budget?
+            if len(cur.encode("utf-8")) + sep_b + len(line.encode("utf-8")) <= limit:
+                cur += sep + line
+            else:
+                msgs.append(cur)
+                cur = line
+        if cur:
+            msgs.append(cur)
+        return msgs
 
     @staticmethod
     def _truncate_bytes(text: str, limit: int) -> str:
@@ -238,7 +268,10 @@ class TriviaBot:
         elif low == CMD_BOARD:
             self._send(self.engine.leaderboard_text())
         elif low == CMD_HELP:
-            self._send_lines(host.HELP_LINES)
+            # One combined help reply (the fewest messages that fit the byte budget),
+            # NOT one message per rule. Packs on line boundaries; splits to 2+ only if
+            # the full text exceeds the payload limit.
+            self._send_lines(self._pack_lines(host.HELP_LINES, self.cfg.max_payload_bytes))
         elif self.cfg.allow_typed_answers and self.engine.running:
             opt = typed_to_option(text)
             if opt is not None:

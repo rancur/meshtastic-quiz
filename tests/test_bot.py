@@ -185,6 +185,38 @@ def test_leaderboard_command(tmp_path):
     assert any("LEADERBOARD" in m.text or "No scores" in m.text for m in t.sent)
 
 
+def test_help_is_combined_not_one_per_rule(tmp_path):
+    from meshquiz import host
+    bot, t = make_bot(str(tmp_path))
+    t.inject_text("!alice001", "!help", channel=TRIVIA, ts_ms=1000)
+    t.set_clock_ms(1000); bot.poll_once(now_s=1.0)
+    # The bug was: one Meshtastic message per rule. Now it must be the combined help
+    # packed into the FEWEST messages (1, or 2 if it exceeds the byte budget) — and
+    # strictly fewer than one-per-rule.
+    assert 1 <= len(t.sent) <= 2
+    assert len(t.sent) < len(host.HELP_LINES)
+    # every sent message stays within the configured byte budget
+    for m in t.sent:
+        assert len(m.text.encode("utf-8")) <= bot.cfg.max_payload_bytes
+    # all rules are still present across the combined output
+    blob = "\n".join(m.text for m in t.sent)
+    for line in host.HELP_LINES:
+        assert line in blob
+
+
+def test_pack_lines_packs_to_minimum(tmp_path):
+    # short lines that all fit in one message -> a single message
+    msgs = TriviaBot._pack_lines(["a", "b", "c"], limit=200)
+    assert msgs == ["a\nb\nc"]
+    # tiny budget forces a split, but still on line boundaries (never mid-word)
+    msgs = TriviaBot._pack_lines(["aaaa", "bbbb", "cccc"], limit=9)
+    assert msgs == ["aaaa\nbbbb", "cccc"]
+    for m in msgs:
+        assert len(m.encode("utf-8")) <= 9
+    # empty lines are skipped
+    assert TriviaBot._pack_lines(["", "x", ""], limit=200) == ["x"]
+
+
 def test_stop_command(tmp_path):
     bot, t = make_bot(str(tmp_path))
     t.inject_text("!alice001", "!starttrivia", channel=TRIVIA, ts_ms=1000)

@@ -46,8 +46,9 @@ def test_help_command_replies_in_trivia_channel(tmp_path):
     t.inject_text("!alice001", "!help", channel=TRIVIA, ts_ms=1000)
     t.set_clock_ms(1000)
     bot.poll_once(now_s=1.0)
-    # multiple messages sent, all on the trivia channel
-    assert len(t.sent) == len(host.HELP_LINES)
+    # combined into the fewest messages (NOT one-per-rule), all on the trivia channel
+    assert 1 <= len(t.sent) <= 2
+    assert len(t.sent) < len(host.HELP_LINES)
     assert all(m.channel == TRIVIA for m in t.sent)
     blob = "\n".join(m.text for m in t.sent)
     # lists every command
@@ -60,7 +61,9 @@ def test_help_command_case_insensitive(tmp_path):
     t.inject_text("!alice001", "  !HELP ", channel=TRIVIA, ts_ms=1000)
     t.set_clock_ms(1000)
     bot.poll_once(now_s=1.0)
-    assert len(t.sent) == len(host.HELP_LINES)
+    # combined reply, fewer messages than rules (no one-per-rule spam)
+    assert 1 <= len(t.sent) <= 2
+    assert len(t.sent) < len(host.HELP_LINES)
 
 
 def test_help_lines_within_byte_budget(tmp_path):
