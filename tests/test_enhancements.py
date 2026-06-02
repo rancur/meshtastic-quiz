@@ -89,39 +89,45 @@ def test_help_does_not_work_on_primary_channel(tmp_path):
 
 # ---------------- !trivia advert on primary channel ----------------
 
-def test_trivia_advert_on_primary_channel(tmp_path):
+def test_trivia_advert_is_single_message_on_primary_channel(tmp_path):
+    # The advert (intro + channel-add deep link) is ~173B, under the 200B budget,
+    # so it MUST go out as ONE message — packed via _pack_lines, same as !help.
     bot, t = make_bot(str(tmp_path))
     t.inject_text("!alice001", "!trivia", channel=PRIMARY, ts_ms=1000)
     t.set_clock_ms(1000)
     bot.poll_once(now_s=1.0)
-    # exactly two messages: intro + add link, both on the PRIMARY channel
-    assert len(t.sent) == 2
-    assert all(m.channel == PRIMARY for m in t.sent)
-    assert t.sent[0].text == host.TRIVIA_ADVERT_INTRO
-    assert t.sent[1].text == bot.cfg.add_link
-    assert t.sent[1].text.startswith("https://meshtastic.org/e/?add=true#")
+    # exactly ONE message on the PRIMARY channel
+    assert len(t.sent) == 1
+    assert t.sent[0].channel == PRIMARY
+    blob = t.sent[0].text
+    # both the intro headline and the full add-link live in the single message
+    assert host.TRIVIA_ADVERT_INTRO in blob
+    assert bot.cfg.add_link in blob
+    assert "https://meshtastic.org/e/?add=true#" in blob
 
 
-def test_trivia_advert_messages_within_byte_budget(tmp_path):
+def test_trivia_advert_packs_to_minimum_within_byte_budget(tmp_path):
+    # Every emitted message stays within the byte budget, and the advert packs to
+    # the MINIMUM number of messages (1, since combined ~173B <= 200B default).
     bot, t = make_bot(str(tmp_path))
     t.inject_text("!alice001", "!trivia", channel=PRIMARY, ts_ms=1000)
     t.set_clock_ms(1000)
     bot.poll_once(now_s=1.0)
-    assert len(t.sent) == 2
+    assert len(t.sent) == 1
     for m in t.sent:
         assert len(m.text.encode("utf-8")) <= bot.cfg.max_payload_bytes
 
 
-def test_add_link_split_into_separate_message(tmp_path):
-    # The link must be delivered as its own packet (not concatenated with the intro),
-    # so it is never truncated.
+def test_trivia_advert_link_fragment_survives_intact(tmp_path):
+    # The channel-add deep link (including its #fragment) must survive whole inside
+    # the single combined message — never truncated.
     bot, t = make_bot(str(tmp_path))
     t.inject_text("!alice001", "!trivia", channel=PRIMARY, ts_ms=1000)
     t.set_clock_ms(1000)
     bot.poll_once(now_s=1.0)
-    link_msgs = [m for m in t.sent if m.text == bot.cfg.add_link]
-    assert len(link_msgs) == 1
-    assert "#" in link_msgs[0].text  # the fragment survived intact
+    assert len(t.sent) == 1
+    assert bot.cfg.add_link in t.sent[0].text
+    assert "#" in t.sent[0].text  # the fragment survived intact
 
 
 def test_trivia_command_does_NOT_work_in_trivia_channel(tmp_path):
