@@ -284,9 +284,14 @@ class TriviaBot:
             return
         if (m.text or "").strip().lower() != CMD_TRIVIA:
             return
-        # Advert split into two byte-tight messages: intro + the channel-add deep link.
-        self._send_lines([host.TRIVIA_ADVERT_INTRO, self.cfg.add_link],
-                         channel=self.cfg.primary_channel_index)
+        # One combined advert reply (intro + channel-add deep link) packed into the
+        # FEWEST messages that fit the byte budget — same pattern as `!help`. The
+        # combined text is ~173B (< 200B default), so this goes out as a SINGLE
+        # message; it only splits to 2+ if the payload ever exceeds the byte limit.
+        self._send_lines(
+            self._pack_lines([host.TRIVIA_ADVERT_INTRO, self.cfg.add_link],
+                             self.cfg.max_payload_bytes),
+            channel=self.cfg.primary_channel_index)
 
     def _handle_reaction(self, m: MeshMessage, now_s: float):
         if not self.engine.running:
