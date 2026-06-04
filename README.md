@@ -74,9 +74,10 @@ Ambient mode keeps the trivia channel **alive between games** by dropping **one 
 question per hour** — without anyone running a rapid `!starttrivia` game. It's the slow,
 polite background hum of the channel, not a flood.
 
-An ambient question is a **teaser**, not a scored round: it doesn't open an answer window
-and doesn't keep score. It exists to keep the channel warm and periodically remind folks
-the game and 🏆 leaderboard are there.
+By default an ambient question is a **teaser**: it keeps the channel warm and periodically
+reminds folks the game and 🏆 leaderboard are there. With the **personality system** on (see
+below) ambient reactions are *also* scored, and each new hour opens with a one-packet recap
+of who got the previous question right.
 
 | Setting | Default | What it does |
 | --- | --- | --- |
@@ -110,6 +111,41 @@ The fixed off-`:00` minute keeps ambient from colliding with other scheduled mes
 (reminders, weather, conversation-starters) that tends to cluster at the top of the hour,
 and the per-minute send floor (`MAX_SENDS_PER_MINUTE`) guarantees no bug anywhere can turn
 the bot into a flooder.
+
+## Personality system (Buzz with opinions)
+
+When `PERSONALITY_ENABLED=true`, Buzz gets a **state-aware quip engine** and an **hourly
+recap**. Right before each ambient question, Buzz announces the **outcome of the previous
+one** in a single packet:
+
+- **Winner(s):** names who got it right, with streak-escalating praise — a 2-streak gets a
+  nod, a 3-streak a hat-trick, a 5+ streak a full coronation. A long winner list truncates
+  to `Ann (+3 more)`.
+- **No winner:** reveals the answer with a dry one-liner (`🦗 Nobody. Brutal. It was 2) Paris.`).
+- **Comebacks:** someone scoring after a drought gets a "welcome back" callout sized to the
+  drought length.
+- **Casual pokes:** a friendly jab at someone who isn't doing well — *referencing observable
+  facts only* (a wrong streak, or bottom of the standings), never the person. Pokes have a
+  **per-player cooldown** (Buzz won't ride one person hour after hour) and **skip brand-new
+  players** entirely.
+
+The same quip engine enriches **rapid-game round announcements** (`!starttrivia`), so the
+humor builds there too. Selection is **deterministic rotation** through 30+-line banks per
+category — regulars won't see a repeat for days, and the behavior is fully reproducible.
+
+| Setting | Default | What it does |
+| --- | --- | --- |
+| `PERSONALITY_ENABLED` | `false` | Master toggle. **Off by default** (matches ambient) — a fresh install behaves exactly like a quiet bot. Off also means ambient questions aren't scored at all. |
+| `RECAP_ENABLED` | `true` | Toggle the hourly ambient recap packet specifically (only consulted when personality is on). |
+| `POKES_ENABLED` | `true` | The casual pokes. Set `false` to keep praise-only. |
+| `POKE_COOLDOWN_HOURS` | `3` | Per-player poke cooldown in ambient slots (≈ hours). |
+| `NEW_PLAYER_GRACE_SLOTS` | `2` | Brand-new players are exempt from pokes this many slots after first seen. |
+
+**Packet budget:** the recap is **one byte-capped packet** sent immediately before the
+question packet, so a personality-enabled hour sends at most **recap + question = 2
+packets** (vs 1 without personality). `MAX_SENDS_PER_MINUTE` remains the authoritative
+flood floor. Personality state (streaks, droughts, poke cooldowns) **persists across
+restarts** so running gags survive a reboot.
 
 ## How it works
 
