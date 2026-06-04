@@ -53,5 +53,30 @@ def test_question_answer_bounds():
 def test_render_contains_options():
     q = Question("Sci", "easy", "What is 2+2?", ["3", "4", "5", "6"], 1)
     r = q.render()
-    assert "1) 3" in r and "2) 4" in r and "[Sci]" in r
-    assert q.answer_text() == "2) 4"
+    assert "1️⃣ 3" in r and "2️⃣ 4" in r and "[Sci]" in r
+    assert q.answer_text() == "2️⃣ 4"
+
+
+def test_render_uses_keycap_emoji_prefixes():
+    """Every option is prefixed with the keycap-number emoji (1️⃣2️⃣3️⃣4️⃣), not "N)"."""
+    q = Question("Geo", "easy", "Capital of France?",
+                 ["London", "Paris", "Berlin", "Rome"], 1)
+    r = q.render()
+    for kc, opt in zip(["1️⃣", "2️⃣", "3️⃣", "4️⃣"], q.options):
+        assert f"{kc} {opt}" in r
+    # the old numeric "N)" prefix must be gone
+    assert "1)" not in r and "2)" not in r
+    # recap/answer line is keycap-consistent too: "2️⃣ Paris" not "2) Paris"
+    assert q.answer_text() == "2️⃣ Paris"
+
+
+def test_typed_digit_answers_still_match():
+    """Players may still type a bare digit "1".."4"; the keycap render must not break
+    the typed-answer parsing path (digit -> 0-based option index)."""
+    from meshquiz.bot import typed_to_option, emoji_to_option
+
+    for digit, idx in [("1", 0), ("2", 1), ("3", 2), ("4", 3)]:
+        assert typed_to_option(digit) == idx
+    # and the keycap tapback maps to the same index as the rendered prefix
+    for kc, idx in [("1️⃣", 0), ("2️⃣", 1), ("3️⃣", 2), ("4️⃣", 3)]:
+        assert emoji_to_option(kc) == idx

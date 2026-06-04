@@ -3,6 +3,31 @@
 All notable changes to this project are documented here. This project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.2.1] - 2026-06-03
+
+### Changed
+- **Keycap-emoji answer options.** Rendered questions now prefix each option with the
+  matching keycap-number emoji — `1️⃣ London 2️⃣ Paris 3️⃣ Berlin 4️⃣ Rome` — instead of the
+  old `1) London 2) Paris …`. The leading emoji of each option is now *exactly* the tapback
+  to react with, making the tapback-to-answer mapping visually obvious on a mesh client.
+- **Recap/reveal lines match.** `answer_text()` (used by the hourly recap and the rapid-game
+  reveal) is keycap-consistent too — `2️⃣ Paris`, not `2) Paris`.
+
+### Compatibility
+- **Answer parsing is unchanged and fully tolerant**: players may still type a bare digit
+  `1`–`4`, and tapback reactions with the keycap emoji map to the same option index as
+  before (`emoji_to_option` already keyed on the `U+20E3` keycap mark). No behavior change
+  for existing players.
+- **Byte budget verified.** Keycap prefixes cost 7 bytes vs 3 for `N)` (~+20 B per
+  4-option question). The full 232-question bank renders at a max of **116 B**, well under
+  the 200 B single-packet cap; `validate_bank` enforces the cap at load against the new
+  render.
+
+### Tests
+- Updated `render`/`answer_text` and recap/byte-budget fixtures for the keycap format; added
+  `test_render_uses_keycap_emoji_prefixes` and `test_typed_digit_answers_still_match`.
+  Suite: 107 passing.
+
 ## [1.2.0] - 2026-06-03
 
 ### Added
