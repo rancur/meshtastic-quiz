@@ -91,6 +91,39 @@ class Config:
     # --- Mesh limits ---
     max_payload_bytes: int = field(default_factory=lambda: _env_int("MAX_PAYLOAD_BYTES", 200))
 
+    # --- Ambient mode (rolling solo questions, 24/7, mesh-friendly) ---
+    # When enabled, Buzz drops ONE standalone question into the trivia channel on a slow
+    # cadence (default: hourly) at a fixed off-:00 minute, so the channel stays alive
+    # without anyone running a rapid !starttrivia game. Ambient questions are NOT a game:
+    # they don't score, don't open an answer window, and exist only to keep the channel
+    # warm + remind folks the game and leaderboard are there.
+    #
+    # SAFETY DEFAULT: ambient is OFF by default so a fresh install never surprises a
+    # stranger's mesh. An operator opts IN on their own node via .env (AMBIENT_ENABLED=true).
+    ambient_enabled: bool = field(default_factory=lambda: _env_bool("AMBIENT_ENABLED", False))
+    # Minutes between ambient questions. Default 60 (hourly). Hard floor of 5 min applied
+    # in validate() — ambient is meant to be SLOW.
+    ambient_interval_minutes: int = field(
+        default_factory=lambda: _env_int("AMBIENT_INTERVAL_MINUTES", 60))
+    # The minute-of-hour to fire on. Default 37: a prime, far from the :00 top-of-hour
+    # (and :15/:30/:45 quarter-hour cron clusters) where other mesh traffic piles up.
+    # When the interval is exactly 60, ambient fires once per hour AT this minute. For
+    # other intervals the offset is used as the phase so firings still avoid :00.
+    ambient_minute_offset: int = field(
+        default_factory=lambda: _env_int("AMBIENT_MINUTE_OFFSET", 37))
+    # Channel to drop ambient questions on. Defaults to the trivia channel.
+    ambient_channel_index: int = field(
+        default_factory=lambda: _env_int("AMBIENT_CHANNEL_INDEX", -1))
+    # Every Nth ambient question carries the FULL reminder (leaderboard + !starttrivia
+    # plug); the others are a bare question with a tiny tag, so channel regulars aren't
+    # nagged hourly. Default 3 (full plug every 3rd question). 1 = always full.
+    ambient_reminder_frequency: int = field(
+        default_factory=lambda: _env_int("AMBIENT_REMINDER_FREQUENCY", 3))
+    # Hard anti-flood floor, independent of all other logic: never send more than this many
+    # messages in any rolling 60s, regardless of bugs. A last-resort circuit breaker.
+    max_sends_per_minute: int = field(
+        default_factory=lambda: _env_int("MAX_SENDS_PER_MINUTE", 6))
+
     # --- Fallback answering ---
     allow_typed_answers: bool = field(default_factory=lambda: _env_bool("ALLOW_TYPED_ANSWERS", True))
 
@@ -111,6 +144,12 @@ class Config:
     # never emits answer reactions. Default false: host node is ignored entirely.
     host_can_play: bool = field(default_factory=lambda: _env_bool("HOST_CAN_PLAY", False))
 
+    @property
+    def ambient_channel(self) -> int:
+        """Resolved ambient channel: explicit override, else the trivia channel."""
+        return self.trivia_channel_index if self.ambient_channel_index < 0 \
+            else self.ambient_channel_index
+
     def validate(self) -> None:
         if not self.meshmonitor_token:
             raise ValueError("MESHMONITOR_API_TOKEN is required")
@@ -118,3 +157,14 @@ class Config:
             raise ValueError("MESHMONITOR_URL is required")
         if self.question_window_s < 5:
             raise ValueError("QUESTION_WINDOW_S too small")
+        if self.ambient_enabled:
+            # Ambient is deliberately slow; refuse a too-tight cadence that would crowd
+            # the mesh (guards against a fat-fingered AMBIENT_INTERVAL_MINUTES=1).
+            if self.ambient_interval_minutes < 5:
+                raise ValueError("AMBIENT_INTERVAL_MINUTES too small (min 5)")
+            if not (0 <= self.ambient_minute_offset <= 59):
+                raise ValueError("AMBIENT_MINUTE_OFFSET must be 0..59")
+            if self.ambient_reminder_frequency < 1:
+                raise ValueError("AMBIENT_REMINDER_FREQUENCY must be >= 1")
+        if self.max_sends_per_minute < 1:
+            raise ValueError("MAX_SENDS_PER_MINUTE must be >= 1")

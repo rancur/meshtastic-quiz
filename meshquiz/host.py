@@ -74,5 +74,30 @@ HELP_LINES = [
 TRIVIA_ADVERT_INTRO = "🎮 Buzz runs live TRIVIA on the 'trivia' channel! Tapback to play. Add the channel:"
 
 
+# --- Ambient mode (rolling solo questions, see config.ambient_*) ---
+# An ambient question is a STANDALONE teaser: it does NOT open a scored round. The point
+# is to keep the channel warm and periodically remind folks the game + leaderboard exist.
+#
+# To stay one-packet-per-message, the ambient send is built as a LIST of messages
+# (same pattern as !help / !trivia): the question itself is always its own message
+# (already byte-validated by the question bank), and the reminder — when shown — is a
+# SECOND short message. This guarantees neither packet can blow the byte budget no matter
+# how long the question is.
+#
+# AMBIENT_HEADER : tiny prefix lines marking a message as an ambient teaser (not a game Q).
+# AMBIENT_REMINDER : the leaderboard + !starttrivia plug, shown only every Nth question so
+#                    channel regulars aren't nagged hourly.
+AMBIENT_HEADER = [
+    "🧠 Trivia teaser:",
+    "🧠 Quick one:",
+    "🧠 Brain snack:",
+]
+AMBIENT_REMINDER = [
+    "🏆 !leaderboard for standings · !starttrivia for rapid rounds",
+    "Want more? !starttrivia for a full game · 🏆 !leaderboard",
+    "!starttrivia anytime for rapid rounds · 🏆 !leaderboard",
+]
+
+
 def pick(lines: List[str], **fmt) -> str:
     return random.choice(lines).format(**fmt)

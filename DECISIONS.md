@@ -166,3 +166,37 @@ If `BOT_NODE_ID` is set, the bot ignores messages/reactions from its own node en
 
 Equal scores are broken by **earliest to reach that standing** (the player who scored
 their points sooner ranks higher), then alphabetically — stable and intuitive.
+
+## Ambient mode (rolling 24/7 trivia)
+
+Ambient mode keeps the channel alive between games with one standalone teaser question per
+hour. Four design choices, with rationale:
+
+- **Off-`:00` fixed minute (default `:37`), not jitter.** Scheduled mesh traffic tends to
+  pile up at the top of the hour (reminders, weather, conversation-starters). A fixed,
+  prime, off-`:00` minute provably never collides with `:00` and is *predictable* for
+  players ("trivia drops around half-past") — predictability beats per-hour jitter here,
+  and it keeps the scheduler trivially testable. Configurable via `AMBIENT_MINUTE_OFFSET`
+  so a deployer with their own `:37` traffic can move it. The slot grid is phased by the
+  offset, so sub-hour intervals also avoid `:00`.
+
+- **In-process timer, not cron.** The bot already runs a persistent poll loop
+  (`run()` → `poll_once()` → `engine.tick()`). Ambient firing is a time check inside that
+  same loop (`_maybe_ambient`), consistent with the engine's tick model. A cron job would
+  mean a second process contending for the same state file and MeshMonitor connection.
+
+- **Pause while a game is running.** Ambient checks `engine.running` and skips entirely
+  during a rapid `!starttrivia` game — no stacking. It resumes on the normal cadence once
+  the game ends.
+
+- **Alternating copy.** Every Nth ambient question (`AMBIENT_REMINDER_FREQUENCY`, default
+  3) carries the full leaderboard + `!starttrivia` plug; the rest are bare questions, so
+  channel regulars aren't nagged with the same reminder every hour. The question is always
+  its own byte-validated packet; the reminder, when shown, is a separate short packet.
+
+- **Hard send floor.** `MAX_SENDS_PER_MINUTE` (default 6) is a last-resort circuit breaker
+  inside `_send`: a rolling-60s window that drops any send over the cap regardless of game
+  or ambient logic. It guarantees no bug anywhere can flood the channel.
+
+- **Safe default: `AMBIENT_ENABLED=false`.** A fresh OSS install must never surprise a
+  stranger's mesh, so ambient ships off; an operator opts in on their own node.

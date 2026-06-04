@@ -11,6 +11,7 @@ Responsibilities (the engine has none of these):
 from __future__ import annotations
 
 import logging
+import random
 import time
 from typing import Dict, List, Optional
 
@@ -66,8 +67,17 @@ class TriviaBot:
         if problems:
             raise ValueError("question bank failed validation:\n" + "\n".join(problems[:20]))
         self.engine = GameEngine(cfg, questions)
+        self._questions = list(questions)  # for ambient random pick
         self._cursor_ms = 0
         self._last_send_s = 0.0
+        # Hard anti-flood floor: timestamps (monotonic) of recent sends, pruned to the last
+        # 60s. _send refuses if this window is already full — a last-resort circuit breaker
+        # that holds regardless of any other bug in scheduling/game logic.
+        self._send_times: List[float] = []
+        # Ambient mode bookkeeping.
+        self._ambient_last_fire_key: Optional[str] = None  # dedup: one fire per slot
+        self._ambient_count = 0  # how many ambient questions sent (drives reminder cadence)
+        self._rng = random.Random()
         self._processed_pkts: set = set()  # reactions/commands already handled
         self._names: Dict[str, str] = {}
         self._restore()
@@ -99,13 +109,24 @@ class TriviaBot:
         if len(text.encode("utf-8")) > self.cfg.max_payload_bytes:
             text = self._truncate_bytes(text, self.cfg.max_payload_bytes)
         ch = self.cfg.trivia_channel_index if channel is None else channel
+        # HARD ANTI-FLOOD FLOOR (last-resort circuit breaker): never exceed
+        # max_sends_per_minute in any rolling 60s, no matter what upstream logic asks for.
+        # This is independent of min_send_interval_s spacing and game/ambient logic — a
+        # structural cap so a bug anywhere can't flood the channel.
+        now_m = time.monotonic()
+        self._send_times = [t for t in self._send_times if now_m - t < 60.0]
+        if len(self._send_times) >= self.cfg.max_sends_per_minute:
+            log.error("RATE LIMIT: %d sends in last 60s >= cap %d; DROPPING send: %r",
+                      len(self._send_times), self.cfg.max_sends_per_minute, text[:40])
+            return None
         # min spacing between sends
-        gap = self.cfg.min_send_interval_s - (time.monotonic() - self._last_send_s)
+        gap = self.cfg.min_send_interval_s - (now_m - self._last_send_s)
         if gap > 0:
             time.sleep(gap)
         try:
             pkt = self.t.send_message(text, ch)
             self._last_send_s = time.monotonic()
+            self._send_times.append(self._last_send_s)
             return pkt
         except Exception as e:
             log.error("send failed: %s", e)
@@ -222,6 +243,9 @@ class TriviaBot:
 
         # advance timers
         self._run_actions(self.engine.tick(now_s))
+        # ambient mode: drop a standalone teaser question on its slow off-:00 cadence,
+        # but ONLY when no rapid game is running (no stacking).
+        self._maybe_ambient(now_s)
         self._persist()
         self._gc_processed()
 
@@ -304,6 +328,77 @@ class TriviaBot:
             return
         self.engine.submit_answer(m.from_node_id, self._name_for(m.from_node_id),
                                   opt, m.timestamp_ms / 1000.0)
+
+    # ---------- ambient mode ----------
+    @staticmethod
+    def ambient_slot_key(now_s: float, interval_minutes: int, minute_offset: int) -> Optional[str]:
+        """Return a stable per-slot key when ``now_s`` falls in an ambient firing slot, else None.
+
+        Pure + deterministic (uses LOCAL time so the off-:00 offset matches wall-clock
+        minutes the way operators/players reason about it). A "slot" is the
+        ``interval_minutes`` grid phased by ``minute_offset``:
+
+        - interval 60, offset 37  -> one slot per hour, at :37 (never :00).
+        - interval 30, offset 37  -> :07 and :37 each hour.
+        - interval 15, offset 37  -> :07, :22, :37, :52.
+
+        We fire at most once per slot: the key is the absolute minute index of the slot's
+        start, so a caller deduping on this key fires exactly once even though it's polled
+        many times within the firing minute. None is returned when the current minute is
+        not the first minute of a slot (so polls in between never fire).
+        """
+        lt = time.localtime(now_s)
+        # absolute minute index since epoch-local-midnight reference is fine; use a long
+        # running minute counter from the localtime fields (days since 1970 * 1440 + ...).
+        # We only need RELATIVE alignment, so a per-day minute index plus the day ordinal
+        # gives a globally monotonic, gap-free grid.
+        from datetime import date
+        day_ord = date(lt.tm_year, lt.tm_mon, lt.tm_mday).toordinal()
+        abs_min = day_ord * 1440 + lt.tm_hour * 60 + lt.tm_min
+        # phase the grid so a slot boundary lands on `minute_offset` within the hour:
+        # shift by -offset, snap to the interval grid, and require we're AT a boundary.
+        phased = abs_min - minute_offset
+        if phased % interval_minutes != 0:
+            return None
+        slot_index = phased // interval_minutes
+        return f"ambient:{slot_index}"
+
+    def _maybe_ambient(self, now_s: float) -> None:
+        if not self.cfg.ambient_enabled:
+            return
+        # NEVER stack on top of a rapid game — pause ambient entirely while one runs.
+        if self.engine.running:
+            return
+        if not self._questions:
+            return
+        key = self.ambient_slot_key(now_s, self.cfg.ambient_interval_minutes,
+                                    self.cfg.ambient_minute_offset)
+        if key is None or key == self._ambient_last_fire_key:
+            return
+        self._ambient_last_fire_key = key
+        self._send_ambient()
+
+    def _build_ambient_messages(self) -> List[str]:
+        """Build the ambient send as a list of one-packet messages.
+
+        Always: a header + the rendered question (its own packet, already byte-validated).
+        Every Nth ambient question (ambient_reminder_frequency) appends the reminder plug
+        as a SEPARATE short packet so regulars aren't nagged hourly and nothing oversizes.
+        """
+        q = self._rng.choice(self._questions)
+        header = host.pick(host.AMBIENT_HEADER)
+        # header + question, packed into the fewest packets within budget (question alone
+        # is guaranteed <= budget; header is tiny, so this is normally a single packet).
+        msgs = self._pack_lines([header, q.render()], self.cfg.max_payload_bytes)
+        self._ambient_count += 1
+        if self._ambient_count % max(1, self.cfg.ambient_reminder_frequency) == 0:
+            msgs.append(host.pick(host.AMBIENT_REMINDER))
+        return msgs
+
+    def _send_ambient(self) -> None:
+        msgs = self._build_ambient_messages()
+        log.info("ambient: firing teaser (#%d, %d packet(s))", self._ambient_count, len(msgs))
+        self._send_lines(msgs, channel=self.cfg.ambient_channel)
 
     # ---------- run loop ----------
     def run(self):  # pragma: no cover - long-running loop

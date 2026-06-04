@@ -68,6 +68,49 @@ seen from the host node is then counted like any other player's. The **bot proce
 never auto-answers** — it only ever sends questions and flavor text, never reactions — so
 this can't be used to cheat. See [DECISIONS.md](DECISIONS.md).
 
+## Ambient mode (rolling 24/7 trivia, mesh-friendly)
+
+Ambient mode keeps the trivia channel **alive between games** by dropping **one standalone
+question per hour** — without anyone running a rapid `!starttrivia` game. It's the slow,
+polite background hum of the channel, not a flood.
+
+An ambient question is a **teaser**, not a scored round: it doesn't open an answer window
+and doesn't keep score. It exists to keep the channel warm and periodically remind folks
+the game and 🏆 leaderboard are there.
+
+| Setting | Default | What it does |
+| --- | --- | --- |
+| `AMBIENT_ENABLED` | `false` | Master toggle. **Off by default** so a fresh install never surprises a stranger's mesh — opt in on your own node. |
+| `AMBIENT_INTERVAL_MINUTES` | `60` | Minutes between ambient questions. Hard floor of 5 (ambient is meant to be slow). |
+| `AMBIENT_MINUTE_OFFSET` | `37` | The minute-of-hour to fire on. `37` is a prime well clear of `:00` (and `:15`/`:30`/`:45`) where scheduled mesh traffic tends to pile up. Ambient **never** fires at the top of the hour. |
+| `AMBIENT_CHANNEL_INDEX` | trivia channel | Channel to post ambient questions on (defaults to `TRIVIA_CHANNEL_INDEX`). |
+| `AMBIENT_REMINDER_FREQUENCY` | `3` | Every Nth ambient question carries the full `🏆 leaderboard / !starttrivia` plug; the rest are bare questions, so regulars aren't nagged hourly. `1` = always remind. |
+| `MAX_SENDS_PER_MINUTE` | `6` | Hard anti-flood floor for **all** sends (game + ambient). A last-resort circuit breaker: the bot will never exceed this in any rolling 60s, regardless of any other logic. |
+
+**Ambient pauses automatically while a rapid `!starttrivia` game is running** — no
+stacking, ever. When the game ends, ambient resumes on its normal cadence.
+
+### Mesh etiquette / airtime math
+
+Ambient is designed to be a **rounding error** on the mesh's airtime, the opposite of a
+chatty bot. One ambient question is a single ~200-byte text packet, once an hour:
+
+- On a typical **LongFast** preset (SF11/BW250, ~`0.98 kbps` payload throughput), a
+  ~200-byte text packet is roughly **1.6–2.5 s of airtime** including header + preamble
+  (it varies a little with hop/ack settings).
+- Once per hour that's **~2.5 s of airtime in 3,600 s ≈ 0.07 % duty cycle** from ambient.
+- Contrast with a feared **one-message-every-90-s** cadence: 40 sends/hour × ~2 s ≈
+  **80 s/hour ≈ 2.2 %** — roughly **30× more airtime**, and that's the cadence ambient
+  deliberately does *not* run.
+- The EU **1 % duty-cycle** ceiling (where it applies) is the usual reference point; hourly
+  ambient sits an order of magnitude under it even before counting that real games are
+  occasional, not continuous.
+
+The fixed off-`:00` minute keeps ambient from colliding with other scheduled mesh traffic
+(reminders, weather, conversation-starters) that tends to cluster at the top of the hour,
+and the per-minute send floor (`MAX_SENDS_PER_MINUTE`) guarantees no bug anywhere can turn
+the bot into a flooder.
+
 ## How it works
 
 ```
