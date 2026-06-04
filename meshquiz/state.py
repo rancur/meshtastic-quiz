@@ -38,9 +38,14 @@ def load_state(path: str) -> Dict:
         return {}
 
 
-def save_state(path: str, *, cursor_ms: int, was_running: bool, leaderboard: Optional[list] = None) -> None:
+def save_state(path: str, *, cursor_ms: int, was_running: bool,
+               leaderboard: Optional[list] = None,
+               ambient_stats: Optional[list] = None) -> None:
     _atomic_write(path, {
         "cursor_ms": cursor_ms,
         "was_running": was_running,
         "leaderboard": leaderboard or [],
+        # Persistent personality state for the ambient track. Survives restarts so running
+        # gags (streaks, droughts, poke cooldowns) keep building across the 24/7 cadence.
+        "ambient_stats": ambient_stats or [],
     })

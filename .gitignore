@@ -28,3 +28,6 @@ htmlcov/
 .idea/
 .vscode/
 *.swp
+
+# Internal design specs (superpowers brainstorming artifacts) — not for public repo
+docs/superpowers/
