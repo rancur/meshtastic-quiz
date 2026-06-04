@@ -84,14 +84,14 @@ TRIVIA_ADVERT_INTRO = "🎮 Buzz runs live TRIVIA on the 'trivia' channel! Tapba
 # SECOND short message. This guarantees neither packet can blow the byte budget no matter
 # how long the question is.
 #
-# AMBIENT_HEADER : tiny prefix lines marking a message as an ambient teaser (not a game Q).
+# AMBIENT_LEAD_EMOJI : a small rotating set of STANDARD emoji, ONE of which leads the
+#   question line inline (e.g. "🧠 In which series…"). Replaces the old "🧠 Brain snack:"
+#   category-flavored header lines (removed v1.2.2, Will's format spec): no category tag,
+#   no separate header packet — just one clean emoji + the question. Kept tiny + standard
+#   so it renders on any LoRa client and stays well within the byte budget.
 # AMBIENT_REMINDER : the leaderboard + !starttrivia plug, shown only every Nth question so
 #                    channel regulars aren't nagged hourly.
-AMBIENT_HEADER = [
-    "🧠 Trivia teaser:",
-    "🧠 Quick one:",
-    "🧠 Brain snack:",
-]
+AMBIENT_LEAD_EMOJI = ["🧠", "💡", "🎯", "❓", "✨"]
 AMBIENT_REMINDER = [
     "🏆 !leaderboard for standings · !starttrivia for rapid rounds",
     "Want more? !starttrivia for a full game · 🏆 !leaderboard",

@@ -31,9 +31,10 @@ def make_bot(tmpdir, **cfg_over):
 
 
 def last_question_pkt(t):
-    # the most recent sent message that looks like a question ("[Test]")
+    # the most recent sent message that looks like a rendered question. v1.2.2 dropped the
+    # "[Category]" tag, so detect by the keycap option line (1️⃣ … 2️⃣ …) the render emits.
     for m in reversed(t.sent):
-        if m.text.startswith("[Test]"):
+        if "1️⃣" in m.text and "2️⃣" in m.text:
             return m.packet_id
     return None
 
@@ -86,12 +87,13 @@ def test_idempotent_start_via_bot(tmp_path):
     t.inject_text("!alice001", "!starttrivia", channel=TRIVIA, ts_ms=1000)
     t.set_clock_ms(1000); bot.poll_once(now_s=1.0)
     first_pkt = bot.engine.current_packet_id
-    n_questions = sum(1 for m in t.sent if m.text.startswith("[Test]"))
+    is_q = lambda txt: "1️⃣" in txt and "2️⃣" in txt
+    n_questions = sum(1 for m in t.sent if is_q(m.text))
     # spam start again
     t.inject_text("!bob00002", "!starttrivia", channel=TRIVIA, ts_ms=2000)
     t.set_clock_ms(2000); bot.poll_once(now_s=2.0)
     assert bot.engine.current_packet_id == first_pkt
-    n_after = sum(1 for m in t.sent if m.text.startswith("[Test]"))
+    n_after = sum(1 for m in t.sent if is_q(m.text))
     assert n_after == n_questions  # no extra question started
 
 

@@ -3,6 +3,34 @@
 All notable changes to this project are documented here. This project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.2.2] - 2026-06-03
+
+### Changed
+- **Clean question format — no category tag, no "Brain snack:" header.** Rendered questions
+  no longer carry a `[Category]` prefix, and ambient teasers no longer emit a separate
+  `🧠 Brain snack:` / `🧠 Quick one:` header line. Per Will's format spec, an ambient
+  question now reads as a single **standard emoji + the question** on one line, e.g.
+  `🧠 In which series would you find the character…`.
+- **Rotating lead emoji.** Ambient questions lead with one emoji picked from a small,
+  standard set — `🧠 💡 🎯 ❓ ✨` (`host.AMBIENT_LEAD_EMOJI`) — so the channel stays varied
+  without any category labeling. Rapid-game questions render with no lead emoji (the host
+  `GAME_START` banner already sets the scene). `render(lead_emoji=…)` is the single knob.
+- **Inline keycap answer options confirmed.** Options remain one space-separated line:
+  `1️⃣ Frodo 2️⃣ Harry P 3️⃣ Percy 4️⃣ Luke` (kept from v1.2.1). The recap/reveal answer line
+  stays keycap-consistent (`2️⃣ Paris`).
+
+### Byte budget
+- Re-validated the full **232-question** bank against the new layout. Dropping the
+  `[Category]` tag and the separate header packet *saves* bytes; the inline options were
+  already a single line. Worst case is now **114 B** *with* the leading emoji (was 116 B in
+  v1.2.1), comfortably under the 200 B single-packet cap. `validate_bank` now sizes against
+  the worst-case lead emoji so no rotation can blow the cap.
+
+### Tests
+- Updated render/ambient/bot fixtures for the no-tag, lead-emoji, inline layout; added
+  `test_render_has_no_category_tag`, `test_render_with_lead_emoji_inline`, and
+  `test_render_options_are_single_inline_line`. Suite: **110 passing**.
+
 ## [1.2.1] - 2026-06-03
 
 ### Changed

@@ -119,8 +119,9 @@ def test_ambient_paused_while_game_running(tmp_path):
     t.set_clock_ms(int(fire * 1000))
     # keep the game from auto-advancing into a send storm: just verify no AMBIENT teaser.
     bot.poll_once(now_s=fire)
-    ambient_msgs = [m for m in t.sent if "teaser" in m.text.lower()
-                    or m.text.startswith("🧠")]
+    from meshquiz import host
+    ambient_msgs = [m for m in t.sent
+                    if any(m.text.startswith(e) for e in host.AMBIENT_LEAD_EMOJI)]
     assert ambient_msgs == []
     # (sent may have grown from game ticks, but no ambient teaser among them)
     assert len(t.sent) >= sent_before
@@ -154,16 +155,19 @@ def test_ambient_messages_within_byte_budget(tmp_path):
     # use a long question to stress the cap. Keycap-prefixed options (7 bytes each vs 3
     # for the old "N)") cost ~20 bytes more per question, so this fixture is sized to land
     # just under the 200B default budget (render asserted below) — still a worst-case
-    # near-cap question, which is the point of this test.
+    # near-cap question, which is the point of this test. The ambient build prepends a
+    # standard lead emoji, so we size against the WORST-CASE lead (validate_bank does too).
+    from meshquiz.questions import WORST_LEAD_EMOJI
     longq = Question("Geography", "hard",
                      "Which landlocked country has the longest official name commonly used?",
                      ["Option one is long", "Option two long",
                       "Option three long", "Option four text"], 0)
-    assert longq.byte_len() <= 200, f"fixture must fit the cap, got {longq.byte_len()}B"
+    assert longq.byte_len(WORST_LEAD_EMOJI) <= 200, \
+        f"fixture must fit the cap with lead emoji, got {longq.byte_len(WORST_LEAD_EMOJI)}B"
     bot, t = make_bot(str(tmp_path), ambient_enabled=True, ambient_reminder_frequency=1)
     bot._questions = [longq]
     msgs = bot._build_ambient_messages()
-    assert len(msgs) >= 2  # header+question packet(s) + reminder packet
+    assert len(msgs) >= 2  # question packet (emoji + Q) + reminder packet
     for m in msgs:
         assert len(m.encode("utf-8")) <= bot.cfg.max_payload_bytes
 
