@@ -200,3 +200,43 @@ hour. Four design choices, with rationale:
 
 - **Safe default: `AMBIENT_ENABLED=false`.** A fresh OSS install must never surprise a
   stranger's mesh, so ambient ships off; an operator opts in on their own node.
+
+## Personality system (v1.2.0)
+
+Will asked for an end-of-hour announcement of who got the previous question right, "lots of
+funny things to say as the rounds go on," and "casual pokes at the people who aren't doing
+so well." Five decisions:
+
+- **Ambient questions become (lightly) scored.** v1.1.0 ambient questions were standalone
+  teasers that opened no answer window — so there was literally no "who got it right" to
+  recap. The engine now keeps a *separate, lightweight ambient track* (`_ambient_q`,
+  `_ambient_pkt`, `_ambient_answers`) completely independent of the rapid-game state machine
+  (`phase`, `players`). It never touches `phase`; a `!starttrivia` game still pauses ambient
+  entirely. There is **no in-window deadline**: an ambient question stays open until the next
+  one fires (~1h), which matches the mesh's slow async nature — people answer when they see
+  it. `resolve_ambient()` closes the previous question and produces the recap. All of this is
+  **gated behind `PERSONALITY_ENABLED`**: with it off, the bot never registers an ambient
+  packet and never routes ambient reactions, so v1.1.0 behavior is byte-for-byte unchanged.
+
+- **Recap winner semantics match the game.** All correct answerers are "winners"; the FIRST
+  correct reactor is the highlighted one (same as the game's first-correct bonus + shoutout).
+  The recap names the first winner with a quip and appends `(+N more)`; the whole thing is
+  hard byte-capped to one packet.
+
+- **One extra packet, no more.** The recap is its own packet sent immediately before the
+  question packet, so a personality hour costs **recap + question = 2 packets** (was 1). The
+  `MAX_SENDS_PER_MINUTE` circuit breaker is untouched and remains authoritative.
+
+- **Deterministic rotation, not `random.choice`.** Each quip bank has a monotonic counter and
+  selection is `bank[(seed + counter) % len(bank)]`, so a bank cycles fully before repeating
+  (regulars don't see repeats for ~`len(bank)` fires ≈ days at hourly) AND tests are stable.
+  Banks are ≥30 lines each. The deployed bot seeds from the slot index for cross-run variety;
+  tests leave the seed 0.
+
+- **Poke calibration — friendly, fact-based, never cruel.** A poke is chosen at most once per
+  recap and only when the target has a **wrong-streak ≥ 2** or sits at the **bottom of a ≥3-
+  player board with a real gap**. Pokes reference the *fact* (a streak count, a point gap),
+  never identity. Brand-new players are exempt (`NEW_PLAYER_GRACE_SLOTS`), and a per-player
+  cooldown (`POKE_COOLDOWN_HOURS`) stops Buzz riding one person hour after hour. Personality
+  state (streaks, droughts, cooldowns) **persists across restarts** via `state.json` so the
+  running gags survive a reboot — a 5-streak shouldn't reset because the container bounced.

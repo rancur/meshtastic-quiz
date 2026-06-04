@@ -144,6 +144,29 @@ class Config:
     # never emits answer reactions. Default false: host node is ignored entirely.
     host_can_play: bool = field(default_factory=lambda: _env_bool("HOST_CAN_PLAY", False))
 
+    # --- Personality system (v1.2.0; see DECISIONS.md) ---
+    # Master switch for the state-aware quip engine + the hourly ambient RECAP packet that
+    # announces who got the previous ambient question right (and casual pokes at strugglers).
+    # SAFETY DEFAULT: OFF, consistent with ambient's conservative default — a fresh OSS
+    # install behaves exactly like v1.1.0. Opt in with PERSONALITY_ENABLED=true.
+    # When off, ambient answers are not even tracked; nothing changes vs v1.1.0.
+    personality_enabled: bool = field(
+        default_factory=lambda: _env_bool("PERSONALITY_ENABLED", False))
+    # Separate toggle for the ambient recap packet specifically. Lets an operator keep
+    # richer game-round copy while skipping the extra hourly recap packet. Only consulted
+    # when personality_enabled is true.
+    recap_enabled: bool = field(default_factory=lambda: _env_bool("RECAP_ENABLED", True))
+    # Casual pokes at strugglers. On by default (it's the headline feature), but an
+    # operator can keep praise-only by setting POKES_ENABLED=false.
+    pokes_enabled: bool = field(default_factory=lambda: _env_bool("POKES_ENABLED", True))
+    # Per-player poke cooldown, measured in ambient slots (≈ hours). Buzz won't poke the same
+    # player again until this many slots have passed — no riding one person hour after hour.
+    poke_cooldown_hours: int = field(
+        default_factory=lambda: _env_int("POKE_COOLDOWN_HOURS", 3))
+    # Brand-new players are exempt from pokes for this many ambient slots after first seen.
+    new_player_grace_slots: int = field(
+        default_factory=lambda: _env_int("NEW_PLAYER_GRACE_SLOTS", 2))
+
     @property
     def ambient_channel(self) -> int:
         """Resolved ambient channel: explicit override, else the trivia channel."""
