@@ -15,9 +15,11 @@ import random
 import time
 from typing import Dict, List, Optional
 
+from dataclasses import asdict, fields
+
 from . import host, state
 from .config import ANSWER_EMOJI, ANSWER_TYPED, Config
-from .engine import GameEngine, SendText, StartQuestion
+from .engine import AmbientStats, GameEngine, SendText, StartQuestion
 from .questions import Question, load_questions, validate_bank
 from .transport import MeshMessage, Transport
 
@@ -77,6 +79,7 @@ class TriviaBot:
         # Ambient mode bookkeeping.
         self._ambient_last_fire_key: Optional[str] = None  # dedup: one fire per slot
         self._ambient_count = 0  # how many ambient questions sent (drives reminder cadence)
+        self._pending_ambient_q: Optional[Question] = None  # question awaiting packet-id reg
         self._rng = random.Random()
         self._processed_pkts: set = set()  # reactions/commands already handled
         self._names: Dict[str, str] = {}
@@ -95,12 +98,24 @@ class TriviaBot:
             self._cursor_ms = 0
             self._cursor_seeded = False
         # leaderboard restore is informational; a new game resets scores by design.
+        # Ambient personality stats DO persist (running gags survive restarts).
+        valid = {f.name for f in fields(AmbientStats)}
+        for row in st.get("ambient_stats", []) or []:
+            try:
+                clean = {k: v for k, v in row.items() if k in valid}
+                s = AmbientStats(**clean)
+                if s.node_id:
+                    self.engine.ambient_stats[s.node_id] = s
+            except (TypeError, AttributeError):
+                continue
 
     def _persist(self):
         board = [{"node_id": p.node_id, "name": p.name, "score": p.score}
                  for p in self.engine.leaderboard()]
+        ambient = [asdict(s) for s in self.engine.ambient_stats.values()]
         state.save_state(self.cfg.state_path, cursor_ms=self._cursor_ms,
-                         was_running=self.engine.running, leaderboard=board)
+                         was_running=self.engine.running, leaderboard=board,
+                         ambient_stats=ambient)
 
     # ---------- sending (byte budget + flood control) ----------
     def _send(self, text: str, channel: Optional[int] = None) -> Optional[int]:
@@ -318,16 +333,23 @@ class TriviaBot:
             channel=self.cfg.primary_channel_index)
 
     def _handle_reaction(self, m: MeshMessage, now_s: float):
-        if not self.engine.running:
-            return
-        cur = self.engine.current_packet_id
-        if cur is None or m.reply_to != cur:
-            return  # reaction to a different / stale message
         opt = emoji_to_option(m.text)
         if opt is None:
             return
-        self.engine.submit_answer(m.from_node_id, self._name_for(m.from_node_id),
-                                  opt, m.timestamp_ms / 1000.0)
+        if self.engine.running:
+            cur = self.engine.current_packet_id
+            if cur is None or m.reply_to != cur:
+                return  # reaction to a different / stale message
+            self.engine.submit_answer(m.from_node_id, self._name_for(m.from_node_id),
+                                      opt, m.timestamp_ms / 1000.0)
+            return
+        # No rapid game running: a reaction to the OPEN ambient question scores on the
+        # ambient personality track (only when personality is enabled — otherwise the
+        # engine never has an open ambient packet and this is a no-op).
+        amb = self.engine.ambient_packet_id
+        if amb is not None and m.reply_to == amb:
+            self.engine.submit_ambient_answer(m.from_node_id, self._name_for(m.from_node_id),
+                                              opt, m.timestamp_ms / 1000.0)
 
     # ---------- ambient mode ----------
     @staticmethod
@@ -376,29 +398,117 @@ class TriviaBot:
         if key is None or key == self._ambient_last_fire_key:
             return
         self._ambient_last_fire_key = key
-        self._send_ambient()
+        self._send_ambient(slot_index=self._slot_index(key))
 
-    def _build_ambient_messages(self) -> List[str]:
+    @staticmethod
+    def _slot_index(key: str) -> int:
+        """Extract the integer slot index from an ``ambient:<N>`` key (for personality math)."""
+        try:
+            return int(key.split(":", 1)[1])
+        except (IndexError, ValueError):
+            return 0
+
+    def _build_recap_text(self, slot_index: int) -> Optional[str]:
+        """Resolve the previous ambient question and render the ONE recap packet, or None.
+
+        Returns None when (a) personality/recap is off, or (b) there's no previous ambient
+        question (first fire ever) — the caller then simply skips the recap packet. The
+        returned string is byte-capped here so the recap is guaranteed to be a single packet.
+        """
+        if not (self.cfg.personality_enabled and self.cfg.recap_enabled):
+            # still clear any open question so stale state can't leak, but no recap text
+            self.engine.resolve_ambient()
+            return None
+        recap = self.engine.resolve_ambient()
+        if not recap.had_question:
+            return None  # first fire — nothing to recap
+        q = self.engine.quips
+        names = recap.winner_names
+        if names:
+            # headline: streak-escalating / comeback / plain winner praise on the FIRST winner
+            if recap.first_winner_comeback >= 2:
+                head = q.comeback(recap.first_winner, recap.first_winner_comeback)
+            else:
+                head = q.winner(recap.first_winner, streak=recap.first_winner_streak)
+            extra = len(names) - 1
+            if extra > 0:
+                head = f"{head} (+{extra} more)"
+            text = head
+        else:
+            text = q.no_winner(recap.answer_text)
+        # optional poke clause appended only if it still fits the single-packet budget.
+        # The cooldown is stamped ONLY when the poke actually survives into the text — a poke
+        # dropped for budget must not consume the player's cooldown (else they'd be wrongly
+        # skipped next hour).
+        target, poke = self._build_poke(slot_index)
+        if poke:
+            combined = f"{text} {poke}"
+            if len(combined.encode("utf-8")) <= self.cfg.max_payload_bytes:
+                text = combined
+                target.last_poked_slot = slot_index  # stamp cooldown only on actual use
+        return self._truncate_bytes(text, self.cfg.max_payload_bytes)
+
+    def _build_poke(self, slot_index: int):
+        """Pick a calibrated poke target + render its line. Returns (target, text) or
+        (None, None) if no eligible target. Does NOT stamp the cooldown — the caller stamps
+        it only if the poke actually makes it into the sent packet."""
+        target = self.engine.poke_target(self.cfg, slot_index)
+        if target is None:
+            return None, None
+        q = self.engine.quips
+        if target.wrong_streak >= 2:
+            return target, q.poke_streak(target.name or target.node_id, target.wrong_streak)
+        board = self.engine.ambient_leaderboard()
+        gap = (board[0].correct - target.correct) if board else 0
+        return target, q.poke_bottom(target.name or target.node_id, gap)
+
+    def _build_ambient_messages(self, slot_index: int = 0) -> List[str]:
         """Build the ambient send as a list of one-packet messages.
 
-        Always: a header + the rendered question (its own packet, already byte-validated).
-        Every Nth ambient question (ambient_reminder_frequency) appends the reminder plug
-        as a SEPARATE short packet so regulars aren't nagged hourly and nothing oversizes.
+        Order (when personality on): [recap]? + header+question + [reminder]?. The recap is
+        its OWN packet immediately before the question, so the hour sends at most recap +
+        question = 2 packets (was 1). Each element is independently byte-validated.
+
+        Also opens the new ambient question on the engine's personality track so reactions to
+        it get scored for next hour's recap. ``slot_index`` is the ambient slot we're firing.
         """
         q = self._rng.choice(self._questions)
+        msgs: List[str] = []
+        recap = self._build_recap_text(slot_index)
+        if recap:
+            msgs.append(recap)
         header = host.pick(host.AMBIENT_HEADER)
         # header + question, packed into the fewest packets within budget (question alone
         # is guaranteed <= budget; header is tiny, so this is normally a single packet).
-        msgs = self._pack_lines([header, q.render()], self.cfg.max_payload_bytes)
+        msgs += self._pack_lines([header, q.render()], self.cfg.max_payload_bytes)
         self._ambient_count += 1
         if self._ambient_count % max(1, self.cfg.ambient_reminder_frequency) == 0:
             msgs.append(host.pick(host.AMBIENT_REMINDER))
+        # register the new open ambient question (only meaningful when personality on; when
+        # off, open_ambient sets state the engine never reads because reactions aren't routed)
+        if self.cfg.personality_enabled:
+            self.engine.open_ambient(q, slot_index)
+        self._pending_ambient_q = q  # the question whose packet id we must register on send
         return msgs
 
-    def _send_ambient(self) -> None:
-        msgs = self._build_ambient_messages()
-        log.info("ambient: firing teaser (#%d, %d packet(s))", self._ambient_count, len(msgs))
-        self._send_lines(msgs, channel=self.cfg.ambient_channel)
+    def _send_ambient(self, slot_index: int = 0) -> None:
+        self._pending_ambient_q = None
+        msgs = self._build_ambient_messages(slot_index)
+        log.info("ambient: firing (#%d, %d packet(s), slot=%d)",
+                 self._ambient_count, len(msgs), slot_index)
+        # Send each packet; capture the packet id of the QUESTION message so reactions to it
+        # are matched on the ambient track. The question is the message equal to the pending
+        # question's render() (or the first line that starts with it, when header+question
+        # were packed into one packet).
+        qtext = self._pending_ambient_q.render() if self._pending_ambient_q else None
+        for line in msgs:
+            if not line:
+                continue
+            pkt = self._send(line, channel=self.cfg.ambient_channel)
+            if pkt is not None and qtext is not None and self.cfg.personality_enabled \
+                    and qtext in line:
+                self.engine.on_ambient_sent(pkt)
+                qtext = None  # only register once
 
     # ---------- run loop ----------
     def run(self):  # pragma: no cover - long-running loop
