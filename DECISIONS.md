@@ -136,10 +136,13 @@ low-traffic mesh. A monthly **question** refresh is independent and does not tou
 ## Mesh byte budget
 
 Every outbound message is validated against `MAX_PAYLOAD_BYTES` (default 200, the
-Meshtastic text limit). Questions render as `"[Cat] Question?\n1️⃣ a 2️⃣ b 3️⃣ c 4️⃣ d"`
-(keycap-emoji option prefixes, since v1.2.1 — 7 bytes each vs 3 for the old `N)`); a test
-asserts **every** question in the bank fits (current max observed after keycaps: ~116 bytes,
-was ~96). Flavor
+Meshtastic text limit). Questions render as `"Question?\n1️⃣ a 2️⃣ b 3️⃣ c 4️⃣ d"` — keycap-emoji
+option prefixes since v1.2.1; the `[Cat]` category tag and the `🧠 Brain snack:` ambient
+header were **removed in v1.2.2** (Will's format spec) in favor of a single optional standard
+lead emoji prepended inline for ambient teasers (`🧠 Question?\n…`, emoji from a rotating
+set). A test asserts **every** question in the bank fits, sized against the worst-case lead
+emoji (current max observed: **114 bytes** with lead, was 116 with the line-broken header).
+Flavor
 text is kept short; the sender also hard-truncates as a last-resort safety net so a stray
 long line can never exceed the budget and get split/rejected by MeshMonitor.
 

@@ -53,8 +53,41 @@ def test_question_answer_bounds():
 def test_render_contains_options():
     q = Question("Sci", "easy", "What is 2+2?", ["3", "4", "5", "6"], 1)
     r = q.render()
-    assert "1️⃣ 3" in r and "2️⃣ 4" in r and "[Sci]" in r
+    assert "1️⃣ 3" in r and "2️⃣ 4" in r
+    # v1.2.2: NO category tag in the rendered question.
+    assert "[Sci]" not in r and "[" not in r
     assert q.answer_text() == "2️⃣ 4"
+
+
+def test_render_has_no_category_tag():
+    """v1.2.2 format spec: the question line carries no "[Category]" prefix."""
+    q = Question("Pop", "easy", "In which series is Frodo?",
+                 ["LOTR", "Potter", "Olympus", "Star Wars"], 0)
+    r = q.render()
+    assert r.startswith("In which series is Frodo?"), r
+    assert "[Pop]" not in r and "[" not in r
+
+
+def test_render_with_lead_emoji_inline():
+    """Ambient teasers prepend a single standard emoji inline on the question line —
+    no separate header packet, no category tag."""
+    q = Question("Pop", "easy", "In which series is Frodo?",
+                 ["LOTR", "Potter", "Olympus", "Star Wars"], 0)
+    r = q.render(lead_emoji="🧠")
+    # emoji + space + question, all on the first line
+    first_line = r.split("\n", 1)[0]
+    assert first_line == "🧠 In which series is Frodo?", first_line
+    assert "Brain snack" not in r and "teaser" not in r.lower()
+
+
+def test_render_options_are_single_inline_line():
+    """Options render as ONE space-separated line: "1️⃣ a 2️⃣ b 3️⃣ c 4️⃣ d" — not one
+    option per line."""
+    q = Question("Pop", "easy", "Who?", ["Frodo", "Harry P", "Percy", "Luke"], 0)
+    r = q.render()
+    lines = r.split("\n")
+    assert len(lines) == 2, f"expected question line + one options line, got {lines}"
+    assert lines[1] == "1️⃣ Frodo 2️⃣ Harry P 3️⃣ Percy 4️⃣ Luke", lines[1]
 
 
 def test_render_uses_keycap_emoji_prefixes():

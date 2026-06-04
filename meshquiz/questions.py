@@ -6,10 +6,16 @@ from dataclasses import dataclass
 from typing import List, Optional
 
 # Rendered question layout (compact, one mesh packet):
-#   "[Category] Question text\n1️⃣ opt 2️⃣ opt 3️⃣ opt 4️⃣ opt"
+#   "Question text\n1️⃣ opt 2️⃣ opt 3️⃣ opt 4️⃣ opt"
+# or, with an optional leading emoji (ambient teasers pass one):
+#   "🧠 Question text\n1️⃣ opt 2️⃣ opt 3️⃣ opt 4️⃣ opt"
 # Players answer with a tapback emoji 1️⃣2️⃣3️⃣4️⃣ on this message, OR by typing the
 # digit "1".."4". The keycap prefix makes the tapback-answer mapping visually obvious:
 # the option's leading emoji is exactly the tapback to react with.
+#
+# NOTE: the question line carries NO "[Category]" tag and NO "Brain snack:" style header
+# (removed in v1.2.2 — Will's format spec). Options are a single space-separated inline
+# line; long options may wrap on the LoRa client but the SOURCE is one line.
 
 
 def keycap(i: int) -> str:
@@ -40,12 +46,19 @@ class Question:
         if not (0 <= self.answer < 4):
             raise ValueError(f"answer index out of range: {self.question!r}")
 
-    def render(self) -> str:
-        opts = " ".join(f"{keycap(i+1)} {o}" for i, o in enumerate(self.options))
-        return f"[{self.category}] {self.question}\n{opts}"
+    def render(self, lead_emoji: Optional[str] = None) -> str:
+        """Render the question packet.
 
-    def byte_len(self) -> int:
-        return len(self.render().encode("utf-8"))
+        ``lead_emoji`` (e.g. "🧠") is an optional standard emoji prepended inline to the
+        question line — used by ambient teasers so the message reads "🧠 In which series…"
+        with no category tag. Options are always a single space-separated inline line.
+        """
+        opts = " ".join(f"{keycap(i+1)} {o}" for i, o in enumerate(self.options))
+        head = f"{lead_emoji} {self.question}" if lead_emoji else self.question
+        return f"{head}\n{opts}"
+
+    def byte_len(self, lead_emoji: Optional[str] = None) -> int:
+        return len(self.render(lead_emoji).encode("utf-8"))
 
     def answer_text(self) -> str:
         return f"{keycap(self.answer + 1)} {self.options[self.answer]}"
@@ -57,12 +70,22 @@ def load_questions(path: str) -> List[Question]:
     return [Question(**q) for q in raw]
 
 
+# Heaviest standard lead emoji that ambient may prepend (used for worst-case byte sizing).
+# Ambient picks from AMBIENT_LEAD_EMOJI in host.py; we size against the largest UTF-8 one
+# plus its separating space so the bank can never blow the 200B packet cap in any rotation.
+WORST_LEAD_EMOJI = "🧠"  # 4 bytes (a single space adds 1) — represents the worst case here.
+
+
 def validate_bank(questions: List[Question], max_bytes: int = 200) -> List[str]:
-    """Return a list of human-readable problems. Empty list == all good."""
+    """Return a list of human-readable problems. Empty list == all good.
+
+    Byte budget is checked against the WORST case: a question rendered WITH a leading
+    ambient emoji (the heaviest packet shape that ever goes over the air).
+    """
     problems: List[str] = []
     seen = set()
     for i, q in enumerate(questions):
-        bl = q.byte_len()
+        bl = q.byte_len(WORST_LEAD_EMOJI)
         if bl > max_bytes:
             problems.append(f"#{i} [{q.category}] {bl}B > {max_bytes}B: {q.question!r}")
         if q.answer not in range(4):

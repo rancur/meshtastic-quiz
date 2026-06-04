@@ -80,6 +80,7 @@ class TriviaBot:
         self._ambient_last_fire_key: Optional[str] = None  # dedup: one fire per slot
         self._ambient_count = 0  # how many ambient questions sent (drives reminder cadence)
         self._pending_ambient_q: Optional[Question] = None  # question awaiting packet-id reg
+        self._pending_ambient_lead: Optional[str] = None  # lead emoji used on the pending Q
         self._rng = random.Random()
         self._processed_pkts: set = set()  # reactions/commands already handled
         self._names: Dict[str, str] = {}
@@ -477,10 +478,12 @@ class TriviaBot:
         recap = self._build_recap_text(slot_index)
         if recap:
             msgs.append(recap)
-        header = host.pick(host.AMBIENT_HEADER)
-        # header + question, packed into the fewest packets within budget (question alone
-        # is guaranteed <= budget; header is tiny, so this is normally a single packet).
-        msgs += self._pack_lines([header, q.render()], self.cfg.max_payload_bytes)
+        # Ambient question: a single standard emoji leads the question line inline (no
+        # category tag, no separate header packet — v1.2.2 format). The whole question is
+        # one byte-validated packet.
+        lead = self._rng.choice(host.AMBIENT_LEAD_EMOJI)
+        self._pending_ambient_lead = lead
+        msgs.append(q.render(lead))
         self._ambient_count += 1
         if self._ambient_count % max(1, self.cfg.ambient_reminder_frequency) == 0:
             msgs.append(host.pick(host.AMBIENT_REMINDER))
@@ -493,6 +496,7 @@ class TriviaBot:
 
     def _send_ambient(self, slot_index: int = 0) -> None:
         self._pending_ambient_q = None
+        self._pending_ambient_lead = None
         msgs = self._build_ambient_messages(slot_index)
         log.info("ambient: firing (#%d, %d packet(s), slot=%d)",
                  self._ambient_count, len(msgs), slot_index)
@@ -500,7 +504,8 @@ class TriviaBot:
         # are matched on the ambient track. The question is the message equal to the pending
         # question's render() (or the first line that starts with it, when header+question
         # were packed into one packet).
-        qtext = self._pending_ambient_q.render() if self._pending_ambient_q else None
+        qtext = self._pending_ambient_q.render(self._pending_ambient_lead) \
+            if self._pending_ambient_q else None
         for line in msgs:
             if not line:
                 continue
