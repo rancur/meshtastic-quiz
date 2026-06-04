@@ -15,9 +15,9 @@ direct radio wiring required.
 You:   !starttrivia
 Buzz:  🎮 BUZZ TRIVIA is LIVE! React 1️⃣2️⃣3️⃣4️⃣ to answer. Brains on, legends!
 Buzz:  [Science] What planet is the Red Planet?
-       1) Venus 2) Mars 3) Jupiter 4) Saturn
-       (players tapback 2️⃣ on that message...)
-Buzz:  ⏱️ Time! Answer: 2) Mars
+       1️⃣ Venus 2️⃣ Mars 3️⃣ Jupiter 4️⃣ Saturn
+       (players tapback 2️⃣ on that message — the option's own emoji)
+Buzz:  ⏱️ Time! Answer: 2️⃣ Mars
 Buzz:  ✅ Nova nails it! +18
        ...next question...
 You:   !leaderboard
@@ -121,7 +121,7 @@ one** in a single packet:
 - **Winner(s):** names who got it right, with streak-escalating praise — a 2-streak gets a
   nod, a 3-streak a hat-trick, a 5+ streak a full coronation. A long winner list truncates
   to `Ann (+3 more)`.
-- **No winner:** reveals the answer with a dry one-liner (`🦗 Nobody. Brutal. It was 2) Paris.`).
+- **No winner:** reveals the answer with a dry one-liner (`🦗 Nobody. Brutal. It was 2️⃣ Paris.`).
 - **Comebacks:** someone scoring after a drought gets a "welcome back" callout sized to the
   drought length.
 - **Casual pokes:** a friendly jab at someone who isn't doing well — *referencing observable

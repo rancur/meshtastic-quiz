@@ -136,8 +136,10 @@ low-traffic mesh. A monthly **question** refresh is independent and does not tou
 ## Mesh byte budget
 
 Every outbound message is validated against `MAX_PAYLOAD_BYTES` (default 200, the
-Meshtastic text limit). Questions render as `"[Cat] Question?\n1) a 2) b 3) c 4) d"`; a
-test asserts **every** question in the bank fits (current max observed: ~96 bytes). Flavor
+Meshtastic text limit). Questions render as `"[Cat] Question?\n1️⃣ a 2️⃣ b 3️⃣ c 4️⃣ d"`
+(keycap-emoji option prefixes, since v1.2.1 — 7 bytes each vs 3 for the old `N)`); a test
+asserts **every** question in the bank fits (current max observed after keycaps: ~116 bytes,
+was ~96). Flavor
 text is kept short; the sender also hard-truncates as a last-resort safety net so a stray
 long line can never exceed the budget and get split/rejected by MeshMonitor.
 

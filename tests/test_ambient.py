@@ -151,11 +151,15 @@ def test_rate_limit_window_recovers(tmp_path, monkeypatch):
 # ---------------- message-length cap ----------------
 
 def test_ambient_messages_within_byte_budget(tmp_path):
-    # use a long question to stress the cap
+    # use a long question to stress the cap. Keycap-prefixed options (7 bytes each vs 3
+    # for the old "N)") cost ~20 bytes more per question, so this fixture is sized to land
+    # just under the 200B default budget (render asserted below) — still a worst-case
+    # near-cap question, which is the point of this test.
     longq = Question("Geography", "hard",
                      "Which landlocked country has the longest official name commonly used?",
-                     ["Option one is quite long", "Option two also long",
-                      "Option three lengthy", "Option four extended text"], 0)
+                     ["Option one is long", "Option two long",
+                      "Option three long", "Option four text"], 0)
+    assert longq.byte_len() <= 200, f"fixture must fit the cap, got {longq.byte_len()}B"
     bot, t = make_bot(str(tmp_path), ambient_enabled=True, ambient_reminder_frequency=1)
     bot._questions = [longq]
     msgs = bot._build_ambient_messages()

@@ -281,7 +281,7 @@ def test_recap_no_winner_path(tmp_path):
     eng.submit_ambient_answer("!a", "Ann", 0, 1.0)  # wrong
     text = bot._build_recap_text(slot_index=101)
     assert text is not None
-    assert "2) Paris" in text  # reveal the answer
+    assert "2️⃣ Paris" in text  # reveal the answer (keycap-prefixed, matches render)
     assert len(text.encode("utf-8")) <= bot.cfg.max_payload_bytes
 
 
