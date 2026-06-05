@@ -70,6 +70,31 @@ def load_questions(path: str) -> List[Question]:
     return [Question(**q) for q in raw]
 
 
+# Map an operator-facing difficulty name to the difficulty label stored on each Question.
+# "medium" is the friendly alias for the bank's historical "med" label.
+_DIFFICULTY_ALIAS = {"medium": "med"}
+
+
+def select_by_difficulty(questions: List["Question"], difficulty: str) -> List["Question"]:
+    """Return the subset of ``questions`` matching the requested difficulty tier.
+
+    ``difficulty`` is the operator-chosen tier (see config.QUIZ_DIFFICULTY):
+      - "mixed"  -> the whole bank, untouched (legacy v1.x behavior; the default).
+      - "easy" / "medium"/"med" / "hard" -> only that tier.
+
+    "medium" and "med" are equivalent. The match is case-insensitive on the stored label.
+    If a tier somehow has NO questions (e.g. a hand-trimmed bank), we fall back to the FULL
+    bank rather than starting a game with an empty bag — a missing tier must never brick the
+    bot. The caller logs the fallback.
+    """
+    tier = (difficulty or "mixed").strip().lower()
+    if tier in ("mixed", "", "all"):
+        return list(questions)
+    tier = _DIFFICULTY_ALIAS.get(tier, tier)
+    picked = [q for q in questions if (q.difficulty or "").strip().lower() == tier]
+    return picked if picked else list(questions)
+
+
 # Heaviest standard lead emoji that ambient may prepend (used for worst-case byte sizing).
 # Ambient picks from AMBIENT_LEAD_EMOJI in host.py; we size against the largest UTF-8 one
 # plus its separating space so the bank can never blow the 200B packet cap in any rotation.

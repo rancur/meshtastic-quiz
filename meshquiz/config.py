@@ -36,6 +36,11 @@ def _env_bool(name: str, default: bool) -> bool:
     return v.strip().lower() in ("1", "true", "yes", "on")
 
 
+# Difficulty tiers an installer can select via QUIZ_DIFFICULTY. "mixed" = the whole bank
+# (legacy default). The bank stores the medium tier under the label "med"; "medium" is the
+# operator-facing alias, normalized to "med" when filtering (see questions.select_by_difficulty).
+VALID_DIFFICULTIES = frozenset({"easy", "medium", "med", "hard", "mixed"})
+
 # The four answer emoji, in option order (index 0..3). These are the keycap-number
 # emoji that Meshtastic clients send as tapback reactions.
 ANSWER_EMOJI: List[str] = ["1️⃣", "2️⃣", "3️⃣", "4️⃣"]
@@ -87,6 +92,16 @@ class Config:
     # --- Questions ---
     questions_per_game: int = field(default_factory=lambda: _env_int("QUESTIONS_PER_GAME", 12))
     leaderboard_top_n: int = field(default_factory=lambda: _env_int("LEADERBOARD_TOP_N", 5))
+    # Difficulty tier the bot draws questions from. One of:
+    #   easy   - approachable general-knowledge warm-ups (the original v1.x questions)
+    #   medium - tougher general + real Meshtastic/LoRa knowledge (the everyday default)
+    #   hard   - deep-cut Meshtastic/LoRa internals for mesh nerds
+    #   mixed  - the ENTIRE bank, all tiers blended (legacy v1.x behavior)
+    # DEFAULT is "mixed" so an existing install with no QUIZ_DIFFICULTY set behaves exactly
+    # like before (draws from the whole bank). Operators pick a tier per their crowd.
+    # "medium" is accepted as an alias for the bank's "med" difficulty label.
+    quiz_difficulty: str = field(
+        default_factory=lambda: _env("QUIZ_DIFFICULTY", "mixed").strip().lower())
 
     # --- Mesh limits ---
     max_payload_bytes: int = field(default_factory=lambda: _env_int("MAX_PAYLOAD_BYTES", 200))
@@ -191,3 +206,7 @@ class Config:
                 raise ValueError("AMBIENT_REMINDER_FREQUENCY must be >= 1")
         if self.max_sends_per_minute < 1:
             raise ValueError("MAX_SENDS_PER_MINUTE must be >= 1")
+        if self.quiz_difficulty not in VALID_DIFFICULTIES:
+            raise ValueError(
+                f"QUIZ_DIFFICULTY must be one of {sorted(VALID_DIFFICULTIES)}, "
+                f"got {self.quiz_difficulty!r}")
