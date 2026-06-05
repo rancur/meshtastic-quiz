@@ -3,6 +3,38 @@
 All notable changes to this project are documented here. This project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.0] - 2026-06-05
+
+### Added
+- **+97 new fact-checked questions, broadening the bank well past Meshtastic** (Will's ask:
+  "Add even more questions. Not just about meshtastic.") spread across the existing trivia
+  categories plus **two new categories for the AZ mesh crowd:**
+  - **`Space`** (16 Q) — planets, the Sun, moons, Saturn's rings, Olympus Mons, Ganymede,
+    Sputnik, Voyager 1, Hubble, Perseverance, the ISS, Halley's Comet, the Milky Way.
+  - **`AZ` / Southwest local flavor** (14 Q) — Phoenix, the Grand Canyon + the Colorado River
+    that carved it, the saguaro, AZ's nickname/state bird/state flower, the 5 C's, Sedona,
+    Lake Havasu's London Bridge, statehood (1912), the Sonoran Desert, and AZ skipping DST.
+- The expansion carries a **deliberate harder skew** (Will, this morning): of the 97 new
+  questions only 4 are easy — **45 medium + 48 hard**.
+
+### Changed
+- **Bank grown 282 → 379 questions** across **14 categories** (added `Space`, `AZ`). Per-tier
+  counts: **easy 80, medium 160, hard 139** — the hard tier now outweighs easy.
+
+### Fact-checking
+- Every non-common-knowledge fact was WebSearch-verified 2026-06-05: AZ symbols/geography
+  (azgovernor.gov "Arizona Facts", statesymbolsusa.org), the Grand Canyon (nps.gov), London
+  Bridge (Wikipedia), and all Space facts (NASA `science.nasa.gov`, Wikipedia). Contested
+  facts (e.g. Nile-vs-Amazon "longest river") were avoided.
+
+### Tests
+- 133 tests (was 130). Added v1.4.0 guards in `tests/test_difficulty.py`: bank ≥360 with
+  `hard >= easy` (the skew holds), and the new `Space` + `AZ` categories are present.
+
+### Byte budget
+- Full 379-question bank re-validated: worst case **124 B** with the leading ambient emoji
+  (budget 200 B) — unchanged from v1.3.0. Every question, all tiers, fits one LoRa packet.
+
 ## [1.3.0] - 2026-06-05
 
 ### Added

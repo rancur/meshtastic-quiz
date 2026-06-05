@@ -233,9 +233,10 @@ watch who actually knows their spreading factors.
 
 ## The question bank
 
-~280 curated single-answer questions across 12 categories (Science, History, Geography,
-Tech, Pop culture, Sports, Nature, Food, Music, Math, General, **Mesh**), each authored to
-fit the Meshtastic 200-byte payload limit, with **25+ questions in every selectable tier**.
+~380 curated single-answer questions across 14 categories (Science, History, Geography,
+Tech, Pop culture, Sports, Nature, Food, Music, Math, General, **Mesh**, **Space**, and
+**AZ/Southwest** local flavor), each authored to fit the Meshtastic 200-byte payload limit,
+with **25+ questions in every selectable tier** and a deliberate medium/hard skew.
 The bank lives at [`meshquiz/data/questions.json`](meshquiz/data/questions.json) and is
 generated + validated by [`scripts/build_questions.py`](scripts/build_questions.py).
 
