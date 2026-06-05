@@ -373,6 +373,144 @@ add("Mesh", "hard", "MQTT 'uplink' sends packets which way?", ["To broker", "Fro
 add("Mesh", "hard", "If MQTT encryption is off, packets go to broker?", ["Encrypted", "Unencrypted", "Not at all", "Compressed"], 1)
 
 
+# ================= BATCH 4: BROAD EXPANSION (v1.4.0, hard-skewed) =================
+# Will (2026-06-05): "Add even more questions. Not just about meshtastic." + keep the harder
+# skew. Authored across the existing non-Mesh categories with a deliberate lean to med/hard.
+# Every non-common-knowledge fact WebSearch-verified 2026-06-05 (see process doc Tests note):
+# AZ symbols/geo (azgovernor.gov, statesymbolsusa), Grand Canyon (nps.gov), London Bridge
+# (Wikipedia), Space (NASA science.nasa.gov, Wikipedia), Canberra/Ankara/Baikal/Kilimanjaro,
+# skin=largest organ, H=element 1, Curie's two Nobels. FUN wording, <200B worst-case.
+
+# ---- SCIENCE (skew hard) ----
+add("Science", "med", "What blood cells fight infection?", ["Red", "White", "Plasma", "Platelet"], 1)
+add("Science", "hard", "Largest human internal organ?", ["Heart", "Liver", "Lung", "Brain"], 1)
+add("Science", "hard", "Element number 1 on the table?", ["Helium", "Hydrogen", "Carbon", "Oxygen"], 1)
+add("Science", "hard", "Atomic number of oxygen?", ["6", "7", "8", "16"], 2)
+add("Science", "med", "What pigment makes plants green?", ["Keratin", "Chlorophyll", "Melanin", "Hemo"], 1)
+add("Science", "hard", "Only metal liquid at room temp?", ["Lead", "Mercury", "Sodium", "Tin"], 1)
+add("Science", "med", "Sound cannot travel through a?", ["Solid", "Liquid", "Gas", "Vacuum"], 3)
+add("Science", "hard", "pH of pure water is about?", ["1", "7", "10", "14"], 1)
+add("Science", "med", "Largest organ of the human body?", ["Liver", "Skin", "Heart", "Lung"], 1)
+add("Science", "hard", "Element with chemical symbol Na?", ["Nickel", "Sodium", "Neon", "Nitro"], 1)
+
+# ---- HISTORY (skew hard) ----
+add("History", "med", "Who wrote the US Declaration mainly?", ["Adams", "Jefferson", "Franklin", "Hancock"], 1)
+add("History", "hard", "Empire ruled by Julius Caesar?", ["Greek", "Roman", "Persian", "Ottoman"], 1)
+add("History", "hard", "Ship the Pilgrims sailed on 1620?", ["Beagle", "Mayflower", "Santa Maria", "Endeavour"], 1)
+add("History", "med", "Civil War split the US North and?", ["East", "South", "West", "Coast"], 1)
+add("History", "hard", "First woman with two Nobel Prizes?", ["Franklin", "Curie", "Meitner", "Hodgkin"], 1)
+add("History", "med", "The pyramids of Giza are near which river?", ["Tigris", "Nile", "Amazon", "Ganges"], 1)
+add("History", "hard", "Who was the British PM in WWII?", ["Chamberlain", "Churchill", "Attlee", "Eden"], 1)
+
+# ---- GEOGRAPHY (skew hard) ----
+add("Geography", "hard", "Capital of Australia?", ["Sydney", "Canberra", "Melbourne", "Perth"], 1)
+add("Geography", "hard", "Capital of Turkey?", ["Istanbul", "Ankara", "Izmir", "Bursa"], 1)
+add("Geography", "hard", "Deepest lake on Earth?", ["Superior", "Baikal", "Tahoe", "Victoria"], 1)
+add("Geography", "med", "Highest mountain in Africa?", ["Atlas", "Kilimanjaro", "Kenya", "Meru"], 1)
+add("Geography", "med", "Which US state is the Grand Canyon in?", ["Utah", "Arizona", "Nevada", "Colorado"], 1)
+add("Geography", "hard", "Strait between Europe and Africa?", ["Bering", "Gibraltar", "Hormuz", "Malacca"], 1)
+add("Geography", "med", "Which continent is the Sahara on?", ["Asia", "Africa", "Australia", "Europe"], 1)
+
+# ---- TECH (skew hard) ----
+add("Tech", "med", "What does 'URL' point you to?", ["A file", "A web address", "A song", "A photo"], 1)
+add("Tech", "hard", "What company created the iPhone?", ["Samsung", "Apple", "Nokia", "HTC"], 1)
+add("Tech", "hard", "What does 'AI' stand for?", ["Auto Input", "Artificial Intel", "App Index", "Alt Icon"], 1)
+add("Tech", "med", "A QR code is scanned with a?", ["Printer", "Camera", "Speaker", "Mic"], 1)
+add("Tech", "hard", "Which is an open-source OS kernel?", ["Windows", "Linux", "macOS", "iOS"], 1)
+add("Tech", "med", "Email '@' separates user and?", ["Password", "Domain", "Subject", "Folder"], 1)
+
+# ---- POP / MOVIES (skew hard) ----
+add("Pop", "med", "Which movie features the ship Titanic sinking?", ["Avatar", "Titanic", "Speed", "Jaws"], 1)
+add("Pop", "hard", "Which film has the line 'I'll be back'?", ["Rambo", "Terminator", "Rocky", "Predator"], 1)
+add("Pop", "med", "Toy cowboy in Toy Story is named?", ["Buzz", "Woody", "Rex", "Slinky"], 1)
+add("Pop", "hard", "Wizard school in Harry Potter is?", ["Camelot", "Hogwarts", "Xavier's", "Narnia"], 1)
+add("Pop", "med", "Green ogre in a swamp movie?", ["Hulk", "Shrek", "Grinch", "Yoda"], 1)
+add("Pop", "hard", "Which superhero is the 'Caped Crusader'?", ["Superman", "Batman", "Flash", "Robin"], 1)
+add("Pop", "hard", "Movie with a clownfish named Nemo?", ["Shark Tale", "Finding Nemo", "Moana", "Luca"], 1)
+
+# ---- SPORTS (skew hard) ----
+add("Sports", "med", "How many points is a touchdown worth?", ["3", "6", "7", "2"], 1)
+add("Sports", "hard", "How long is an Olympic pool (m)?", ["25", "50", "100", "200"], 1)
+add("Sports", "med", "What sport uses a shuttlecock?", ["Tennis", "Badminton", "Squash", "Ping pong"], 1)
+add("Sports", "hard", "Boxing match max pro rounds usually?", ["5", "10", "12", "15"], 2)
+add("Sports", "med", "Which sport has a quarterback?", ["Soccer", "Football", "Rugby", "Cricket"], 1)
+add("Sports", "hard", "Country where rugby's World Cup began?", ["England", "NZ/Aus", "Wales", "France"], 1)
+
+# ---- NATURE (skew hard) ----
+add("Nature", "med", "Largest species of shark?", ["Great white", "Whale shark", "Tiger", "Hammer"], 1)
+add("Nature", "hard", "Only mammal that can truly fly?", ["Squirrel", "Bat", "Sugar glider", "Lemur"], 1)
+add("Nature", "med", "A group of wolves is called a?", ["Herd", "Pack", "Pride", "Flock"], 1)
+add("Nature", "hard", "What animal has the largest eyes?", ["Whale", "Giant squid", "Owl", "Horse"], 1)
+add("Nature", "med", "Honeybees communicate by a?", ["Song", "Dance", "Whistle", "Glow"], 1)
+add("Nature", "hard", "Fastest bird in a dive?", ["Eagle", "Falcon", "Hawk", "Swift"], 1)
+
+# ---- FOOD (skew hard) ----
+add("Food", "med", "Which nut is in classic pesto?", ["Almond", "Pine nut", "Cashew", "Walnut"], 1)
+add("Food", "hard", "Country where the croissant is iconic?", ["Italy", "France", "Spain", "Belgium"], 1)
+add("Food", "med", "Hummus is mainly made from?", ["Lentil", "Chickpea", "Bean", "Pea"], 1)
+add("Food", "hard", "What gives paprika its red color base?", ["Chili", "Pepper", "Beet", "Tomato"], 1)
+add("Food", "med", "Which is a fermented soybean paste?", ["Miso", "Roux", "Pesto", "Aioli"], 0)
+
+# ---- MUSIC (skew hard) ----
+add("Music", "med", "How many keys total on a full piano?", ["66", "76", "88", "98"], 2)
+add("Music", "hard", "Composer of the Fifth Symphony 'da-da-da-dum'?", ["Mozart", "Beethoven", "Bach", "Chopin"], 1)
+add("Music", "med", "A capella means singing with no?", ["Words", "Instruments", "Audience", "Mic"], 1)
+add("Music", "hard", "Which instrument has pedals, strings, no frets, 88 keys?", ["Harp", "Piano", "Cello", "Organ"], 1)
+
+# ---- MATH (skew hard) ----
+add("Math", "med", "What is 13 x 3?", ["36", "39", "42", "33"], 1)
+add("Math", "hard", "Square root of 144?", ["10", "12", "14", "16"], 1)
+add("Math", "med", "How many sides does an octagon have?", ["6", "7", "8", "10"], 2)
+add("Math", "hard", "What is 7 factorial's first digit (5040)?", ["4", "5", "6", "7"], 1)
+add("Math", "med", "What is 25% of 80?", ["15", "20", "25", "30"], 1)
+
+# ---- GENERAL (skew hard) ----
+add("General", "med", "How many continents touch the equator?", ["1", "2", "3", "4"], 2)
+add("General", "hard", "Roman numeral for the year 2000?", ["MM", "MC", "DD", "CM"], 0)
+add("General", "med", "How many zeros in one million?", ["4", "5", "6", "7"], 2)
+add("General", "hard", "Which is NOT a primary color of light?", ["Red", "Green", "Blue", "Yellow"], 3)
+
+
+# ================= BATCH 5: NEW CATEGORIES (Space + AZ/Southwest) =================
+# Two new categories that suit the AZ mesh crowd (dark skies, desert, local pride). All
+# AZ facts WebSearch-verified 2026-06-05 (azgovernor.gov Arizona Facts, statesymbolsusa,
+# nps.gov Grand Canyon, Wikipedia London Bridge). Space facts verified via NASA science.nasa.gov.
+
+# ---- SPACE (skew med/hard) ----
+add("Space", "easy", "Which planet do we live on?", ["Mars", "Earth", "Venus", "Jupiter"], 1)
+add("Space", "easy", "What lights up the daytime sky?", ["Moon", "Sun", "Mars", "A star"], 1)
+add("Space", "med", "Closest planet to the Sun?", ["Venus", "Mercury", "Earth", "Mars"], 1)
+add("Space", "med", "Hottest planet in our solar system?", ["Mercury", "Venus", "Mars", "Jupiter"], 1)
+add("Space", "med", "How many moons does Earth have?", ["0", "1", "2", "4"], 1)
+add("Space", "med", "Planet famous for its bright rings?", ["Mars", "Saturn", "Venus", "Earth"], 1)
+add("Space", "hard", "Largest moon in our solar system?", ["Titan", "Ganymede", "Luna", "Europa"], 1)
+add("Space", "hard", "Tallest volcano in the solar system?", ["Mauna Kea", "Olympus Mons", "Etna", "Fuji"], 1)
+add("Space", "med", "Sunlight takes about how long to reach Earth?", ["8 sec", "8 min", "8 hr", "1 day"], 1)
+add("Space", "hard", "First artificial satellite, launched 1957?", ["Apollo", "Sputnik", "Hubble", "Voyager"], 1)
+add("Space", "hard", "Farthest human-made object from Earth?", ["Hubble", "Voyager 1", "ISS", "Cassini"], 1)
+add("Space", "hard", "Halley's Comet returns roughly every?", ["12 yr", "50 yr", "76 yr", "100 yr"], 2)
+add("Space", "med", "What telescope launched into orbit in 1990?", ["Webb", "Hubble", "Kepler", "Spitzer"], 1)
+add("Space", "hard", "NASA rover that landed on Mars in 2021?", ["Spirit", "Perseverance", "Curiosity", "Opportunity"], 1)
+add("Space", "med", "The ISS orbits Earth about every?", ["90 min", "6 hr", "12 hr", "24 hr"], 0)
+add("Space", "hard", "Galaxy that contains our solar system?", ["Andromeda", "Milky Way", "Sombrero", "Whirlpool"], 1)
+
+# ---- AZ / SOUTHWEST (local flavor, skew med/hard) ----
+add("AZ", "easy", "Capital of Arizona?", ["Tucson", "Phoenix", "Mesa", "Flagstaff"], 1)
+add("AZ", "easy", "Arizona's famous mile-deep canyon?", ["Bryce", "Grand Canyon", "Zion", "Antelope"], 1)
+add("AZ", "med", "Arizona's state nickname?", ["Copper State", "Grand Canyon State", "Sun State", "Cactus State"], 1)
+add("AZ", "med", "Tall cactus with arms, symbol of AZ?", ["Cholla", "Saguaro", "Prickly pear", "Barrel"], 1)
+add("AZ", "med", "River that carved the Grand Canyon?", ["Gila", "Colorado", "Salt", "Verde"], 1)
+add("AZ", "hard", "Arizona's state bird?", ["Roadrunner", "Cactus wren", "Quail", "Condor"], 1)
+add("AZ", "hard", "Arizona's state flower?", ["Poppy", "Saguaro blossom", "Desert rose", "Marigold"], 1)
+add("AZ", "med", "AZ city that bought the real London Bridge?", ["Sedona", "Lake Havasu City", "Yuma", "Bisbee"], 1)
+add("AZ", "hard", "Which is one of Arizona's '5 C's'?", ["Coffee", "Copper", "Coal", "Corn"], 1)
+add("AZ", "med", "AZ red-rock tourist town north of Phoenix?", ["Tempe", "Sedona", "Chandler", "Gilbert"], 1)
+add("AZ", "hard", "Arizona does NOT observe which time change?", ["Leap year", "Daylight saving", "New Year", "Solstice"], 1)
+add("AZ", "med", "Largest city in Arizona?", ["Tucson", "Phoenix", "Mesa", "Glendale"], 1)
+add("AZ", "hard", "Year Arizona became a US state (1912)?", ["1850", "1912", "1945", "1976"], 1)
+add("AZ", "hard", "AZ desert that shares a name with a saguaro park?", ["Mojave", "Sonoran", "Chihuahuan", "Painted"], 1)
+
+
 def main():
     questions = [Question(**q) for q in Q]
     problems = validate_bank(questions, max_bytes=200)

@@ -119,6 +119,26 @@ def test_live_bank_has_meshtastic_questions_in_hard():
     assert len(mesh) >= 10, f"expected Meshtastic depth in hard tier, got {len(mesh)}"
 
 
+def test_v140_bank_is_meaningfully_larger_and_hard_skewed():
+    """v1.4.0 broadened the bank well past Meshtastic with a harder skew (Will, 2026-06-05).
+
+    Guards the expansion goals without pinning an exact count (the bank keeps growing):
+    a large total, and a hard tier that is no smaller than the easy tier (the harder skew).
+    """
+    qs = load_questions(BANK)
+    assert len(qs) >= 360, f"expected the v1.4.0 expansion, got {len(qs)}"
+    easy = len(select_by_difficulty(qs, "easy"))
+    hard = len(select_by_difficulty(qs, "hard"))
+    assert hard >= easy, f"hard skew lost: easy={easy} hard={hard}"
+
+
+def test_v140_added_space_and_az_categories():
+    """The expansion added Space and AZ/Southwest categories for the AZ mesh crowd."""
+    qs = load_questions(BANK)
+    cats = {q.category for q in qs}
+    assert {"Space", "AZ"} <= cats, f"missing new categories; have {sorted(cats)}"
+
+
 # ---------------- bot wiring ----------------
 
 def test_bot_narrows_engine_bag_to_tier(tmp_path):
