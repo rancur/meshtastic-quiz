@@ -305,6 +305,74 @@ add("General", "med", "How many sides on a stop sign?", ["6", "7", "8", "9"], 2)
 add("General", "hard", "Primary colors are red, blue and?", ["Green", "Yellow", "Orange", "Purple"], 1)
 
 
+# ================= BATCH 3: MESHTASTIC / LoRa DEEP CUT =================
+# Fact-checked 2026-06-05 against the official docs at meshtastic.org (radio-settings,
+# channels, device roles, mqtt, lora, mesh-algo). These power the MEDIUM and HARD tiers so
+# "harder" means real mesh knowledge, not just obscure trivia. Keep them FUN + tight (<200B).
+
+# ---- Mesh basics (medium) ----
+add("Mesh", "med", "Meshtastic radios talk over which tech?", ["WiFi", "LoRa", "5G", "Zigbee"], 1)
+add("Mesh", "med", "Default Meshtastic modem preset?", ["ShortFast", "LongFast", "LongSlow", "MediumFast"], 1)
+add("Mesh", "med", "Default hop limit on a fresh node?", ["1", "3", "5", "7"], 1)
+add("Mesh", "med", "Max hop limit Meshtastic allows?", ["3", "5", "7", "10"], 2)
+add("Mesh", "med", "US Meshtastic runs in which ISM band?", ["433 MHz", "868 MHz", "915 MHz", "2.4 GHz"], 2)
+add("Mesh", "med", "Default device role on a new node?", ["ROUTER", "CLIENT", "REPEATER", "SENSOR"], 1)
+add("Mesh", "med", "Meshtastic answers and tapbacks ride on?", ["Bluetooth", "LoRa", "NFC", "IR"], 1)
+add("Mesh", "med", "What app monitors a mesh via REST?", ["MeshMonitor", "Wireshark", "Grafana", "Pi-hole"], 0)
+add("Mesh", "med", "A LoRa text packet caps around how many bytes?", ["50", "100", "200", "500"], 2)
+add("Mesh", "med", "Higher spreading factor mainly gives more?", ["Speed", "Range", "Battery", "Color"], 1)
+add("Mesh", "med", "Which preset is FASTEST but shortest range?", ["LongSlow", "LongFast", "ShortTurbo", "MediumSlow"], 2)
+add("Mesh", "med", "Meshtastic firmware is built mostly for which chips?", ["ESP32/nRF52", "x86", "AVR", "PIC"], 0)
+add("Mesh", "med", "What does PSK protect on a channel?", ["Speed", "Encryption", "Battery", "GPS"], 1)
+add("Mesh", "med", "Default public MQTT broker host?", ["mqtt.meshtastic.org", "broker.mqtt.io", "mesh.local", "iot.aws"], 0)
+add("Mesh", "med", "Sharing a channel needs matching what?", ["Color", "PSK", "Name only", "Hop limit"], 1)
+add("Mesh", "med", "Region setting mainly controls the?", ["Color", "Frequency", "Hop limit", "Name"], 1)
+add("Mesh", "med", "What does MQTT bridge a mesh to?", ["A printer", "The internet", "GPS sats", "A modem"], 1)
+add("Mesh", "med", "Antenna gain is measured in?", ["Volts", "dBi", "Hertz", "Amps"], 1)
+add("Mesh", "med", "A handheld Meshtastic node usually connects to a phone via?", ["WiFi", "Bluetooth", "USB only", "Cellular"], 1)
+add("Mesh", "med", "Lower SNR distant nodes rebroadcast?", ["Never", "Sooner", "Later", "Twice"], 1)
+
+# ---- LoRa presets + RF (hard) ----
+add("Mesh", "hard", "LongFast uses which spreading factor?", ["SF7", "SF9", "SF11", "SF12"], 2)
+add("Mesh", "hard", "ShortFast bandwidth is?", ["125 kHz", "250 kHz", "500 kHz", "62 kHz"], 1)
+add("Mesh", "hard", "Each step up in SF roughly does what to airtime?", ["Halves", "Doubles", "No change", "Triples"], 1)
+add("Mesh", "hard", "Slowest/longest-range default preset?", ["LongFast", "LongSlow", "MediumSlow", "ShortSlow"], 1)
+add("Mesh", "hard", "LongSlow spreading factor?", ["SF9", "SF10", "SF11", "SF12"], 3)
+add("Mesh", "hard", "ShortTurbo bandwidth?", ["250 kHz", "500 kHz", "125 kHz", "1 MHz"], 1)
+add("Mesh", "hard", "US 915 ISM band spans roughly?", ["902-928", "863-870", "433-435", "920-925"], 0)
+add("Mesh", "hard", "Default NA frequency slot after reset?", ["Slot 0", "Slot 20", "Slot 52", "Slot 7"], 1)
+add("Mesh", "hard", "Higher SF adds about how much link budget per step?", ["0.5 dB", "2.5 dB", "10 dB", "25 dB"], 1)
+add("Mesh", "hard", "Coding rate on most default presets?", ["4/5", "4/8", "1/2", "7/8"], 0)
+
+# ---- Routing / flooding (hard) ----
+add("Mesh", "hard", "Meshtastic routing model is called?", ["Mesh OSPF", "Managed flood", "BGP mesh", "Star route"], 1)
+add("Mesh", "hard", "On rebroadcast, a node does what to hop limit?", ["Increments", "Decrements", "Resets", "Ignores"], 1)
+add("Mesh", "hard", "Before rebroadcasting a node first?", ["Sleeps", "Listens", "Reboots", "Pings GPS"], 1)
+add("Mesh", "hard", "Rebroadcast stops when hop limit hits?", ["1", "0", "-1", "7"], 1)
+add("Mesh", "hard", "Contention window size keys off which metric?", ["GPS", "SNR", "Battery", "Clock"], 1)
+add("Mesh", "hard", "v2.6+ direct messages prefer what over flooding?", ["Broadcast", "Next-hop", "MQTT", "Random"], 1)
+
+# ---- Channels / encryption (hard) ----
+add("Mesh", "hard", "Max channels you can configure (indices 0-7)?", ["4", "6", "8", "16"], 2)
+add("Mesh", "hard", "Valid PSK sizes are 0, 16, or how many bytes?", ["24", "32", "48", "64"], 1)
+add("Mesh", "hard", "A 32-byte PSK selects which cipher?", ["AES128", "AES256", "DES", "RSA"], 1)
+add("Mesh", "hard", "The default primary channel name is?", ["LongFast", "Empty", "Public", "Default1"], 1)
+add("Mesh", "hard", "Default channel's PSK is the single byte?", ["0x00", "0x01", "0xFF", "0x42"], 1)
+add("Mesh", "hard", "A 0-byte PSK means?", ["AES256", "No crypto", "AES128", "Error"], 1)
+
+# ---- Roles (hard) ----
+add("Mesh", "hard", "Which role is HIDDEN from the nodes list?", ["CLIENT", "ROUTER", "REPEATER", "TRACKER"], 2)
+add("Mesh", "hard", "ROUTER vs REPEATER: ROUTER is?", ["Hidden", "Visible", "Muted", "Mobile"], 1)
+add("Mesh", "hard", "Role that does NOT forward others' packets?", ["CLIENT", "ROUTER", "CLIENT_MUTE", "REPEATER"], 2)
+add("Mesh", "hard", "Role that broadcasts GPS as priority?", ["SENSOR", "TRACKER", "CLIENT", "TAK"], 1)
+add("Mesh", "hard", "Role broadcasting telemetry as priority?", ["TRACKER", "SENSOR", "ROUTER", "CLIENT"], 1)
+add("Mesh", "hard", "ROUTER_LATE rebroadcasts when?", ["First", "After others", "Never", "Twice"], 1)
+
+# ---- MQTT (hard) ----
+add("Mesh", "hard", "MQTT 'uplink' sends packets which way?", ["To broker", "From broker", "Both", "Neither"], 0)
+add("Mesh", "hard", "If MQTT encryption is off, packets go to broker?", ["Encrypted", "Unencrypted", "Not at all", "Compressed"], 1)
+
+
 def main():
     questions = [Question(**q) for q in Q]
     problems = validate_bank(questions, max_bytes=200)

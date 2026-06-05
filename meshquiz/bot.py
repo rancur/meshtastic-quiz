@@ -20,7 +20,7 @@ from dataclasses import asdict, fields
 from . import host, state
 from .config import ANSWER_EMOJI, ANSWER_TYPED, Config
 from .engine import AmbientStats, GameEngine, SendText, StartQuestion
-from .questions import Question, load_questions, validate_bank
+from .questions import Question, load_questions, select_by_difficulty, validate_bank
 from .transport import MeshMessage, Transport
 
 log = logging.getLogger("meshquiz.bot")
@@ -65,9 +65,21 @@ class TriviaBot:
         self.cfg = cfg
         if questions is None:
             questions = load_questions(cfg.questions_path)
+        # Validate the FULL bank up front (every question must be byte-safe regardless of
+        # which tier is active), then narrow to the operator's chosen difficulty tier.
         problems = validate_bank(questions, cfg.max_payload_bytes)
         if problems:
             raise ValueError("question bank failed validation:\n" + "\n".join(problems[:20]))
+        full_count = len(questions)
+        questions = select_by_difficulty(questions, cfg.quiz_difficulty)
+        if cfg.quiz_difficulty not in ("mixed", "", "all") and len(questions) == full_count \
+                and full_count > 0:
+            # select_by_difficulty fell back to the whole bank because the requested tier
+            # was empty — surface it so a misconfigured tier is visible in the logs.
+            log.warning("QUIZ_DIFFICULTY=%r matched no questions; using the full bank (%d)",
+                        cfg.quiz_difficulty, full_count)
+        log.info("question bank: %d of %d loaded for difficulty=%r",
+                 len(questions), full_count, cfg.quiz_difficulty)
         self.engine = GameEngine(cfg, questions)
         self._questions = list(questions)  # for ambient random pick
         self._cursor_ms = 0

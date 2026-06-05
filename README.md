@@ -208,13 +208,36 @@ Everything is environment-driven; see [`.env.example`](.env.example) for the ful
 deployment-specific values live in the code** — copy `.env.example` to `.env` (gitignored)
 and fill in your own.
 
+## Difficulty tiers (installer-selectable)
+
+Pick how hard Buzz plays with **`QUIZ_DIFFICULTY`**:
+
+| `QUIZ_DIFFICULTY` | Bank drawn from | Feel |
+| --- | --- | --- |
+| `easy` | the easy tier | approachable general-knowledge warm-ups |
+| `medium` | the medium tier | tougher general trivia **plus real Meshtastic/LoRa knowledge** |
+| `hard` | the hard tier | deep-cut Meshtastic/LoRa internals — for mesh nerds |
+| `mixed` *(default)* | the **entire** bank, all tiers blended | the classic v1.x mix |
+
+**`mixed` is the default**, so an existing install that never sets `QUIZ_DIFFICULTY` plays
+exactly as before — backward compatible. `medium` is accepted as an alias for the bank's
+`med` label. If a tier is ever empty (e.g. a hand-trimmed bank) the bot falls back to the
+full bank rather than starting with no questions, and logs the fallback.
+
+The **medium and hard tiers lean into Meshtastic itself** — LoRa modem presets and their
+range/airtime tradeoffs, hop-limit mechanics, managed-flood routing, channels/PSK/AES
+encryption, device roles (CLIENT / ROUTER / REPEATER / TRACKER / SENSOR …), MQTT bridging,
+the US 915 MHz ISM band, and antenna basics — all fact-checked against the official
+[meshtastic.org](https://meshtastic.org) docs. Run a `hard` game on your mesh channel and
+watch who actually knows their spreading factors.
+
 ## The question bank
 
-~230 curated single-answer questions across 11 categories (Science, History, Geography,
-Tech, Pop culture, Sports, Nature, Food, Music, Math, General), each authored to fit the
-Meshtastic 200-byte payload limit. The bank lives at
-[`meshquiz/data/questions.json`](meshquiz/data/questions.json) and is generated +
-validated by [`scripts/build_questions.py`](scripts/build_questions.py).
+~280 curated single-answer questions across 12 categories (Science, History, Geography,
+Tech, Pop culture, Sports, Nature, Food, Music, Math, General, **Mesh**), each authored to
+fit the Meshtastic 200-byte payload limit, with **25+ questions in every selectable tier**.
+The bank lives at [`meshquiz/data/questions.json`](meshquiz/data/questions.json) and is
+generated + validated by [`scripts/build_questions.py`](scripts/build_questions.py).
 
 **Monthly refresh:** add/rotate questions in `build_questions.py`, then run
 `python scripts/refresh_questions.py`. It rebuilds the JSON and fails loudly if any

@@ -3,6 +3,37 @@
 All notable changes to this project are documented here. This project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.3.0] - 2026-06-05
+
+### Added
+- **Installer-selectable difficulty tiers (`QUIZ_DIFFICULTY`).** Operators choose how hard
+  Buzz plays: `easy`, `medium`, `hard`, or `mixed`. The bot narrows its question bag to the
+  chosen tier at startup. `medium` is an alias for the bank's `med` label. **Default is
+  `mixed`** (the whole bank) so existing installs that never set the variable behave exactly
+  like v1.2.x — fully backward compatible. A tier that somehow ends up empty falls back to
+  the full bank (a missing tier can never brick the bot) and logs the fallback.
+- **50 new fact-checked Meshtastic / LoRa questions (`Mesh` category).** The medium and hard
+  tiers now lean into the mesh itself — LoRa modem presets and their range/airtime tradeoffs
+  (SF, bandwidth, coding rate, link budget), the default `LongFast` preset, hop-limit
+  mechanics (default 3, max 7, decrement-on-rebroadcast), managed-flood routing + SNR-based
+  contention windows, channels/PSK and AES-128/256 encryption, device roles (CLIENT /
+  CLIENT_MUTE / ROUTER / REPEATER / TRACKER / SENSOR / ROUTER_LATE), MQTT bridging
+  (`mqtt.meshtastic.org`, uplink/downlink), the US 915 MHz ISM band, and antenna basics
+  (dBi). Every new question was verified against the official meshtastic.org docs.
+
+### Changed
+- **Bank grown 232 → 282 questions** across 12 categories (added `Mesh`). Per-tier counts:
+  easy 76, medium 115, hard 91 — every selectable tier well past the 25-question target.
+
+### Tests
+- New `tests/test_difficulty.py`: tier filtering, `medium`→`med` aliasing, mixed/blank/legacy
+  backward-compat, empty-tier fallback, `QUIZ_DIFFICULTY` config validation, live per-tier
+  coverage (25+ each + Meshtastic depth in `hard`), and bot-bag narrowing.
+
+### Byte budget
+- Full 282-question bank re-validated: worst case **124 B** with the leading ambient emoji
+  (budget 200 B). Every question, all tiers, fits one LoRa packet.
+
 ## [1.2.2] - 2026-06-03
 
 ### Changed
