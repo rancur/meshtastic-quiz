@@ -223,6 +223,15 @@ so well." Five decisions:
   **gated behind `PERSONALITY_ENABLED`**: with it off, the bot never registers an ambient
   packet and never routes ambient reactions, so v1.1.0 behavior is byte-for-byte unchanged.
 
+- **Typed answers count on the ambient track too (v1.4.1).** Both ways of answering — an emoji
+  tapback OR a typed `1`–`4` — now score on the ambient track, as long as the message *replies
+  to* the open ambient question (`reply_to == ambient_packet_id`). Originally only emoji
+  tapbacks were routed to ambient; the typed path was wired solely to the rapid game and was a
+  no-op while ambient was the only thing running, so typed ambient answers were silently
+  dropped. A typed `1`–`4` with **no** `reply_to` is deliberately *not* scored — it can't be
+  attributed to the open question and would otherwise credit stray channel chatter. (`ALLOW_
+  TYPED_ANSWERS` still gates the typed path entirely.)
+
 - **Recap winner semantics match the game.** All correct answerers are "winners"; the FIRST
   correct reactor is the highlighted one (same as the game's first-correct bonus + shoutout).
   The recap names the first winner with a quip and appends `(+N more)`; the whole thing is

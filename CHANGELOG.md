@@ -3,6 +3,25 @@
 All notable changes to this project are documented here. This project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.1] - 2026-06-06
+
+### Fixed
+- **Typed answers (`1`–`4`) to the ambient question were silently dropped.** The typed-answer
+  path only fed the rapid `!starttrivia` game (`engine.running`); when no game was running, a
+  typed reply to the open ambient question never reached the ambient scoring track, even though
+  the equivalent emoji tapback did. Players who typed their answer instead of tapping back got
+  **zero credit** on the 24/7 ambient track. Now a typed answer whose `reply_to` matches the
+  open ambient packet scores on the ambient track, mirroring the emoji path. Stray `1`–`4`
+  chatter with no `reply_to` is still ignored, so nothing spurious is credited.
+  (Found via a full replay of the live AZ mesh's channel-2 history: two correct typed answers
+  had been lost.)
+
+### Tests
+- `tests/test_ambient.py`: `test_ambient_typed_answer_is_captured_and_scored` (regression for
+  the dropped typed ambient answer), `test_ambient_typed_answer_without_reply_is_ignored`
+  (stray typed chatter stays unscored), and `test_ambient_emoji_reaction_is_captured`
+  (baseline tapback capture). 135 tests green.
+
 ## [1.4.0] - 2026-06-05
 
 ### Added
