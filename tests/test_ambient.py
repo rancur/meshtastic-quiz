@@ -123,8 +123,72 @@ def test_ambient_paused_while_game_running(tmp_path):
     ambient_msgs = [m for m in t.sent
                     if any(m.text.startswith(e) for e in host.AMBIENT_LEAD_EMOJI)]
     assert ambient_msgs == []
-    # (sent may have grown from game ticks, but no ambient teaser among them)
-    assert len(t.sent) >= sent_before
+
+
+# ---------------- answering the ambient question ----------------
+
+def _fire_ambient_and_get_pkt(bot, t, minute=37):
+    """Fire one ambient question via poll_once and return (engine, ambient_packet_id)."""
+    fire = _epoch_at_local_minute(minute)
+    t.set_clock_ms(int(fire * 1000))
+    bot.poll_once(now_s=fire)
+    return fire, bot.engine.ambient_packet_id
+
+
+def test_ambient_emoji_reaction_is_captured(tmp_path):
+    # baseline: a tapback reaction to the open ambient question is captured on the ambient
+    # track (scored at the next-hour recap via resolve_ambient).
+    bot, t = make_bot(str(tmp_path), ambient_enabled=True, personality_enabled=True,
+                      ambient_minute_offset=37)
+    fire, pkt = _fire_ambient_and_get_pkt(bot, t)
+    assert pkt is not None
+    q = bot.engine._ambient_q
+    from meshquiz.config import ANSWER_EMOJI
+    t.inject_reaction("!alice001", ANSWER_EMOJI[q.answer], reply_to=pkt,
+                      channel=TRIVIA, ts_ms=int(fire * 1000) + 5000)
+    bot.poll_once(now_s=fire + 5)
+    assert "!alice001" in bot.engine._ambient_answers
+    assert bot.engine._ambient_answers["!alice001"].option == q.answer
+
+
+def test_ambient_typed_answer_is_captured_and_scored(tmp_path):
+    # REGRESSION (v1.4.1): a TYPED answer ("1".."4") that replies to the open ambient
+    # question must be captured + scored on the ambient track, just like an emoji tapback.
+    # Before the fix, typed ambient answers were silently dropped because the typed-answer
+    # path required an active rapid game. Real loss: ZeroFG L1's typed "2" answers on the
+    # live AZ mesh (06-04 14:38 Beatles, 15:47 Iron) — both correct, both uncredited.
+    bot, t = make_bot(str(tmp_path), ambient_enabled=True, personality_enabled=True,
+                      allow_typed_answers=True, ambient_minute_offset=37)
+    fire, pkt = _fire_ambient_and_get_pkt(bot, t)
+    assert pkt is not None
+    q = bot.engine._ambient_q
+    typed = str(q.answer + 1)  # correct option as a 1-based typed digit
+    p = t.inject_text("!alice001", typed, channel=TRIVIA, ts_ms=int(fire * 1000) + 5000)
+    # attach the reply_to so it maps to the open ambient question (typed answers carry it
+    # when the client replied to the question message)
+    t.inbox[-1].reply_to = pkt
+    assert p  # injected
+    bot.poll_once(now_s=fire + 5)
+    # captured immediately on the ambient track...
+    assert "!alice001" in bot.engine._ambient_answers
+    assert bot.engine._ambient_answers["!alice001"].option == q.answer
+    # ...and credited as correct when the question resolves (next ambient fire / recap)
+    recap = bot.engine.resolve_ambient()
+    assert recap.had_question
+    st = bot.engine.ambient_stats["!alice001"]
+    assert st.correct == 1 and st.answered == 1
+
+
+def test_ambient_typed_answer_without_reply_is_ignored(tmp_path):
+    # A bare typed digit with NO reply_to can't be mapped to the open ambient question and
+    # must NOT score (avoids crediting stray channel chatter). Mirrors the live mesh where
+    # bare "2" messages with no replyId were correctly left unscored.
+    bot, t = make_bot(str(tmp_path), ambient_enabled=True, personality_enabled=True,
+                      allow_typed_answers=True, ambient_minute_offset=37)
+    fire, pkt = _fire_ambient_and_get_pkt(bot, t)
+    t.inject_text("!alice001", "2", channel=TRIVIA, ts_ms=int(fire * 1000) + 5000)
+    bot.poll_once(now_s=fire + 5)
+    assert "!alice001" not in bot.engine._ambient_answers
 
 
 # ---------------- rate-limit floor ----------------

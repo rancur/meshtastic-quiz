@@ -324,11 +324,25 @@ class TriviaBot:
             # NOT one message per rule. Packs on line boundaries; splits to 2+ only if
             # the full text exceeds the payload limit.
             self._send_lines(self._pack_lines(host.HELP_LINES, self.cfg.max_payload_bytes))
-        elif self.cfg.allow_typed_answers and self.engine.running:
+        elif self.cfg.allow_typed_answers:
             opt = typed_to_option(text)
-            if opt is not None:
+            if opt is None:
+                return
+            if self.engine.running:
+                # rapid game in progress: typed answer counts for the open question
                 self.engine.submit_answer(m.from_node_id, self._name_for(m.from_node_id),
                                           opt, m.timestamp_ms / 1000.0)
+            else:
+                # No game running: a typed answer that REPLIES to the open ambient question
+                # scores on the ambient track, mirroring the emoji-tapback path. The reply_to
+                # must match the open ambient packet so stray "1".."4" chatter is never
+                # credited. (Without this, typed ambient answers were silently dropped —
+                # v1.4.1 fix; real point loss observed on the live AZ mesh.)
+                amb = self.engine.ambient_packet_id
+                if amb is not None and m.reply_to == amb:
+                    self.engine.submit_ambient_answer(
+                        m.from_node_id, self._name_for(m.from_node_id),
+                        opt, m.timestamp_ms / 1000.0)
 
     def _handle_primary(self, m: MeshMessage):
         """Primary-channel handler: the SOLE allowed command here is `!trivia`."""
