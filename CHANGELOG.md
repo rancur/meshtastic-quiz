@@ -3,6 +3,36 @@
 All notable changes to this project are documented here. This project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.6.0] - 2026-07-06
+
+### Added
+- **Mass question generation → the ambient pool now clears a LITERAL 365-day no-repeat.** The
+  v1.5.0 no-repeat window degraded gracefully because the pool (480) was far below the 8,760
+  questions an hourly cadence needs for a full year. This release scales the ambient-eligible
+  (med+hard) pool to **9,110** (total bank **9,192**), so a full year of hourly draws now has
+  **zero** repeats — guaranteed minimum spacing **≈379 days**.
+- New generator module [`scripts/gen_bank.py`](scripts/gen_bank.py), invoked from
+  `build_questions.py` (BATCH 7). **Correctness by construction, not recall:**
+  - **Math** (~7,300, the bulk): answers are **computed** by the generator — multiplication,
+    division, powers, roots, percentages, Roman numerals, binary/hex conversion, primes,
+    polygons/angle-sums, factorials, GCD/LCM. A separate pass **independently recomputed all
+    7,520 math answers** and confirmed 0 errors.
+  - **Fact tables** (~1,600): emitted from a single vetted canonical table (full periodic table,
+    world capitals, all 50 US state capitals + postal codes, currencies, landmarks, NATO/Greek
+    alphabets, verified Meshtastic/LoRa preset table + RF/ham facts) so **every distractor is
+    another real row** — guaranteed wrong. Ambiguous/volatile rows (dual capitals, unstable
+    currencies) were dropped; changed capitals + elements 100–118 verified 2026-07-06.
+  - All generated questions are tagged **hard**, so the curated **medium** tier (the live
+    `!starttrivia` game, still 251 questions) is untouched — only the 24/7 ambient
+    `challenging` pool gets the deep bank.
+- `add()` in `build_questions.py` now de-dupes by normalized question text (hand-authored +
+  generated), so the generator can emit freely without ever producing a duplicate.
+
+### Changed
+- `tests/test_no_repeat.py` year simulation now asserts **zero repeats across a full year** when
+  the pool ≥ 8,760 (the literal-year guarantee), keeping the graceful-degradation assertion for
+  smaller pools. 139 tests green.
+
 ## [1.5.0] - 2026-07-06
 
 ### Fixed

@@ -109,10 +109,11 @@ between two showings of the same question is:
 spacing (days) = ambient pool size ÷ questions-per-day
 ```
 
-A literal 365-day gap at hourly cadence therefore needs **~8760** questions in the ambient
-pool; below that, grow the bank or slow `AMBIENT_INTERVAL_MINUTES` to extend coverage. With the
-shipped bank (**480** med+hard) at hourly, every question is spaced **≥ 20 days** apart — up
-from repeats within *hours* under the old random-with-replacement pick.
+A literal 365-day gap at hourly cadence needs **~8760** questions in the ambient pool. The
+shipped bank delivers **9,110** med+hard, so the literal year **holds**: a full year of hourly
+draws produces **zero** repeats, with a guaranteed minimum spacing of **≈379 days** — up from
+repeats within *hours* under the old random-with-replacement pick. If you run a smaller custom
+bank below 8,760, the LRU fallback still guarantees `pool ÷ per-day` days of spacing.
 
 ### Mesh etiquette / airtime math
 
@@ -256,12 +257,21 @@ watch who actually knows their spreading factors.
 
 ## The question bank
 
-**562** curated single-answer questions across 14 categories (Science, History, Geography,
-Tech, Pop culture, Sports, Nature, Food, Music, Math, General, **Mesh**, **Space**, and
-**AZ/Southwest** local flavor), each authored to fit the Meshtastic 200-byte payload limit,
-with a deliberate medium/hard skew (**251** medium + **229** hard = **480** in the default
-`challenging` ambient pool). Every fact is canonical or source-verified — a wrong answer in a
-community bot is worse than a repeat, so anything uncertain was verified or dropped.
+**9,192** single-answer questions, each authored to fit the Meshtastic 200-byte payload limit.
+The ambient-eligible (med+hard) `challenging` pool is **9,110** — deeper than a full year of
+hourly draws (8,760), so the 365-day no-repeat holds **literally** (min spacing ≈379 days).
+
+The bank is two layers:
+- **Curated** (`build_questions.py` BATCH 1–6, ~562): hand-authored across 14 categories, the
+  source of the **medium** tier that the competitive `!starttrivia` game draws from.
+- **Generated** (`scripts/gen_bank.py`, BATCH 7, ~8,600, all tagged **hard**): produced by
+  **correctness-by-construction** generators — math answers are *computed* (not recalled) and
+  fact-table questions come from vetted canonical data (periodic table, world capitals, US
+  state capitals, NATO/Greek alphabets, verified Meshtastic/LoRa/RF facts) so every distractor
+  is another real entry. All 7,520 math answers were independently recomputed and verified.
+
+A wrong answer in a community bot is worse than a repeat, so anything uncertain (dual-capital
+countries, volatile currencies) was dropped rather than guessed.
 The bank lives at [`meshquiz/data/questions.json`](meshquiz/data/questions.json) and is
 generated + validated by [`scripts/build_questions.py`](scripts/build_questions.py).
 

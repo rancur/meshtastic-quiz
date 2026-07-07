@@ -15,15 +15,24 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 sys.path.insert(0, ROOT)
+sys.path.insert(0, HERE)
 
 from meshquiz.questions import Question, validate_bank  # noqa: E402
 
 # Each entry: (category, difficulty, question, [opt1,opt2,opt3,opt4], answer_index)
 # Keep questions + options SHORT — they must render within 200 UTF-8 bytes.
 Q = []
+_SEEN = set()  # normalized question texts already added (global de-dupe: hand + generated)
 
 
 def add(cat, diff, q, opts, ans):
+    # De-dupe by normalized question text so hand-authored and PROGRAMMATICALLY-generated
+    # questions never collide (the generator relies on this to skip repeats). Same key the
+    # bank's duplicate check + the no-repeat history use.
+    key = q.strip().lower()
+    if key in _SEEN:
+        return
+    _SEEN.add(key)
     Q.append({"category": cat, "difficulty": diff, "question": q, "options": opts, "answer": ans})
 
 
@@ -732,6 +741,15 @@ add("Mesh", "hard", "Long Slow preset bandwidth?", ["62 kHz", "125 kHz", "250 kH
 add("Mesh", "hard", "A 16-byte PSK selects which cipher?", ["AES128", "AES256", "DES", "None"], 0)
 add("Mesh", "hard", "Long Turbo preset bandwidth?", ["125 kHz", "250 kHz", "500 kHz", "62 kHz"], 2)
 add("Mesh", "hard", "Meshtastic serializes packets using?", ["JSON", "Protobuf", "XML", "YAML"], 1)
+
+
+# ================= BATCH 7: PROGRAMMATIC MASS GENERATION (v1.6.0) =================
+# Correctness-by-construction generators (math answers COMPUTED, fact tables from vetted
+# canonical data) scale the ambient (med+hard) pool past 8,760 for a LITERAL 365-day no-repeat.
+# All emitted as difficulty "hard" so the curated MEDIUM tier (the live game) stays untouched.
+import gen_bank  # noqa: E402
+
+gen_bank.generate(add)
 
 
 def main():
