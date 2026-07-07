@@ -3,6 +3,39 @@
 All notable changes to this project are documented here. This project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.5.0] - 2026-07-06
+
+### Fixed
+- **The 24/7 ambient track no longer repeats questions.** Root cause: ambient question
+  selection was `random.choice(pool)` — random **with replacement**, with **zero history**.
+  On a few-hundred-question pool at the hourly cadence the birthday paradox produced
+  collisions within hours (felt as "the same questions keep coming up"). Selection is now a
+  **persistent 365-day no-repeat**: a question shown in the last `AMBIENT_NO_REPEAT_DAYS`
+  days (default 365) is excluded; the next question is picked **randomly among eligible**
+  ones. History (`{question_key: last_asked_epoch}`) is stored in `state.json`, written
+  atomically, and survives restarts/redeploys. Any question sent to the channel — rapid-game
+  **or** ambient — stamps the shared history, so the two tracks never echo each other.
+
+### Added
+- **+183 new fact-checked questions** (379 → **562**; med **160→251**, hard **139→229**),
+  skewed medium/hard per Will's "make the questions harder too." Every fact is canonical +
+  stable or verified 2026-07-06 (Meshtastic/LoRa specifics against the official radio-settings
+  + channels docs; debatable/volatile facts deliberately excluded).
+- **`AMBIENT_DIFFICULTY`** (default `challenging` = med+hard) decouples the 24/7 ambient pool
+  from the competitive `QUIZ_DIFFICULTY` knob, giving the no-repeat window the widest/hardest
+  pool to cycle through (**480** questions med+hard).
+- **`AMBIENT_NO_REPEAT_DAYS`** (default 365). **Graceful degradation:** if the pool is too
+  small for the cadence to cover a full year, selection falls back to the **least-recently-
+  asked** question (maximum possible spacing) and logs a warning — never a recent repeat,
+  never a crash. Guaranteed spacing = (pool size ÷ questions-per-day) days; a literal 365-day
+  window at hourly needs ~8760 questions in the pool.
+
+### Tests
+- `tests/test_no_repeat.py`: simulates a **full year of hourly draws** and proves no question
+  reappears before the whole pool cycles (LRU max-spacing); a year-sized pool yields literally
+  zero repeats in 365 days; history persists across a restart; the exhausted-pool fallback is
+  LRU (no crash, no recent repeat, no starvation). 139 tests green.
+
 ## [1.4.1] - 2026-06-06
 
 ### Fixed

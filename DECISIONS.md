@@ -17,6 +17,35 @@ A **typed-answer fallback** (`1`/`2`/`3`/`4` as a normal channel message) is ava
 behind `ALLOW_TYPED_ANSWERS` (default on) for radios/clients that cannot emit reactions.
 It does not change scoring. Set it to `false` for a pure tapback game.
 
+## Ambient no-repeat: persistent 365-day window + LRU fallback (v1.5.0)
+
+The 24/7 ambient track originally picked with `random.choice(pool)` — random **with
+replacement**, no history — so on a few-hundred-question pool at hourly cadence the birthday
+paradox produced repeats within hours. Fix:
+
+- **Persistent history.** `state.json` gains `ask_history = {question_key: last_asked_epoch}`.
+  The key is the normalized question text (same key the bank's dedupe uses), so history
+  survives option/typo edits and a bank rebuild; it's written with the existing atomic
+  temp-file + `os.replace`, and pruned on load to keys still in the bank (bounded to bank size).
+- **Selection.** Eligible = never-asked or asked ≥ `AMBIENT_NO_REPEAT_DAYS` (default 365) ago;
+  pick **randomly among eligible** (unpredictable, not sequential). Any question sent to the
+  channel — ambient *or* rapid game — stamps the shared history, so the tracks never echo.
+- **Graceful degradation.** If eligible is empty (pool too small for the cadence to cover the
+  window), fall back to the **least-recently-asked** question (max spacing, random tiebreak)
+  and log a warning. Never a recent repeat, never a crash, never starves a question.
+- **Why not just make the window shorter?** The window is the *target*; the LRU fallback makes
+  the *actual* guarantee = full-pool-cycle spacing = `pool ÷ per-day` days regardless. A literal
+  365-day gap at hourly needs ~8760 questions, which can't be hand-authored without
+  hallucinating — so we ship the deepest verified pool we can and let LRU guarantee the max.
+
+## Ambient pool decoupled from `QUIZ_DIFFICULTY` (`AMBIENT_DIFFICULTY`, v1.5.0)
+
+`QUIZ_DIFFICULTY` narrows the competitive `!starttrivia` game. The ambient channel is a
+different job — keep it warm with the widest/hardest pool so the no-repeat window has the most
+to cycle through. `AMBIENT_DIFFICULTY` (default `challenging` = med+hard) controls the ambient
+pool independently, drawn from the **full** bank (not the game-narrowed set). This both honors
+"make it harder" (no easy warm-ups on the 24/7 channel) and maximizes no-repeat depth.
+
 ## Scoring scheme
 
 - Correct: **10 base** + **0–5 speed bonus** (linear in remaining time / window) +

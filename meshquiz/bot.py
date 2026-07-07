@@ -20,7 +20,14 @@ from dataclasses import asdict, fields
 from . import host, state
 from .config import ANSWER_EMOJI, ANSWER_TYPED, Config
 from .engine import AmbientStats, GameEngine, SendText, StartQuestion
-from .questions import Question, load_questions, select_by_difficulty, validate_bank
+from .questions import (
+    Question,
+    load_questions,
+    question_key,
+    select_ambient_pool,
+    select_by_difficulty,
+    validate_bank,
+)
 from .transport import MeshMessage, Transport
 
 log = logging.getLogger("meshquiz.bot")
@@ -70,6 +77,9 @@ class TriviaBot:
         problems = validate_bank(questions, cfg.max_payload_bytes)
         if problems:
             raise ValueError("question bank failed validation:\n" + "\n".join(problems[:20]))
+        # Keep the FULL bank (all tiers) — the ambient pool + the no-repeat key set are drawn
+        # from it, decoupled from the rapid-game difficulty narrowing below.
+        self._full_bank = list(questions)
         full_count = len(questions)
         questions = select_by_difficulty(questions, cfg.quiz_difficulty)
         if cfg.quiz_difficulty not in ("mixed", "", "all") and len(questions) == full_count \
@@ -81,7 +91,15 @@ class TriviaBot:
         log.info("question bank: %d of %d loaded for difficulty=%r",
                  len(questions), full_count, cfg.quiz_difficulty)
         self.engine = GameEngine(cfg, questions)
-        self._questions = list(questions)  # for ambient random pick
+        self._questions = list(questions)  # rapid-game pool (respects QUIZ_DIFFICULTY)
+        # AMBIENT pool is decoupled from the game tier (AMBIENT_DIFFICULTY, default med+hard)
+        # so the 24/7 channel draws from the widest/hardest pool for the no-repeat window.
+        self._ambient_questions = select_ambient_pool(
+            self._full_bank, cfg.ambient_difficulty)
+        log.info("ambient pool: %d questions (AMBIENT_DIFFICULTY=%r); no-repeat window=%d days",
+                 len(self._ambient_questions), cfg.ambient_difficulty, cfg.ambient_no_repeat_days)
+        # No-repeat history: question_key -> last-asked epoch seconds. Persisted in state.json.
+        self._ask_history: Dict[str, float] = {}
         self._cursor_ms = 0
         self._last_send_s = 0.0
         # Hard anti-flood floor: timestamps (monotonic) of recent sends, pruned to the last
@@ -121,6 +139,16 @@ class TriviaBot:
                     self.engine.ambient_stats[s.node_id] = s
             except (TypeError, AttributeError):
                 continue
+        # Restore the no-repeat history. Prune to keys still present in the current bank so a
+        # retired question can't leave a stale entry lingering forever (bounded to bank size).
+        known = {question_key(q) for q in self._full_bank}
+        hist = st.get("ask_history", {}) or {}
+        for key, ts in hist.items():
+            if key in known:
+                try:
+                    self._ask_history[key] = float(ts)
+                except (TypeError, ValueError):
+                    continue
 
     def _persist(self):
         board = [{"node_id": p.node_id, "name": p.name, "score": p.score}
@@ -128,7 +156,7 @@ class TriviaBot:
         ambient = [asdict(s) for s in self.engine.ambient_stats.values()]
         state.save_state(self.cfg.state_path, cursor_ms=self._cursor_ms,
                          was_running=self.engine.running, leaderboard=board,
-                         ambient_stats=ambient)
+                         ambient_stats=ambient, ask_history=self._ask_history)
 
     # ---------- sending (byte budget + flood control) ----------
     def _send(self, text: str, channel: Optional[int] = None) -> Optional[int]:
@@ -216,6 +244,10 @@ class TriviaBot:
                 pkt = self._send(a.question.render())
                 if pkt is not None:
                     self.engine.on_question_sent(pkt)
+                    # Any question SENT to the channel (rapid-game OR ambient) stamps the
+                    # shared no-repeat history, so ambient won't echo a question the game
+                    # just used (channel-wide no-repeat, not just ambient-vs-ambient).
+                    self._record_asked(a.question)
                 else:
                     log.error("failed to send question; engine has no packet id to match")
 
@@ -425,7 +457,39 @@ class TriviaBot:
         if key is None or key == self._ambient_last_fire_key:
             return
         self._ambient_last_fire_key = key
-        self._send_ambient(slot_index=self._slot_index(key))
+        self._send_ambient(slot_index=self._slot_index(key), now_s=now_s)
+
+    # ---------- no-repeat selection ----------
+    def _record_asked(self, question: Question, now_s: Optional[float] = None) -> None:
+        """Stamp a question as asked NOW in the persistent no-repeat history."""
+        self._ask_history[question_key(question)] = time.time() if now_s is None else now_s
+
+    def _pick_ambient_question(self, now_s: float) -> Question:
+        """Choose the next ambient question honoring the 365-day no-repeat window.
+
+        1. ELIGIBLE = pool questions never asked, or last asked >= window ago. Pick RANDOMLY
+           among them (unpredictable, not sequential).
+        2. GRACEFUL FALLBACK: if none are eligible (bank too small for the cadence), pick the
+           LEAST-RECENTLY-ASKED question (max possible spacing) — never a recent repeat, never
+           a crash — random tiebreak among equally-old ones. Log a warning so the operator
+           sees the bank needs to grow / the cadence needs to slow.
+        The chosen question is stamped by the caller once it actually sends.
+        """
+        pool = self._ambient_questions or self._questions
+        window_s = max(0, self.cfg.ambient_no_repeat_days) * 86400
+        eligible = [q for q in pool
+                    if (now_s - self._ask_history.get(question_key(q), float("-inf"))) >= window_s]
+        if eligible:
+            return self._rng.choice(eligible)
+        # pool exhausted within the window -> least-recently-asked (oldest last-asked wins)
+        oldest_ts = min(self._ask_history.get(question_key(q), float("-inf")) for q in pool)
+        stalest = [q for q in pool
+                   if self._ask_history.get(question_key(q), float("-inf")) <= oldest_ts]
+        log.warning(
+            "ambient no-repeat pool EXHAUSTED within %d-day window (pool=%d): falling back to "
+            "least-recently-asked. Grow the bank or slow AMBIENT_INTERVAL_MINUTES for full "
+            "365-day coverage.", self.cfg.ambient_no_repeat_days, len(pool))
+        return self._rng.choice(stalest)
 
     @staticmethod
     def _slot_index(key: str) -> int:
@@ -489,7 +553,7 @@ class TriviaBot:
         gap = (board[0].correct - target.correct) if board else 0
         return target, q.poke_bottom(target.name or target.node_id, gap)
 
-    def _build_ambient_messages(self, slot_index: int = 0) -> List[str]:
+    def _build_ambient_messages(self, slot_index: int = 0, now_s: Optional[float] = None) -> List[str]:
         """Build the ambient send as a list of one-packet messages.
 
         Order (when personality on): [recap]? + header+question + [reminder]?. The recap is
@@ -499,7 +563,11 @@ class TriviaBot:
         Also opens the new ambient question on the engine's personality track so reactions to
         it get scored for next hour's recap. ``slot_index`` is the ambient slot we're firing.
         """
-        q = self._rng.choice(self._questions)
+        now_s = time.time() if now_s is None else now_s
+        # 365-day no-repeat pick (random among eligible; LRU fallback) — NOT random-with-
+        # replacement. Stamp it NOW so back-to-back builds can't reselect it before send.
+        q = self._pick_ambient_question(now_s)
+        self._record_asked(q, now_s)
         msgs: List[str] = []
         recap = self._build_recap_text(slot_index)
         if recap:
@@ -520,10 +588,10 @@ class TriviaBot:
         self._pending_ambient_q = q  # the question whose packet id we must register on send
         return msgs
 
-    def _send_ambient(self, slot_index: int = 0) -> None:
+    def _send_ambient(self, slot_index: int = 0, now_s: Optional[float] = None) -> None:
         self._pending_ambient_q = None
         self._pending_ambient_lead = None
-        msgs = self._build_ambient_messages(slot_index)
+        msgs = self._build_ambient_messages(slot_index, now_s)
         log.info("ambient: firing (#%d, %d packet(s), slot=%d)",
                  self._ambient_count, len(msgs), slot_index)
         # Send each packet; capture the packet id of the QUESTION message so reactions to it
