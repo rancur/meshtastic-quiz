@@ -69,19 +69,26 @@ def test_real_bank_no_premature_repeat_over_a_year(tmp_path):
     n = len(pool)
     assert n >= 300, f"ambient pool unexpectedly small: {n}"
     bot = _bot(str(tmp_path), pool)
-    keys = _simulate(bot, draws=24 * 365)  # a full year of hourly ambient fires
+    draws = 24 * 365  # a full year of hourly ambient fires = 8760
+    keys = _simulate(bot, draws=draws)
 
-    # The first full cycle (n draws) must be a PERMUTATION — every question exactly once.
-    first_cycle = keys[:n]
-    assert len(set(first_cycle)) == n, "first cycle repeated a question before exhausting pool"
-
-    # Across the whole year, no question EVER reappears sooner than a full pool cycle.
     gap = _min_repeat_gap(keys)
-    assert gap is not None and gap >= n, (
-        f"a question repeated after only {gap} draws; expected >= pool size {n}")
-    # Report the guaranteed spacing this bank buys at hourly cadence.
-    print(f"\n[proof] ambient pool={n}; guaranteed min spacing between repeats="
-          f"{gap} hours = {gap / 24:.1f} days at hourly cadence")
+    spacing_days = n / 24.0
+    if n >= draws:
+        # LITERAL 365-day no-repeat: the pool is deeper than a year of draws, so a full year
+        # produces ZERO repeats.
+        assert gap is None, f"pool={n} >= {draws} draws but a question repeated (gap={gap})"
+        assert len(set(keys)) == draws, "a year of draws should be all-unique questions"
+        print(f"\n[proof] ambient pool={n} >= {draws} yearly draws -> ZERO repeats in 365 days; "
+              f"LITERAL 365-day no-repeat HOLDS (min spacing {spacing_days:.1f} days)")
+    else:
+        # Smaller pool: no premature repeat — every question spaced a full pool cycle apart.
+        first_cycle = keys[:n]
+        assert len(set(first_cycle)) == n, "first cycle repeated before exhausting the pool"
+        assert gap is not None and gap >= n, (
+            f"a question repeated after only {gap} draws; expected >= pool size {n}")
+        print(f"\n[proof] ambient pool={n}; guaranteed min spacing between repeats="
+              f"{gap} hours = {spacing_days:.1f} days at hourly cadence")
 
 
 # ---------------- (b) a pool >= draws/year gives LITERALLY zero repeats in 365 days -------
