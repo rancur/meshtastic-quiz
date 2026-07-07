@@ -307,7 +307,7 @@ def test_recap_plus_question_exactly_two_packets(tmp_path):
                       recap_enabled=True, pokes_enabled=False, ambient_minute_offset=37,
                       ambient_reminder_frequency=99)  # no reminder packet this run
     # pin the ambient pool to a single known-answer question (answer index 0 == "1️⃣")
-    bot._questions = [Question("T", "e", "Q?", ["a", "b", "c", "d"], 0)]
+    bot._questions = bot._ambient_questions = [Question("T", "e", "Q?", ["a", "b", "c", "d"], 0)]
     # FIRST fire (slot N): no previous question -> 1 packet (header+question packed)
     fire1 = _epoch_at_local_minute(37, hour=12)
     t.set_clock_ms(int(fire1 * 1000))

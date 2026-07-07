@@ -40,7 +40,8 @@ def load_state(path: str) -> Dict:
 
 def save_state(path: str, *, cursor_ms: int, was_running: bool,
                leaderboard: Optional[list] = None,
-               ambient_stats: Optional[list] = None) -> None:
+               ambient_stats: Optional[list] = None,
+               ask_history: Optional[dict] = None) -> None:
     _atomic_write(path, {
         "cursor_ms": cursor_ms,
         "was_running": was_running,
@@ -48,4 +49,8 @@ def save_state(path: str, *, cursor_ms: int, was_running: bool,
         # Persistent personality state for the ambient track. Survives restarts so running
         # gags (streaks, droughts, poke cooldowns) keep building across the 24/7 cadence.
         "ambient_stats": ambient_stats or [],
+        # No-repeat history: {question_key: last_asked_epoch_seconds}. Survives restarts so
+        # the 365-day window holds across reboots/redeploys. Written atomically (temp file +
+        # os.replace) so a crash mid-write can never corrupt it.
+        "ask_history": ask_history or {},
     })

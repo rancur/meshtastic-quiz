@@ -70,6 +70,19 @@ def load_questions(path: str) -> List[Question]:
     return [Question(**q) for q in raw]
 
 
+def question_key(q: "Question") -> str:
+    """Stable identity for a question, used as the no-repeat history key.
+
+    We key on the normalized question TEXT (strip + lowercase) — the same key the bank's
+    duplicate check uses (validate_bank) — so history survives option reordering / typo
+    fixes and cannot collide across two distinct questions (duplicates are rejected at
+    build time). This makes the persisted last-asked map robust to a bank rebuild: editing
+    a question's options keeps its history; only changing the question text mints a new key
+    (correct — it is effectively a new question).
+    """
+    return q.question.strip().lower()
+
+
 # Map an operator-facing difficulty name to the difficulty label stored on each Question.
 # "medium" is the friendly alias for the bank's historical "med" label.
 _DIFFICULTY_ALIAS = {"medium": "med"}
@@ -93,6 +106,30 @@ def select_by_difficulty(questions: List["Question"], difficulty: str) -> List["
     tier = _DIFFICULTY_ALIAS.get(tier, tier)
     picked = [q for q in questions if (q.difficulty or "").strip().lower() == tier]
     return picked if picked else list(questions)
+
+
+def select_ambient_pool(questions: List["Question"], mode: str) -> List["Question"]:
+    """Pool the 24/7 AMBIENT track draws from — decoupled from the rapid-game difficulty tier.
+
+    The rapid !starttrivia game uses QUIZ_DIFFICULTY (a competitive knob). The ambient
+    channel is a different job: keep the channel warm with the WIDEST, HARDEST pool possible
+    so the 365-day no-repeat window has the deepest bank to cycle through. ``mode`` is
+    AMBIENT_DIFFICULTY:
+
+      - "challenging" (DEFAULT) -> med + hard only. Skips easy warm-ups (Will's "make it
+        harder"), and unions the two biggest tiers for the deepest no-repeat pool.
+      - "mixed"/"all"          -> the entire bank (max depth, includes easy).
+      - "easy"/"medium"/"med"/"hard" -> that single tier (same semantics as the game).
+
+    Falls back to the full bank if a mode somehow yields an empty pool, so ambient can never
+    brick on a mis-set knob (the caller logs the fallback).
+    """
+    m = (mode or "challenging").strip().lower()
+    if m == "challenging":
+        picked = [q for q in questions
+                  if (q.difficulty or "").strip().lower() in ("med", "hard")]
+        return picked if picked else list(questions)
+    return select_by_difficulty(questions, m)
 
 
 # Heaviest standard lead emoji that ambient may prepend (used for worst-case byte sizing).

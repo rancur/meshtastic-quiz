@@ -129,6 +129,19 @@ class Config:
     # Channel to drop ambient questions on. Defaults to the trivia channel.
     ambient_channel_index: int = field(
         default_factory=lambda: _env_int("AMBIENT_CHANNEL_INDEX", -1))
+    # Which pool the AMBIENT (24/7) track draws from — DECOUPLED from the rapid-game
+    # QUIZ_DIFFICULTY so the channel gets the widest/hardest pool for the no-repeat window.
+    #   challenging (DEFAULT) - med + hard tiers (skips easy; deepest hard pool)
+    #   mixed / all           - the entire bank
+    #   easy / medium / hard  - a single tier
+    ambient_difficulty: str = field(
+        default_factory=lambda: _env("AMBIENT_DIFFICULTY", "challenging").strip().lower())
+    # No-repeat window (days): the ambient track will NOT re-ask a question shown within this
+    # many days. Target is a full year. If the eligible pool ever empties (bank too small for
+    # the cadence), it degrades gracefully to the least-recently-asked question (max spacing)
+    # and logs a warning — never a recent repeat, never a crash.
+    ambient_no_repeat_days: int = field(
+        default_factory=lambda: _env_int("AMBIENT_NO_REPEAT_DAYS", 365))
     # Every Nth ambient question carries the FULL reminder (leaderboard + !starttrivia
     # plug); the others are a bare question with a tiny tag, so channel regulars aren't
     # nagged hourly. Default 3 (full plug every 3rd question). 1 = always full.

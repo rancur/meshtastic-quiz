@@ -85,11 +85,34 @@ of who got the previous question right.
 | `AMBIENT_INTERVAL_MINUTES` | `60` | Minutes between ambient questions. Hard floor of 5 (ambient is meant to be slow). |
 | `AMBIENT_MINUTE_OFFSET` | `37` | The minute-of-hour to fire on. `37` is a prime well clear of `:00` (and `:15`/`:30`/`:45`) where scheduled mesh traffic tends to pile up. Ambient **never** fires at the top of the hour. |
 | `AMBIENT_CHANNEL_INDEX` | trivia channel | Channel to post ambient questions on (defaults to `TRIVIA_CHANNEL_INDEX`). |
+| `AMBIENT_DIFFICULTY` | `challenging` | Which pool ambient draws from, **decoupled** from the competitive `QUIZ_DIFFICULTY`. `challenging` = med+hard (skips easy; deepest pool for the no-repeat window); also `mixed`/`easy`/`medium`/`hard`. |
+| `AMBIENT_NO_REPEAT_DAYS` | `365` | Ambient won't re-ask a question shown within this many days. See **No-repeat** below. |
 | `AMBIENT_REMINDER_FREQUENCY` | `3` | Every Nth ambient question carries the full `🏆 leaderboard / !starttrivia` plug; the rest are bare questions, so regulars aren't nagged hourly. `1` = always remind. |
 | `MAX_SENDS_PER_MINUTE` | `6` | Hard anti-flood floor for **all** sends (game + ambient). A last-resort circuit breaker: the bot will never exceed this in any rolling 60s, regardless of any other logic. |
 
 **Ambient pauses automatically while a rapid `!starttrivia` game is running** — no
 stacking, ever. When the game ends, ambient resumes on its normal cadence.
+
+### No-repeat (a question won't recur for a year)
+
+Ambient selection is a **persistent 365-day no-repeat**, not random-with-replacement. Every
+question sent to the channel (ambient **or** rapid game) records its `last-asked` timestamp in
+`state.json` (atomic write, survives restarts/redeploys). The next ambient question is chosen
+**randomly among only those not asked within `AMBIENT_NO_REPEAT_DAYS`** (default 365).
+
+If the pool is too small for the cadence to cover a full year, selection **degrades
+gracefully** to the **least-recently-asked** question (maximum possible spacing) and logs a
+warning — it never repeats a recent question and never crashes. The guaranteed minimum spacing
+between two showings of the same question is:
+
+```
+spacing (days) = ambient pool size ÷ questions-per-day
+```
+
+A literal 365-day gap at hourly cadence therefore needs **~8760** questions in the ambient
+pool; below that, grow the bank or slow `AMBIENT_INTERVAL_MINUTES` to extend coverage. With the
+shipped bank (**480** med+hard) at hourly, every question is spaced **≥ 20 days** apart — up
+from repeats within *hours* under the old random-with-replacement pick.
 
 ### Mesh etiquette / airtime math
 
@@ -233,10 +256,12 @@ watch who actually knows their spreading factors.
 
 ## The question bank
 
-~380 curated single-answer questions across 14 categories (Science, History, Geography,
+**562** curated single-answer questions across 14 categories (Science, History, Geography,
 Tech, Pop culture, Sports, Nature, Food, Music, Math, General, **Mesh**, **Space**, and
 **AZ/Southwest** local flavor), each authored to fit the Meshtastic 200-byte payload limit,
-with **25+ questions in every selectable tier** and a deliberate medium/hard skew.
+with a deliberate medium/hard skew (**251** medium + **229** hard = **480** in the default
+`challenging` ambient pool). Every fact is canonical or source-verified — a wrong answer in a
+community bot is worse than a repeat, so anything uncertain was verified or dropped.
 The bank lives at [`meshquiz/data/questions.json`](meshquiz/data/questions.json) and is
 generated + validated by [`scripts/build_questions.py`](scripts/build_questions.py).
 

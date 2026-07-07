@@ -229,7 +229,7 @@ def test_ambient_messages_within_byte_budget(tmp_path):
     assert longq.byte_len(WORST_LEAD_EMOJI) <= 200, \
         f"fixture must fit the cap with lead emoji, got {longq.byte_len(WORST_LEAD_EMOJI)}B"
     bot, t = make_bot(str(tmp_path), ambient_enabled=True, ambient_reminder_frequency=1)
-    bot._questions = [longq]
+    bot._questions = bot._ambient_questions = [longq]
     msgs = bot._build_ambient_messages()
     assert len(msgs) >= 2  # question packet (emoji + Q) + reminder packet
     for m in msgs:
