@@ -185,18 +185,26 @@ class GameEngine:
         return self._current_pkt
 
     # ---------------- answers ----------------
-    def submit_answer(self, node_id: str, name: str, option: int, ts_s: float) -> None:
+    def submit_answer(self, node_id: str, name: str, option: int, ts_s: float) -> List[Action]:
         """Record an answer (from a tapback or typed fallback).
 
         Dedup: only the FIRST answer from a node counts for the current question. A
         changed reaction before timeout does NOT override the first (anti-cheat / fair).
+
+        Returns immediate actions to execute. A WRONG first answer yields a short ack (so
+        the player knows their guess registered) — see ``_wrong_ack``. A CORRECT answer
+        returns [] and stays silent here: it is announced at reveal, unchanged, so the
+        correct option is never leaked while others are still guessing. All the guard
+        early-returns yield [] (nothing was recorded, so nothing to acknowledge). Because
+        only a node's FIRST answer is recorded, each player gets AT MOST one wrong-ack per
+        question and a single user cannot spam wrong guesses.
         """
         if self.phase != Phase.ASKING or self._current is None:
-            return
+            return []
         if not (0 <= option < 4):
-            return
+            return []
         if ts_s > self._deadline_s:
-            return  # arrived after the window (lossy/late mesh delivery)
+            return []  # arrived after the window (lossy/late mesh delivery)
         # ensure player exists / refresh display name
         p = self.players.get(node_id)
         if p is None:
@@ -206,8 +214,21 @@ class GameEngine:
             if name:
                 p.name = name
         if node_id in self._answers:
-            return  # first answer already locked
+            return []  # first answer already locked
         self._answers[node_id] = _Answer(node_id=node_id, option=option, ts_s=ts_s)
+        if option != self._current.answer:
+            return self._wrong_ack(p.name or name or node_id)
+        return []
+
+    def _wrong_ack(self, name: str) -> List[Action]:
+        """Build the immediate wrong-answer acknowledgment, or [] if disabled.
+
+        Shared by both the rapid game and the ambient track. NEVER references the correct
+        answer (others are still guessing). Gated by cfg.wrong_answer_ack (default on).
+        """
+        if not getattr(self.cfg, "wrong_answer_ack", True):
+            return []
+        return [SendText(host.pick(host.WRONG, name=name))]
 
     # ---------------- timing / tick ----------------
     def tick(self, now_s: float) -> List[Action]:
@@ -314,16 +335,22 @@ class GameEngine:
     def has_open_ambient(self) -> bool:
         return self._ambient_q is not None
 
-    def submit_ambient_answer(self, node_id: str, name: str, option: int, ts_s: float) -> None:
+    def submit_ambient_answer(self, node_id: str, name: str, option: int, ts_s: float) -> List[Action]:
         """Record a first-reaction-wins answer to the open ambient question.
 
         No deadline: any reaction to the open ambient packet counts until the next ambient
         question replaces it. Same anti-cheat dedupe as the game (first answer locks).
+
+        Returns immediate actions like the rapid game: a WRONG first answer yields a short
+        ack so the player knows Buzz saw their tap (a correct answer stays silent — it is
+        celebrated in the next hourly recap, and the answer is never leaked mid-round).
+        Because only a node's FIRST ambient answer is recorded, each player gets AT MOST one
+        wrong-ack per ambient question.
         """
         if self._ambient_q is None or not (0 <= option < 4):
-            return
+            return []
         if node_id in self._ambient_answers:
-            return
+            return []
         self._ambient_answers[node_id] = _Answer(node_id=node_id, option=option, ts_s=ts_s)
         # touch first_seen for new-player exemption (cheap to do here so even a wrong
         # first answer marks them as "seen")
@@ -335,6 +362,9 @@ class GameEngine:
             st.name = name
         if st.first_seen_slot < 0:
             st.first_seen_slot = self._ambient_slot
+        if option != self._ambient_q.answer:
+            return self._wrong_ack(st.name or name or node_id)
+        return []
 
     def resolve_ambient(self) -> AmbientRecap:
         """Close the open ambient question: score it, update stats, return a recap summary.

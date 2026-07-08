@@ -155,6 +155,18 @@ class Config:
     # --- Fallback answering ---
     allow_typed_answers: bool = field(default_factory=lambda: _env_bool("ALLOW_TYPED_ANSWERS", True))
 
+    # --- Wrong-answer feedback (v1.7.0) ---
+    # When on, a player's WRONG guess gets a short, friendly acknowledgment so they know
+    # their answer registered (Buzz used to stay totally silent on a wrong tap, which felt
+    # like the guess was never seen). It NEVER reveals the correct answer — others are still
+    # guessing — and it is airtime-bounded: only a node's FIRST answer per question is ever
+    # recorded (anti-cheat lock), so each player gets AT MOST one wrong-ack per question and
+    # a single user physically cannot spam wrong guesses. Applies to BOTH the rapid game and
+    # the 24/7 ambient track (any track that accepts answers). The global MAX_SENDS_PER_MINUTE
+    # floor still caps total channel airtime regardless. Default ON; set false to keep Buzz
+    # silent on wrong answers (pre-v1.7.0 behavior).
+    wrong_answer_ack: bool = field(default_factory=lambda: _env_bool("WRONG_ANSWER_ACK", True))
+
     # --- Persistence ---
     state_path: str = field(default_factory=lambda: _env("STATE_PATH", "data/state.json"))
     questions_path: str = field(default_factory=lambda: _env("QUESTIONS_PATH", "data/questions.json"))

@@ -362,8 +362,9 @@ class TriviaBot:
                 return
             if self.engine.running:
                 # rapid game in progress: typed answer counts for the open question
-                self.engine.submit_answer(m.from_node_id, self._name_for(m.from_node_id),
-                                          opt, m.timestamp_ms / 1000.0)
+                self._run_actions(self.engine.submit_answer(
+                    m.from_node_id, self._name_for(m.from_node_id),
+                    opt, m.timestamp_ms / 1000.0))
             else:
                 # No game running: a typed answer that REPLIES to the open ambient question
                 # scores on the ambient track, mirroring the emoji-tapback path. The reply_to
@@ -372,9 +373,9 @@ class TriviaBot:
                 # v1.4.1 fix; real point loss observed on the live AZ mesh.)
                 amb = self.engine.ambient_packet_id
                 if amb is not None and m.reply_to == amb:
-                    self.engine.submit_ambient_answer(
+                    self._run_actions(self.engine.submit_ambient_answer(
                         m.from_node_id, self._name_for(m.from_node_id),
-                        opt, m.timestamp_ms / 1000.0)
+                        opt, m.timestamp_ms / 1000.0))
 
     def _handle_primary(self, m: MeshMessage):
         """Primary-channel handler: the SOLE allowed command here is `!trivia`."""
@@ -399,16 +400,18 @@ class TriviaBot:
             cur = self.engine.current_packet_id
             if cur is None or m.reply_to != cur:
                 return  # reaction to a different / stale message
-            self.engine.submit_answer(m.from_node_id, self._name_for(m.from_node_id),
-                                      opt, m.timestamp_ms / 1000.0)
+            self._run_actions(self.engine.submit_answer(
+                m.from_node_id, self._name_for(m.from_node_id),
+                opt, m.timestamp_ms / 1000.0))
             return
         # No rapid game running: a reaction to the OPEN ambient question scores on the
         # ambient personality track (only when personality is enabled — otherwise the
         # engine never has an open ambient packet and this is a no-op).
         amb = self.engine.ambient_packet_id
         if amb is not None and m.reply_to == amb:
-            self.engine.submit_ambient_answer(m.from_node_id, self._name_for(m.from_node_id),
-                                              opt, m.timestamp_ms / 1000.0)
+            self._run_actions(self.engine.submit_ambient_answer(
+                m.from_node_id, self._name_for(m.from_node_id),
+                opt, m.timestamp_ms / 1000.0))
 
     # ---------- ambient mode ----------
     @staticmethod
