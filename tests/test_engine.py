@@ -217,6 +217,60 @@ def test_stop_when_idle_noop():
     assert eng.stop(now_s=1.0) == []
 
 
+def test_wrong_answer_gets_immediate_ack():
+    from meshquiz import host
+    eng = start_game()
+    q = eng._current
+    wrong = (q.answer + 1) % 4
+    actions = eng.submit_answer("!bbb", "Bob", wrong, ts_s=1.0)
+    assert len(actions) == 1 and isinstance(actions[0], SendText)
+    txt = actions[0].text
+    assert "Bob" in txt
+    # never leaks the correct answer text
+    assert q.answer_text() not in txt
+    assert q.options[q.answer] not in txt
+    # it's one of the WRONG bank lines
+    assert any(tmpl.format(name="Bob") == txt for tmpl in host.WRONG)
+
+
+def test_correct_answer_is_silent_immediately():
+    eng = start_game()
+    q = eng._current
+    actions = eng.submit_answer("!aaa", "Alice", q.answer, ts_s=1.0)
+    assert actions == []  # correct stays silent until reveal (no leak)
+
+
+def test_wrong_ack_only_first_guess_per_user():
+    # first-answer lock means a single user can NEVER spam wrong-acks
+    eng = start_game()
+    q = eng._current
+    wrong = (q.answer + 1) % 4
+    other_wrong = (q.answer + 2) % 4
+    first = eng.submit_answer("!bbb", "Bob", wrong, ts_s=1.0)
+    assert len(first) == 1  # acked once
+    second = eng.submit_answer("!bbb", "Bob", other_wrong, ts_s=2.0)
+    assert second == []  # locked out entirely — no second ack
+
+
+def test_wrong_ack_can_be_disabled():
+    cfg = make_cfg(questions_per_game=5, question_window_s=90, wrong_answer_ack=False)
+    eng = start_game(cfg)
+    q = eng._current
+    wrong = (q.answer + 1) % 4
+    assert eng.submit_answer("!bbb", "Bob", wrong, ts_s=1.0) == []
+
+
+def test_wrong_ack_late_or_idle_returns_nothing():
+    eng = start_game()
+    q = eng._current
+    wrong = (q.answer + 1) % 4
+    assert eng.submit_answer("!d", "Dan", wrong, ts_s=200.0) == []  # after deadline
+    cfg = make_cfg()
+    import random
+    idle = GameEngine(cfg, make_questions(), rng=random.Random(0))
+    assert idle.submit_answer("!x", "X", 0, ts_s=1.0) == []  # not running
+
+
 def test_no_repeat_within_session():
     cfg = make_cfg(questions_per_game=20, question_window_s=5, inter_question_gap_s=1)
     qs = make_questions(20)

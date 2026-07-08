@@ -3,6 +3,27 @@
 All notable changes to this project are documented here. This project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.7.0] - 2026-07-08
+
+### Added
+- **Wrong-answer feedback.** Buzz now acknowledges a WRONG guess with a short, friendly
+  one-liner (e.g. "❌ Not it, {name} — but Buzz saw your guess! Get the next one.") so a
+  player knows their answer registered. Previously a wrong tap got **total silence**, which
+  felt like the guess was never seen — while correct answers were celebrated at reveal/recap.
+  This closes that correct-vs-wrong asymmetry.
+  - **Never leaks the answer.** The ack only confirms the guess was seen + encourages; it
+    never reveals or hints at the correct option (others are still guessing). Correct answers
+    remain silent in the moment and are still announced only at reveal (rapid game) / the
+    hourly recap (ambient), unchanged.
+  - **Airtime-bounded / anti-spam.** Feedback rides the existing anti-cheat first-answer
+    lock: only a node's FIRST answer per question is ever recorded, so each player gets **at
+    most one** wrong-ack per question and a single user physically cannot spam wrong guesses.
+    The global `MAX_SENDS_PER_MINUTE` floor still caps total channel airtime regardless.
+  - **Both tracks.** Applies to the rapid `!starttrivia` game AND the 24/7 ambient track —
+    every flow that accepts answers.
+  - New toggle `WRONG_ANSWER_ACK` (default **on**); set false to restore the pre-1.7.0
+    silence. New `host.WRONG` line bank (answer-safe, byte-budgeted).
+
 ## [1.6.0] - 2026-07-06
 
 ### Added

@@ -185,6 +185,31 @@ bot never bursts the mesh. The poll loop runs every `POLL_INTERVAL_S` (default 4
 Handled: the engine reveals the answer and posts a "nobody got it" line. A round with
 zero/low distinct answerers counts toward the anti-runup streak.
 
+## Wrong-answer feedback (v1.7.0)
+
+**Problem:** a wrong guess produced *total silence* until reveal/recap, while correct
+answers were celebrated — so a wrong answerer felt their tap was never even seen.
+
+**Decision:** on a WRONG first answer, emit one short ack immediately (`host.WRONG` bank,
+picked at random so it works with or without the personality engine). Correct answers stay
+silent in the moment — announcing "correct!" mid-round would **leak the answer** while others
+are still guessing — and are still surfaced only at reveal (rapid) / the hourly recap
+(ambient), unchanged. The ack copy is answer-safe by construction: it references only the
+*fact* that the guess was seen, never the option.
+
+**Anti-spam, structurally (not a new rate limiter):** the pre-existing anti-cheat lock
+records only a node's FIRST answer per question and ignores the rest. So each player gets **at
+most one** wrong-ack per question and a single user *cannot* spam wrong guesses — on BOTH the
+rapid game and the ambient track. The global `MAX_SENDS_PER_MINUTE` circuit breaker still
+bounds total channel airtime no matter how many distinct players miss at once.
+
+**Both tracks:** applied everywhere answers are accepted (rapid + 24/7 ambient), since both
+exhibited the same silence. On the ambient track the ack is the only in-the-moment signal
+(correct is still deferred to the recap) — an intentional asymmetry: the goal is to rescue the
+*silent* wrong answerer; correct answerers are already served by the recap.
+
+**Opt-out:** `WRONG_ANSWER_ACK=true` by default; set false to restore pre-1.7.0 silence.
+
 ## Late / out-of-order / lossy delivery
 
 Reactions arriving after the deadline are ignored for scoring. The poll uses a 10s cursor

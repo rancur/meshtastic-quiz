@@ -38,6 +38,24 @@ REVEAL = [
     "⏱️ Pencils down! It was: {opt}",
 ]
 
+# WRONG: {name}. Immediate acknowledgment of a WRONG guess so the player knows Buzz saw it.
+# HARD RULE: never reveal or hint at the correct answer (others are still guessing) — these
+# lines only confirm the guess registered + offer encouragement. Kept short for the mesh
+# byte budget. Picked at random (decoupled from the personality quip engine so it works
+# even when PERSONALITY_ENABLED is off).
+WRONG = [
+    "❌ Not it, {name} — but Buzz saw your guess! Get the next one.",
+    "❌ Nope, {name}! Nice try. Better luck next question.",
+    "❌ Swing and a miss, {name}. Buzz clocked it — stay in it!",
+    "❌ Not quite, {name}! Shake it off, next one's yours.",
+    "❌ Sorry {name}, wrong tap — but you're seen. Next!",
+    "❌ Ooh, not it {name}. Buzz logged it. On to the next!",
+    "❌ {name}, that's a miss — regroup for the next round!",
+    "❌ Close but no, {name}! Buzz noticed. Keep at it.",
+    "❌ Missed it, {name}! No points this time, but nice hustle.",
+    "❌ Not the one, {name}. Buzz caught your tap — redeem it next!",
+]
+
 NOBODY = [
     "🦗 Crickets... nobody got it. Brutal.",
     "🦗 Zero correct. The questions win this round.",

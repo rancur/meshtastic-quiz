@@ -172,6 +172,34 @@ def test_resolve_ambient_comeback_detection():
     assert r.first_winner_comeback == 5
 
 
+def test_ambient_wrong_answer_gets_immediate_ack():
+    from meshquiz.engine import SendText
+    from meshquiz import host
+    cfg = Config(meshmonitor_token="x")
+    eng = GameEngine(cfg, make_questions())
+    q = Question("T", "e", "Q?", ["a", "b", "c", "d"], 1)  # answer index 1
+    eng.open_ambient(q, slot_index=100)
+    eng.on_ambient_sent(555)
+    # wrong ambient answer -> immediate ack, no answer leak
+    actions = eng.submit_ambient_answer("!b", "Bob", 0, ts_s=1.0)
+    assert len(actions) == 1 and isinstance(actions[0], SendText)
+    txt = actions[0].text
+    assert "Bob" in txt and q.answer_text() not in txt
+    assert any(tmpl.format(name="Bob") == txt for tmpl in host.WRONG)
+    # correct ambient answer stays silent immediately (celebrated at recap)
+    assert eng.submit_ambient_answer("!a", "Ann", 1, ts_s=2.0) == []
+    # a locked-out repeat from the same node acks nothing (no spam)
+    assert eng.submit_ambient_answer("!b", "Bob", 2, ts_s=3.0) == []
+
+
+def test_ambient_wrong_ack_can_be_disabled():
+    cfg = Config(meshmonitor_token="x", wrong_answer_ack=False)
+    eng = GameEngine(cfg, make_questions())
+    q = Question("T", "e", "Q?", ["a", "b", "c", "d"], 1)
+    eng.open_ambient(q, slot_index=100)
+    assert eng.submit_ambient_answer("!b", "Bob", 0, ts_s=1.0) == []
+
+
 # ---------------- poke calibration ----------------
 
 def _seed_struggler(eng, node, name, wrong_streak, first_seen=0, last_poked=-1):

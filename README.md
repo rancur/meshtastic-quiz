@@ -46,6 +46,11 @@ Game commands work **only in the configured trivia channel**:
 **Answering:** tapback react with `1️⃣`/`2️⃣`/`3️⃣`/`4️⃣` on a question. (Typed `1`–`4`
 replies also count if `ALLOW_TYPED_ANSWERS=true`.)
 
+**Wrong-answer feedback:** a wrong guess gets a short, friendly ack (e.g. *"❌ Not it, {name}
+— but Buzz saw your guess!"*) so you know your answer registered — it **never** reveals the
+correct option. Only your **first** answer per question counts (anti-cheat lock), so you get
+at most one ack per question and nobody can spam. Toggle with `WRONG_ANSWER_ACK` (default on).
+
 ### `!trivia` — the one command that works on the PRIMARY channel
 
 The bot **also listens on the primary channel** (`PRIMARY_CHANNEL_INDEX`, default `0`) for
