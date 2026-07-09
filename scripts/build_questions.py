@@ -743,6 +743,159 @@ add("Mesh", "hard", "Long Turbo preset bandwidth?", ["125 kHz", "250 kHz", "500 
 add("Mesh", "hard", "Meshtastic serializes packets using?", ["JSON", "Protobuf", "XML", "YAML"], 1)
 
 
+# ================= BATCH 8: VARIETY EXPANSION (v1.10.0) =================
+# Curated non-math trivia across categories to widen the live MEDIUM game pool (was 251)
+# and the ambient mix. All hand-verified, single-correct, short. The 18% game/ambient
+# math cap is untouched — these are pure trivia, so they only DILUTE math further.
+
+# ---- GEOGRAPHY ----
+add("Geography", "med", "Capital of Japan?", ["Osaka", "Tokyo", "Kyoto", "Nagoya"], 1)
+add("Geography", "med", "Capital of Canada?", ["Toronto", "Ottawa", "Montreal", "Calgary"], 1)
+add("Geography", "med", "Capital of Australia?", ["Sydney", "Melbourne", "Canberra", "Perth"], 2)
+add("Geography", "med", "Largest country by area?", ["Canada", "China", "USA", "Russia"], 3)
+add("Geography", "med", "Which continent is Egypt in?", ["Asia", "Africa", "Europe", "Oceania"], 1)
+add("Geography", "med", "The Sahara Desert is on which continent?", ["Asia", "Africa", "Australia", "S. America"], 1)
+add("Geography", "med", "Tallest mountain above sea level?", ["K2", "Everest", "Denali", "Kilimanjaro"], 1)
+add("Geography", "med", "Capital of France?", ["Lyon", "Paris", "Nice", "Marseille"], 1)
+add("Geography", "med", "Capital of Italy?", ["Milan", "Rome", "Venice", "Turin"], 1)
+add("Geography", "med", "Capital of Spain?", ["Barcelona", "Madrid", "Seville", "Bilbao"], 1)
+add("Geography", "med", "Capital of Germany?", ["Munich", "Berlin", "Hamburg", "Bonn"], 1)
+add("Geography", "med", "Capital of Russia?", ["St Petersburg", "Moscow", "Kazan", "Sochi"], 1)
+add("Geography", "med", "Capital of Egypt?", ["Cairo", "Giza", "Luxor", "Aswan"], 0)
+add("Geography", "med", "Capital of Brazil?", ["Rio", "Brasilia", "Sao Paulo", "Salvador"], 1)
+add("Geography", "med", "The Great Barrier Reef is off which country?", ["Brazil", "Australia", "Mexico", "India"], 1)
+add("Geography", "med", "Mount Fuji is in?", ["China", "Japan", "Korea", "Nepal"], 1)
+add("Geography", "med", "Which ocean lies between the US and Europe?", ["Pacific", "Atlantic", "Indian", "Arctic"], 1)
+add("Geography", "med", "The Eiffel Tower is in?", ["London", "Paris", "Rome", "Berlin"], 1)
+add("Geography", "hard", "Smallest country in the world?", ["Monaco", "Nauru", "Vatican City", "Malta"], 2)
+add("Geography", "med", "Which US state is the 'Grand Canyon State'?", ["Utah", "Arizona", "Nevada", "Colorado"], 1)
+add("Geography", "hard", "The Amazon rainforest is mostly in?", ["Peru", "Brazil", "Colombia", "Bolivia"], 1)
+
+# ---- SCIENCE ----
+add("Science", "med", "Chemical symbol for oxygen?", ["O", "Ox", "Om", "Og"], 0)
+add("Science", "med", "Chemical symbol for sodium?", ["So", "Na", "Sd", "Sm"], 1)
+add("Science", "med", "Chemical symbol for iron?", ["Ir", "Fe", "In", "Fr"], 1)
+add("Science", "med", "What force pulls objects toward Earth?", ["Magnetism", "Gravity", "Friction", "Tension"], 1)
+add("Science", "med", "How many planets in the solar system?", ["7", "8", "9", "10"], 1)
+add("Science", "med", "Boiling point of water (C)?", ["50", "90", "100", "120"], 2)
+add("Science", "med", "Freezing point of water (C)?", ["0", "10", "-10", "32"], 0)
+add("Science", "med", "Which blood cells fight infection?", ["Red", "White", "Platelets", "Plasma"], 1)
+add("Science", "med", "Which planet is closest to the Sun?", ["Venus", "Mercury", "Earth", "Mars"], 1)
+add("Science", "med", "What gas do humans breathe out?", ["Oxygen", "CO2", "Hydrogen", "Helium"], 1)
+add("Science", "med", "Largest organ of the human body?", ["Heart", "Skin", "Liver", "Brain"], 1)
+add("Science", "hard", "Speed of sound in air is roughly (m/s)?", ["34", "343", "3430", "34300"], 1)
+add("Science", "med", "Which part of a plant makes food?", ["Root", "Leaf", "Stem", "Bark"], 1)
+add("Science", "med", "Which vitamin does sunlight help make?", ["A", "B", "C", "D"], 3)
+add("Science", "hard", "A pH of 7 is considered?", ["Acidic", "Neutral", "Basic", "Salty"], 1)
+add("Science", "hard", "Who proposed evolution by natural selection?", ["Newton", "Darwin", "Mendel", "Pasteur"], 1)
+
+# ---- TECH / RADIO ----
+add("Tech", "med", "What does CPU stand for?", ["Central Proc Unit", "Computer Pwr Unit", "Core Proc Util", "Central Pwr Unit"], 0)
+add("Tech", "med", "What does RAM stand for?", ["Read Access Mem", "Random Access Mem", "Rapid Access Mem", "Run Access Mem"], 1)
+add("Tech", "med", "What does USB stand for?", ["Universal Serial Bus", "Unified Sys Bus", "User Serial Bus", "Univ Sync Bus"], 0)
+add("Tech", "med", "HTTP is a protocol mainly for?", ["Email", "Web pages", "Printing", "Video calls"], 1)
+add("Tech", "med", "Which company makes the iPhone?", ["Google", "Apple", "Samsung", "Nokia"], 1)
+add("Tech", "med", "What does GPS stand for?", ["Global Pos Sys", "Grid Point Sys", "Geo Path Sys", "Global Path Sat"], 0)
+add("Tech", "med", "Binary uses which two digits?", ["1 and 2", "0 and 1", "0 and 9", "1 and 9"], 1)
+add("Tech", "med", "What does WWW stand for?", ["World Wide Web", "Web Wide World", "Wide World Web", "World Web Wire"], 0)
+add("Tech", "hard", "Who co-founded Microsoft with Paul Allen?", ["Jobs", "Gates", "Musk", "Bezos"], 1)
+add("Tech", "med", "What does LED stand for?", ["Light Emit Diode", "Low Energy Diode", "Light Energy Disp", "Long Emit Diode"], 0)
+add("Tech", "hard", "In radio, 'RF' stands for?", ["Radio Freq", "Range Finder", "Rapid Feed", "Radio Field"], 0)
+add("Tech", "hard", "Frequency is measured in?", ["Volts", "Watts", "Hertz", "Amps"], 2)
+add("Tech", "hard", "An antenna's main job is to?", ["Store power", "Radiate/receive RF", "Filter noise", "Boost volts"], 1)
+
+# ---- HISTORY ----
+add("History", "med", "First man to walk on the Moon?", ["Aldrin", "Armstrong", "Gagarin", "Collins"], 1)
+add("History", "med", "In which country did the Olympics originate?", ["Rome", "Greece", "Egypt", "China"], 1)
+add("History", "hard", "Primary author of the US Declaration of Independence?", ["Franklin", "Jefferson", "Adams", "Washington"], 1)
+add("History", "med", "Which empire built the Colosseum?", ["Greek", "Roman", "Persian", "Ottoman"], 1)
+add("History", "med", "The Titanic sank after striking a?", ["Reef", "Iceberg", "Storm", "Rock"], 1)
+add("History", "hard", "British PM for most of WWII?", ["Churchill", "Chamberlain", "Attlee", "Eden"], 0)
+add("History", "hard", "The Renaissance began in which country?", ["France", "Italy", "Spain", "England"], 1)
+add("History", "med", "Which ship did Columbus NOT sail in 1492?", ["Nina", "Pinta", "Santa Maria", "Victoria"], 3)
+
+# ---- POP CULTURE ----
+add("Pop", "med", "Who sang 'Thriller'?", ["Prince", "M. Jackson", "Elvis", "Bowie"], 1)
+add("Pop", "med", "Wizarding boy in J.K. Rowling's books?", ["Frodo", "Harry Potter", "Percy", "Gandalf"], 1)
+add("Pop", "med", "Which superhero is from the planet Krypton?", ["Batman", "Superman", "Flash", "Thor"], 1)
+add("Pop", "med", "In Star Wars, who is Luke's father?", ["Yoda", "Vader", "Han", "Obi-Wan"], 1)
+add("Pop", "med", "What color is the Hulk?", ["Blue", "Green", "Red", "Grey"], 1)
+add("Pop", "med", "Mickey Mouse is a character from?", ["Warner", "Disney", "Pixar", "Sony"], 1)
+add("Pop", "med", "Spider-Man's home city?", ["Gotham", "New York", "Metropolis", "Chicago"], 1)
+add("Pop", "hard", "Which band released 'Abbey Road'?", ["Stones", "Beatles", "Queen", "Kinks"], 1)
+add("Pop", "med", "Which school does Harry Potter attend?", ["Hogwarts", "Camelot", "Narnia", "Oz"], 0)
+
+# ---- MESHTASTIC / LoRa LORE ----
+add("Mesh", "med", "LoRa is a type of what communication?", ["Wired", "Wireless radio", "Satellite only", "Optical"], 1)
+add("Mesh", "med", "Meshtastic devices form what kind of network?", ["Star", "Mesh", "Ring", "Bus"], 1)
+add("Mesh", "med", "LoRa is prized for long range and being?", ["High power", "Low power", "High cost", "Wired"], 1)
+add("Mesh", "med", "'LoRa' is short for?", ["Long Radio", "Long Range", "Low Radio", "Local Range"], 1)
+add("Mesh", "hard", "Meshtastic is open-source firmware for what?", ["Phones", "LoRa radios", "Routers", "Cameras"], 1)
+add("Mesh", "med", "In a mesh, messages 'hop' between?", ["Nodes", "Servers", "Towers", "Wires"], 0)
+add("Mesh", "hard", "Meshtastic commonly runs on which chip family?", ["ESP32", "Ryzen", "Snapdragon", "Cortex-A"], 0)
+add("Mesh", "hard", "LoRa gains range using which technique?", ["Spread spectrum", "AM only", "FM only", "Wi-Fi"], 0)
+add("Mesh", "hard", "Meshtastic channels are secured with?", ["Passwords", "Encryption keys", "A VPN", "Nothing"], 1)
+
+# ---- NATURE ----
+add("Nature", "med", "Largest land animal?", ["Rhino", "Elephant", "Giraffe", "Hippo"], 1)
+add("Nature", "med", "Fastest land animal?", ["Lion", "Cheetah", "Horse", "Gazelle"], 1)
+add("Nature", "med", "Tallest living animal?", ["Elephant", "Giraffe", "Camel", "Horse"], 1)
+add("Nature", "med", "A group of wolves is called a?", ["Herd", "Pack", "Flock", "School"], 1)
+add("Nature", "med", "What do caterpillars turn into?", ["Ants", "Butterflies", "Beetles", "Spiders"], 1)
+add("Nature", "med", "Largest animal ever known to live?", ["Elephant", "Blue whale", "Giraffe", "Shark"], 1)
+add("Nature", "hard", "Which of these birds cannot fly?", ["Eagle", "Penguin", "Sparrow", "Hawk"], 1)
+add("Nature", "med", "A baby dog is called a?", ["Kit", "Puppy", "Cub", "Calf"], 1)
+
+# ---- MUSIC ----
+add("Music", "med", "How many strings on a standard guitar?", ["4", "5", "6", "7"], 2)
+add("Music", "med", "Which instrument has black and white keys?", ["Guitar", "Piano", "Drum", "Flute"], 1)
+add("Music", "med", "How many keys on a standard piano?", ["66", "76", "88", "96"], 2)
+add("Music", "med", "Which of these is a brass instrument?", ["Violin", "Trumpet", "Flute", "Piano"], 1)
+add("Music", "med", "DJ decks pair turntables with a?", ["Mixer", "Oven", "Kiln", "Loom"], 0)
+add("Music", "hard", "'BPM' in music stands for?", ["Beats Per Min", "Bars Per Meas", "Bass Peak Mod", "Best Play Mix"], 0)
+
+# ---- SPORTS ----
+add("Sports", "med", "Players per soccer team on the field?", ["9", "10", "11", "12"], 2)
+add("Sports", "med", "A normal made basket is worth how many points?", ["1", "2", "3", "4"], 1)
+add("Sports", "med", "Holes in a full round of golf?", ["9", "12", "18", "24"], 2)
+add("Sports", "med", "Which sport uses a shuttlecock?", ["Tennis", "Badminton", "Squash", "Cricket"], 1)
+add("Sports", "med", "How many strikes make an out in baseball?", ["2", "3", "4", "5"], 1)
+add("Sports", "hard", "How many rings on the Olympic flag?", ["4", "5", "6", "7"], 1)
+add("Sports", "med", "Which sport is played at Wimbledon?", ["Golf", "Tennis", "Cricket", "Rugby"], 1)
+
+# ---- FOOD ----
+add("Food", "med", "Guacamole is made mainly from?", ["Tomato", "Avocado", "Pepper", "Onion"], 1)
+add("Food", "med", "Sushi commonly uses which grain?", ["Wheat", "Rice", "Corn", "Barley"], 1)
+add("Food", "med", "Cheese is made from?", ["Milk", "Water", "Oil", "Flour"], 0)
+add("Food", "med", "Which drink naturally contains caffeine?", ["Water", "Coffee", "Milk", "Juice"], 1)
+add("Food", "hard", "Espresso originates from which country?", ["France", "Italy", "Spain", "Greece"], 1)
+add("Food", "med", "Which of these is a citrus fruit?", ["Apple", "Lemon", "Banana", "Peach"], 1)
+
+# ---- SPACE ----
+add("Space", "med", "Which planet has the most known moons?", ["Earth", "Mars", "Saturn", "Venus"], 2)
+add("Space", "med", "Our galaxy is called the?", ["Andromeda", "Milky Way", "Whirlpool", "Sombrero"], 1)
+add("Space", "med", "The Sun is a?", ["Planet", "Star", "Moon", "Comet"], 1)
+add("Space", "hard", "How long does Earth take to orbit the Sun?", ["1 day", "1 month", "1 year", "10 years"], 2)
+add("Space", "med", "A natural satellite of a planet is a?", ["Star", "Moon", "Comet", "Meteor"], 1)
+add("Space", "hard", "The first artificial satellite was named?", ["Apollo", "Sputnik", "Voyager", "Hubble"], 1)
+
+# ---- GENERAL ----
+add("General", "med", "How many days in a leap year?", ["364", "365", "366", "367"], 2)
+add("General", "med", "How many continents are there?", ["5", "6", "7", "8"], 2)
+add("General", "med", "How many colors in a rainbow?", ["5", "6", "7", "8"], 2)
+add("General", "med", "How many sides does a hexagon have?", ["5", "6", "7", "8"], 1)
+add("General", "med", "Mixing blue and yellow paint makes?", ["Green", "Purple", "Orange", "Brown"], 0)
+add("General", "med", "Letters in the English alphabet?", ["24", "25", "26", "27"], 2)
+add("General", "med", "Primary language of Brazil?", ["Spanish", "Portuguese", "French", "English"], 1)
+
+# ---- ARIZONA (home-mesh flavor) ----
+add("AZ", "med", "Capital of Arizona?", ["Tucson", "Phoenix", "Mesa", "Flagstaff"], 1)
+add("AZ", "med", "Which famous canyon is in Arizona?", ["Bryce", "Grand Canyon", "Zion", "Waimea"], 1)
+add("AZ", "hard", "Arizona's official nickname is the ___ State?", ["Golden", "Grand Canyon", "Sunshine", "Silver"], 1)
+add("AZ", "med", "Which iconic cactus is native to Arizona?", ["Prickly pear", "Saguaro", "Barrel", "Cholla"], 1)
+add("AZ", "hard", "Arizona became a US state in which century?", ["18th", "19th", "20th", "21st"], 2)
+
+
 # ================= BATCH 7: PROGRAMMATIC MASS GENERATION (v1.6.0) =================
 # Correctness-by-construction generators (math answers COMPUTED, fact tables from vetted
 # canonical data) scale the ambient (med+hard) pool past 8,760 for a LITERAL 365-day no-repeat.
