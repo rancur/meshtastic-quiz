@@ -3,6 +3,30 @@
 All notable changes to this project are documented here. This project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.10.0] - 2026-07-09
+
+### Added
+- **Question variety expansion (BATCH 8).** ~130 hand-verified, single-correct non-math
+  questions across 14 categories (Geography, Science, Tech/Radio, History, Pop culture,
+  Meshtastic/LoRa lore, Nature, Music, Sports, Food, Space, General, Arizona). After de-dup
+  this grows the bank to **9,289** questions and, more importantly, lifts the live competitive
+  **MEDIUM** game pool from **251 → 326** questions (now **~95% real trivia / ~5% math**
+  across 14 categories) so `!starttrivia` rounds feel varied, not repetitive. Max rendered
+  size **149 B** (budget 200). The 18% game/ambient math cap (v1.8.0/v1.9.0) is untouched —
+  these additions only dilute math further.
+
+### Operational (deployment durability — not a code change)
+- The live pi-two deployment's leaderboard/state (`/app/data/state.json`) was moved from the
+  compose-managed named volume onto an explicit **host bind-mount** (`/home/pi/meshquiz-data`),
+  seeded from the existing volume, so it is immune to `docker compose down -v`, volume renames,
+  and compose project-name drift. A daily backup cron snapshots it (keep last 14). Scores are
+  cumulative and survive all rebuilds/updates. (This lives in a gitignored
+  `docker-compose.override.yml`; the committed compose keeps the generic named-volume default.)
+
+### Unchanged
+- Scoring/leaderboard semantics, the ambient & game math-caps, the persistent 365-day
+  no-repeat, wrong-answer feedback, and difficulty tiers are all untouched.
+
 ## [1.9.0] - 2026-07-09
 
 ### Changed
