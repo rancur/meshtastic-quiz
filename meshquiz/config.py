@@ -103,6 +103,21 @@ class Config:
     quiz_difficulty: str = field(
         default_factory=lambda: _env("QUIZ_DIFFICULTY", "mixed").strip().lower())
 
+    # --- Game math-cap (v1.9.0) ---
+    # The competitive !starttrivia game draws from QUIZ_DIFFICULTY (default "mixed" = the
+    # whole bank), which is ~83% Math after the v1.6.0 mass-generation — so a plain shuffle
+    # made a 12-question game feel like arithmetic homework ("the trivia is mainly math").
+    # This is the GAME-side twin of AMBIENT_MATH_MAX_PCT: it caps the share of a game's draw
+    # bag that is math (0..100). Each game builds its bag with every non-math question plus
+    # only enough randomly-chosen math to hit this share, so the served game mix tracks the
+    # cap. Default 18 => ~18% math, ~82% real trivia (matches the ambient track for a
+    # consistent trivia-first feel across BOTH the game and the 24/7 channel).
+    #   - 0   => a game serves NO math (unless the active tier is all-math).
+    #   - 100 => UNCAPPED: plain uniform shuffle of the tier (the pre-1.9.0 behavior).
+    # Math is NOT deleted — pure selection weighting, 100% reversible via this one env var.
+    game_math_max_pct: int = field(
+        default_factory=lambda: _env_int("GAME_MATH_MAX_PCT", 18))
+
     # --- Mesh limits ---
     max_payload_bytes: int = field(default_factory=lambda: _env_int("MAX_PAYLOAD_BYTES", 200))
 
@@ -251,6 +266,8 @@ class Config:
                 raise ValueError("AMBIENT_MATH_MAX_PCT must be 0..100")
         if self.max_sends_per_minute < 1:
             raise ValueError("MAX_SENDS_PER_MINUTE must be >= 1")
+        if not (0 <= self.game_math_max_pct <= 100):
+            raise ValueError("GAME_MATH_MAX_PCT must be 0..100")
         if self.quiz_difficulty not in VALID_DIFFICULTIES:
             raise ValueError(
                 f"QUIZ_DIFFICULTY must be one of {sorted(VALID_DIFFICULTIES)}, "
