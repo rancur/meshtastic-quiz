@@ -92,6 +92,7 @@ of who got the previous question right.
 | `AMBIENT_CHANNEL_INDEX` | trivia channel | Channel to post ambient questions on (defaults to `TRIVIA_CHANNEL_INDEX`). |
 | `AMBIENT_DIFFICULTY` | `challenging` | Which pool ambient draws from, **decoupled** from the competitive `QUIZ_DIFFICULTY`. `challenging` = med+hard (skips easy; deepest pool for the no-repeat window); also `mixed`/`easy`/`medium`/`hard`. |
 | `AMBIENT_NO_REPEAT_DAYS` | `365` | Ambient won't re-ask a question shown within this many days. See **No-repeat** below. |
+| `AMBIENT_MATH_MAX_PCT` | `18` | Target **percent** of served ambient questions allowed to be **math** (see **Math-cap** below). The bank is ~83% math; this weights selection so the 24/7 channel stays trivia-first. `0` = never math, `100` = cap off (uniform ≈83% math). Math is never deleted — fully reversible. |
 | `AMBIENT_REMINDER_FREQUENCY` | `3` | Every Nth ambient question carries the full `🏆 leaderboard / !starttrivia` plug; the rest are bare questions, so regulars aren't nagged hourly. `1` = always remind. |
 | `MAX_SENDS_PER_MINUTE` | `6` | Hard anti-flood floor for **all** sends (game + ambient). A last-resort circuit breaker: the bot will never exceed this in any rolling 60s, regardless of any other logic. |
 
@@ -115,10 +116,36 @@ spacing (days) = ambient pool size ÷ questions-per-day
 ```
 
 A literal 365-day gap at hourly cadence needs **~8760** questions in the ambient pool. The
-shipped bank delivers **9,110** med+hard, so the literal year **holds**: a full year of hourly
-draws produces **zero** repeats, with a guaranteed minimum spacing of **≈379 days** — up from
-repeats within *hours* under the old random-with-replacement pick. If you run a smaller custom
-bank below 8,760, the LRU fallback still guarantees `pool ÷ per-day` days of spacing.
+shipped bank delivers **9,110** med+hard, so with the math-cap **off** the literal year
+**holds**: a full year of hourly draws produces **zero** repeats — up from repeats within
+*hours* under the old random-with-replacement pick. If you run a smaller custom bank below
+8,760, the LRU fallback still guarantees `pool ÷ per-day` days of spacing.
+
+### Math-cap (keep the channel trivia-first, not a math drill)
+
+The shipped bank is **~83% Math** (7,578 of 9,110 med+hard): arithmetic/number questions were
+the only category that scaled to the thousands needed to clear the literal 365-day no-repeat,
+while real-trivia categories (geography, science, history, mesh/RF/LoRa deep cuts, …) total
+only ~1,532. Left unweighted, the 24/7 channel *felt* like arithmetic homework.
+
+`AMBIENT_MATH_MAX_PCT` (default **18**) fixes the **feel** with **weighted selection**: each
+hourly fire rolls this percentage to decide whether it may be a math question, then applies the
+normal no-repeat pick *within* the chosen bucket. Result — a served mix of **~18% math / ~82%
+real trivia**, verified by simulation. A question is classified math by its **category tag**
+(`Math`/`Arithmetic`/`Number Theory`/…), never by scanning the text, so a real-trivia question
+that merely contains a digit is never mis-flagged.
+
+Nothing is deleted — the math stays in the bank and this is pure *selection* weighting, so it's
+fully reversible: `AMBIENT_MATH_MAX_PCT=0` never serves math, `=100` disables the cap (uniform
+selection = the ~83% math behavior).
+
+**No-repeat trade-off (by design):** because non-math is now served ~82% of the time from the
+smaller 1,532-question pool, its effective no-repeat window shrinks to about
+`non_math_pool ÷ (0.82 × 24)` ≈ **78 days (~2.6 months)**, after which it re-serves the
+least-recently-asked non-math question (max spacing — never a recent repeat). Math, served
+~18%, effectively **never** repeats (~4.8-year window). Both are far better than the pre-fix
+"repeats within hours," and the whole-pool literal-365-day guarantee is still available by
+disabling the cap.
 
 ### Mesh etiquette / airtime math
 

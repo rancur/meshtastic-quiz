@@ -22,6 +22,7 @@ from .config import ANSWER_EMOJI, ANSWER_TYPED, Config
 from .engine import AmbientStats, GameEngine, SendText, StartQuestion
 from .questions import (
     Question,
+    is_math,
     load_questions,
     question_key,
     select_ambient_pool,
@@ -96,8 +97,15 @@ class TriviaBot:
         # so the 24/7 channel draws from the widest/hardest pool for the no-repeat window.
         self._ambient_questions = select_ambient_pool(
             self._full_bank, cfg.ambient_difficulty)
-        log.info("ambient pool: %d questions (AMBIENT_DIFFICULTY=%r); no-repeat window=%d days",
-                 len(self._ambient_questions), cfg.ambient_difficulty, cfg.ambient_no_repeat_days)
+        _amb_math = sum(1 for q in self._ambient_questions if is_math(q))
+        _amb_nonmath = len(self._ambient_questions) - _amb_math
+        log.info("ambient pool: %d questions (AMBIENT_DIFFICULTY=%r); no-repeat window=%d days; "
+                 "math=%d non-math=%d; math-cap AMBIENT_MATH_MAX_PCT=%d%% "
+                 "(non-math no-repeat window ~%.0f days)",
+                 len(self._ambient_questions), cfg.ambient_difficulty, cfg.ambient_no_repeat_days,
+                 _amb_math, _amb_nonmath, cfg.ambient_math_max_pct,
+                 (_amb_nonmath / (max(1, 100 - cfg.ambient_math_max_pct) / 100.0 * 24.0))
+                 if cfg.ambient_math_max_pct < 100 else 0.0)
         # No-repeat history: question_key -> last-asked epoch seconds. Persisted in state.json.
         self._ask_history: Dict[str, float] = {}
         self._cursor_ms = 0
@@ -468,30 +476,67 @@ class TriviaBot:
         self._ask_history[question_key(question)] = time.time() if now_s is None else now_s
 
     def _pick_ambient_question(self, now_s: float) -> Question:
-        """Choose the next ambient question honoring the 365-day no-repeat window.
+        """Choose the next ambient question: MATH-CAPPED weighting, then 365-day no-repeat.
 
-        1. ELIGIBLE = pool questions never asked, or last asked >= window ago. Pick RANDOMLY
-           among them (unpredictable, not sequential).
-        2. GRACEFUL FALLBACK: if none are eligible (bank too small for the cadence), pick the
-           LEAST-RECENTLY-ASKED question (max possible spacing) — never a recent repeat, never
-           a crash — random tiebreak among equally-old ones. Log a warning so the operator
-           sees the bank needs to grow / the cadence needs to slow.
+        Two-stage pick (v1.8.0):
+          1. MATH CAP: roll ``AMBIENT_MATH_MAX_PCT`` to decide whether this fire is allowed to
+             be a math question (default 18% math / 82% real trivia). This is what keeps the
+             channel feeling like TRIVIA rather than a math drill even though the bank is ~83%
+             math. Setting the knob to 100 disables the cap (uniform selection across the whole
+             pool — the pre-1.8.0 behavior). Math is never deleted; it is only down-weighted,
+             so the cap is fully reversible via that one env var.
+          2. NO-REPEAT within the chosen bucket: honor the 365-day window; if the bucket is
+             exhausted, fall back to its least-recently-asked question (max spacing). Because
+             non-math is served ~82% of the time from a smaller pool, ITS effective no-repeat
+             window is shorter (roughly non_math_pool/(0.82*24) days) — expected and fine (still
+             weeks/months). Math, served rarely, effectively never repeats.
         The chosen question is stamped by the caller once it actually sends.
         """
         pool = self._ambient_questions or self._questions
+        pct = self.cfg.ambient_math_max_pct
+        # Cap disabled (>=100): original uniform no-repeat selection across the whole pool.
+        if pct >= 100:
+            return self._pick_no_repeat(pool, now_s)
+        # Split the pool by math classification (by CATEGORY tag — see questions.is_math).
+        math_pool = [q for q in pool if is_math(q)]
+        nonmath_pool = [q for q in pool if not is_math(q)]
+        want_math = (self._rng.random() * 100.0) < pct
+        primary = math_pool if want_math else nonmath_pool
+        secondary = nonmath_pool if want_math else math_pool
+        # If the chosen bucket has NO questions at all in this pool, use the other bucket so a
+        # single-category pool (or pct=0) can never brick the picker.
+        if not primary:
+            primary = secondary
+        return self._pick_no_repeat(primary, now_s)
+
+    def _pick_no_repeat(self, pool: List[Question], now_s: float) -> Question:
+        """Pick from ``pool`` honoring the no-repeat window; LRU fallback when exhausted.
+
+        1. ELIGIBLE = pool questions never asked, or last asked >= window ago. Pick RANDOMLY
+           among them (unpredictable, not sequential).
+        2. GRACEFUL FALLBACK: if none are eligible (bucket too small for the cadence), pick the
+           LEAST-RECENTLY-ASKED question (max possible spacing) — never a recent repeat, never
+           a crash — random tiebreak among equally-old ones. Log a warning so the operator sees
+           the bucket needs to grow / the cadence needs to slow.
+        """
         window_s = max(0, self.cfg.ambient_no_repeat_days) * 86400
         eligible = [q for q in pool
                     if (now_s - self._ask_history.get(question_key(q), float("-inf"))) >= window_s]
         if eligible:
             return self._rng.choice(eligible)
-        # pool exhausted within the window -> least-recently-asked (oldest last-asked wins)
+        # bucket exhausted within the window -> least-recently-asked (oldest last-asked wins).
+        # Under the math-cap this is EXPECTED for the smaller non-math bucket (it cycles every
+        # ~non_math/(served_frac*24) days by design — still weeks/months, never a crash and
+        # never sooner than a full bucket cycle), so this is INFO, not a warning. It only means
+        # the bank/cadence needs attention when even the FULL pool exhausts (cap disabled).
         oldest_ts = min(self._ask_history.get(question_key(q), float("-inf")) for q in pool)
         stalest = [q for q in pool
                    if self._ask_history.get(question_key(q), float("-inf")) <= oldest_ts]
-        log.warning(
-            "ambient no-repeat pool EXHAUSTED within %d-day window (pool=%d): falling back to "
-            "least-recently-asked. Grow the bank or slow AMBIENT_INTERVAL_MINUTES for full "
-            "365-day coverage.", self.cfg.ambient_no_repeat_days, len(pool))
+        log.info(
+            "ambient no-repeat bucket cycled (bucket=%d, window=%dd): re-serving "
+            "least-recently-asked (max spacing). Expected for the non-math bucket under the "
+            "math-cap; grow that bucket to lengthen its no-repeat window.",
+            len(pool), self.cfg.ambient_no_repeat_days)
         return self._rng.choice(stalest)
 
     @staticmethod

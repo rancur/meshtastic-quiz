@@ -70,6 +70,31 @@ def load_questions(path: str) -> List[Question]:
     return [Question(**q) for q in raw]
 
 
+# --- Math classification (ambient math-cap, v1.8.0) -------------------------------------
+# The mass-generation pass (v1.6.0) tagged every arithmetic/number-theory/base-conversion
+# question with the category "Math" — that category tag is the reliable, sole signal for
+# "this is a drill-style math question," which is what the ambient math-cap down-weights.
+# We match on the CATEGORY tag only (never the question text) so a legitimate non-math
+# question that merely mentions a number (e.g. "Max channels you can configure (indices
+# 0-7)?" in the Mesh category) is NEVER mis-classified as math. The set is lowercased and
+# includes the aliases the generator could plausibly emit, so a future bank rebuild that
+# labels math questions "arithmetic"/"number theory" is still caught without a code change.
+MATH_CATEGORIES = frozenset({
+    "math", "maths", "mathematics", "arithmetic",
+    "number theory", "number-theory", "numbers",
+})
+
+
+def is_math(q: "Question") -> bool:
+    """True iff ``q`` is a drill-style math question (by its CATEGORY tag, case-insensitive).
+
+    Classification is intentionally tag-based (not text-based): the ambient math-cap must
+    down-weight ONLY the generated arithmetic/number bank, never a real-trivia question that
+    happens to contain a digit. See ``MATH_CATEGORIES``.
+    """
+    return (q.category or "").strip().lower() in MATH_CATEGORIES
+
+
 def question_key(q: "Question") -> str:
     """Stable identity for a question, used as the no-repeat history key.
 

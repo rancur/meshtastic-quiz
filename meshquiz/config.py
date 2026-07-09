@@ -142,6 +142,24 @@ class Config:
     # and logs a warning — never a recent repeat, never a crash.
     ambient_no_repeat_days: int = field(
         default_factory=lambda: _env_int("AMBIENT_NO_REPEAT_DAYS", 365))
+    # --- Ambient math-cap (v1.8.0) ---
+    # The mass-generation pass (v1.6.0) grew the bank to ~9.2k questions to clear a literal
+    # 365-day no-repeat, but MATH was the only verified category that scaled to thousands, so
+    # the ambient (med+hard) pool ended up ~83% Math. Served hourly, the channel FELT like a
+    # math drill, not trivia. This knob caps the share of AMBIENT questions that are math.
+    #
+    # It is the target PERCENT of served ambient questions allowed to be math (0..100):
+    # each fire rolls this probability to decide math-vs-real-trivia, then picks (honoring the
+    # no-repeat window) within the chosen bucket. Default 18 => ~18% math, ~82% real trivia.
+    #   - 0   => never serve math (math stays in the bank, just never picked for ambient).
+    #   - 100 => UNCAPPED: original uniform no-repeat selection across the whole pool (the
+    #            pre-1.8.0 behavior — which is itself ~83% math). Use to fully revert.
+    # The math is NOT deleted — this is pure selection weighting, so it is 100% reversible by
+    # changing this one env var. Non-math is a smaller pool, so serving it ~82% of the time
+    # shrinks ITS no-repeat window to roughly non_math_pool / (0.82 * 24) days (still weeks/
+    # months); math, served rarely, effectively never repeats. See CHANGELOG 1.8.0.
+    ambient_math_max_pct: int = field(
+        default_factory=lambda: _env_int("AMBIENT_MATH_MAX_PCT", 18))
     # Every Nth ambient question carries the FULL reminder (leaderboard + !starttrivia
     # plug); the others are a bare question with a tiny tag, so channel regulars aren't
     # nagged hourly. Default 3 (full plug every 3rd question). 1 = always full.
@@ -229,6 +247,8 @@ class Config:
                 raise ValueError("AMBIENT_MINUTE_OFFSET must be 0..59")
             if self.ambient_reminder_frequency < 1:
                 raise ValueError("AMBIENT_REMINDER_FREQUENCY must be >= 1")
+            if not (0 <= self.ambient_math_max_pct <= 100):
+                raise ValueError("AMBIENT_MATH_MAX_PCT must be 0..100")
         if self.max_sends_per_minute < 1:
             raise ValueError("MAX_SENDS_PER_MINUTE must be >= 1")
         if self.quiz_difficulty not in VALID_DIFFICULTIES:
