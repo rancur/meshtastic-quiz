@@ -3,6 +3,32 @@
 All notable changes to this project are documented here. This project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.9.0] - 2026-07-09
+
+### Changed
+- **Game math-cap: the competitive `!starttrivia` game is trivia-first now too.** v1.8.0
+  fixed the *ambient* 24/7 channel, but the rapid game still drew from a **plain shuffle** of
+  the `QUIZ_DIFFICULTY` pool — which at the default `mixed` tier is the whole **~83% Math**
+  bank, so a 12-question game was ~10 math questions. It still *felt* like "the trivia is
+  mainly math." Buzz now builds each game's draw bag **math-capped**: it keeps every non-math
+  question and adds only enough randomly-chosen math to hit `GAME_MATH_MAX_PCT` (default
+  **18**), then shuffles. Verified served game mix over a simulated batch on the real bank:
+  **~18% math / ~82% real trivia** (geography, science, history, mesh/RF/LoRa deep cuts, …) —
+  matching the ambient track so BOTH the game and the 24/7 channel feel trivia-first.
+  - **Nothing is deleted — fully reversible.** Math stays in the bank; this is pure
+    *selection* weighting. `GAME_MATH_MAX_PCT=0` serves a game with no math (unless the active
+    tier is all-math); `=100` disables the cap (plain uniform shuffle = the pre-1.9.0 ~83%
+    behavior).
+  - **Same reliable tag-based classification** as the ambient cap (`questions.is_math`), so a
+    real-trivia question that merely contains a digit is never mis-flagged.
+  - **Degenerate tiers never starve the bag:** an all-math or all-non-math tier falls back to
+    a plain shuffle rather than emptying the bag.
+  - New env knob `GAME_MATH_MAX_PCT` (default 18, range 0–100).
+
+### Unchanged
+- The ambient math-cap (v1.8.0), wrong-answer feedback (v1.7.0), the persistent no-repeat
+  system, the question bank, difficulty tiers, and scoring are all untouched.
+
 ## [1.8.0] - 2026-07-09
 
 ### Changed

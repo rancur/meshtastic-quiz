@@ -18,7 +18,7 @@ from typing import Dict, List, Optional
 from . import host
 from .config import Config
 from .personality import QuipEngine
-from .questions import Question
+from .questions import Question, is_math
 
 
 class Phase(Enum):
@@ -158,8 +158,51 @@ class GameEngine:
 
     # ---------------- question flow ----------------
     def _refill_bag(self):
-        self._bag = list(self._all_questions)
-        self.rng.shuffle(self._bag)
+        self._bag = self._build_capped_bag()
+
+    def _build_capped_bag(self) -> List[Question]:
+        """Build a shuffled draw bag for a game, MATH-CAPPED so the competitive game is
+        trivia-first (v1.9.0).
+
+        Same problem the v1.8.0 ambient math-cap solved, now for the rapid !starttrivia
+        game: the bank is ~83% Math (mass-generated in v1.6.0 to clear the 365-day ambient
+        no-repeat), so a plain shuffle of the whole bank made a 12-question game ~10 math
+        questions — "the trivia is mainly math." We cap math to at most
+        ``GAME_MATH_MAX_PCT`` of the bag (default 18%) by INCLUDING every non-math question
+        and only enough randomly-chosen math questions to hit that share, then shuffle. A
+        game draws ``questions_per_game`` from the top, so the served mix tracks the cap.
+
+        Math is never deleted — pure selection weighting, fully reversible via the env knob:
+          - GAME_MATH_MAX_PCT=0   => a game has ZERO math (unless the tier is ALL math).
+          - GAME_MATH_MAX_PCT=100 => uncapped uniform shuffle (pre-1.9.0 behavior).
+        Classification is tag-based (questions.is_math), so a real-trivia question that
+        merely contains a digit is never mis-flagged. If the active tier is all-math or
+        all-non-math, we degrade to a plain shuffle rather than starve the bag.
+        """
+        pool = list(self._all_questions)
+        pct = self.cfg.game_math_max_pct
+        if pct >= 100:
+            self.rng.shuffle(pool)
+            return pool
+        math = [q for q in pool if is_math(q)]
+        nonmath = [q for q in pool if not is_math(q)]
+        # Degenerate pools: nothing to cap against -> plain shuffle of what we have.
+        if not math or not nonmath:
+            self.rng.shuffle(pool)
+            return pool
+        self.rng.shuffle(math)
+        self.rng.shuffle(nonmath)
+        if pct <= 0:
+            bag = list(nonmath)
+        else:
+            # Keep every non-math question; add just enough math so math is <= pct% of the
+            # bag: math_count / (nonmath + math_count) = pct/100  ->  math_count =
+            # nonmath * pct / (100 - pct). At least 1 so a low cap still allows some spice.
+            frac = pct / (100 - pct)
+            max_math = max(1, int(len(nonmath) * frac))
+            bag = nonmath + math[:max_math]
+        self.rng.shuffle(bag)
+        return bag
 
     def _begin_question(self, now_s: float) -> List[Action]:
         if not self._bag:

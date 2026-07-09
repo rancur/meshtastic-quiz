@@ -280,6 +280,17 @@ exactly as before — backward compatible. `medium` is accepted as an alias for 
 `med` label. If a tier is ever empty (e.g. a hand-trimmed bank) the bot falls back to the
 full bank rather than starting with no questions, and logs the fallback.
 
+### Game math-cap (`GAME_MATH_MAX_PCT`)
+
+The bank is **~83% Math** (see [Math-cap](#math-cap-keep-the-channel-trivia-first-not-a-math-drill)
+above), so with the default `mixed` tier a plain shuffle used to make a 12-question game feel
+like arithmetic homework too. `GAME_MATH_MAX_PCT` (default **18**) is the game-side twin of
+`AMBIENT_MATH_MAX_PCT`: each game builds its draw bag from **every** non-math question plus
+only enough randomly-chosen math to hit that share, then shuffles. Result — a served game mix
+of **~18% math / ~82% real trivia**, matching the 24/7 ambient channel so **both** feel
+trivia-first. `0` = a game serves no math (unless the tier is all-math); `100` = uncapped plain
+shuffle (pre-1.9.0 behavior). Math is never deleted — pure selection weighting, fully reversible.
+
 The **medium and hard tiers lean into Meshtastic itself** — LoRa modem presets and their
 range/airtime tradeoffs, hop-limit mechanics, managed-flood routing, channels/PSK/AES
 encryption, device roles (CLIENT / ROUTER / REPEATER / TRACKER / SENSOR …), MQTT bridging,
