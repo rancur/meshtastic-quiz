@@ -28,8 +28,12 @@ DAY_S = 86400.0
 
 def _bot(tmpdir, pool, no_repeat_days=365):
     state_path = os.path.join(tmpdir, "state.json")
+    # These tests prove the NO-REPEAT mechanism in isolation, so run the picker UNCAPPED
+    # (ambient_math_max_pct=100 => uniform selection across the whole pool, pre-1.8.0
+    # behavior). The math-cap weighting is proven separately in test_math_cap.py.
     cfg = Config(meshmonitor_token="x", trivia_channel_index=2, state_path=state_path,
-                 ambient_no_repeat_days=no_repeat_days, bot_node_id="!bot00000")
+                 ambient_no_repeat_days=no_repeat_days, bot_node_id="!bot00000",
+                 ambient_math_max_pct=100)
     bot = TriviaBot(MockTransport(), cfg, questions=list(pool))
     bot._ambient_questions = list(pool)  # pin the ambient pool for a deterministic proof
     return bot

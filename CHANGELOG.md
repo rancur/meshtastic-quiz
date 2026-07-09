@@ -3,6 +3,42 @@
 All notable changes to this project are documented here. This project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.8.0] - 2026-07-09
+
+### Changed
+- **Ambient math-cap: the 24/7 channel is trivia-first again, not a math drill.** The
+  v1.6.0 mass-generation grew the bank to ~9.2k questions to clear a literal 365-day
+  no-repeat, but MATH was the only verified category that scaled to thousands — so the
+  ambient (med+hard) pool ended up **83% Math / 17% real trivia** (7,578 math vs 1,532
+  non-math). Served hourly, the channel *felt* like arithmetic homework. Buzz now uses
+  **weighted selection** on the ambient track: each hourly fire rolls `AMBIENT_MATH_MAX_PCT`
+  (default **18**) to decide whether it may be a math question, then honors the no-repeat
+  window *within* the chosen bucket. Verified served mix over a simulated batch:
+  **~18% math / ~82% real trivia** (geography, science, history, chemistry, mesh/RF/LoRa
+  deep cuts, …) — math is now occasional spice, not the main course.
+  - **Nothing is deleted — fully reversible.** The math questions stay in the bank; this is
+    pure *selection* weighting. Change one env var to retune: `AMBIENT_MATH_MAX_PCT=0` never
+    serves math, `=100` disables the cap entirely (uniform selection = the pre-1.8.0 ~83%
+    math behavior).
+  - **Reliable classification.** A question is "math" iff its **category tag** is math
+    (`Math`/`Arithmetic`/`Number Theory`/… — see `questions.MATH_CATEGORIES`), never by
+    scanning the text — so a real-trivia question that merely contains a digit (e.g. the Mesh
+    question "Max channels you can configure (indices 0-7)?") is never mis-flagged.
+  - **No-repeat still holds, per bucket.** Because non-math is now served ~82% of the time
+    from the smaller 1,532-question pool, its effective no-repeat window shrinks to
+    **~78 days (~2.6 months)** — `non_math_pool / (0.82 × 24)` — after which it re-serves the
+    least-recently-asked non-math question (max spacing, never a recent repeat). Math, served
+    ~18%, effectively never repeats (~4.8-year window). Both far better than the pre-fix
+    "repeats within hours" problem, and the whole-pool literal-365-day guarantee still holds
+    when the cap is disabled.
+  - New env knob `AMBIENT_MATH_MAX_PCT` (default 18, range 0–100). The startup log now reports
+    the pool math/non-math split, the active cap, and the computed non-math no-repeat window.
+
+### Unchanged
+- Wrong-answer feedback (v1.7.0), the persistent no-repeat system + history, the question
+  bank, and the competitive `!starttrivia` game (which draws from `QUIZ_DIFFICULTY`, separate
+  from the ambient pool) are all untouched.
+
 ## [1.7.0] - 2026-07-08
 
 ### Added
