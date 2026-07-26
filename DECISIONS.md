@@ -162,6 +162,73 @@ low-traffic mesh. A monthly **question** refresh is independent and does not tou
 (If a persistent season-long leaderboard is ever wanted, it's a small extension on top of
 `state.py`, which already persists a leaderboard snapshot.)
 
+## Monthly champion + board reset (v1.11.0)
+
+The per-game leaderboard above is deliberately short-lived, so "who won the *month*" needed
+its own board. `meshquiz/monthly.py` keeps it, and every non-obvious call is below.
+
+**Currency = correct answers, not points.** Points only exist on the rapid `!starttrivia`
+track; the 24/7 ambient track counts correct answers. Correct-answer count is the one unit
+both tracks share, so an ambient regular and a game sprinter compete on the same board.
+Recording is unconditional (cheap, and it means opting in mid-month yields a *complete*
+board); only the announcement + reset is gated.
+
+**Two messages on the primary channel, maximum.** The primary channel belongs to the whole
+mesh, so the monthly wrap-up gets exactly two packets there: the champion, then a
+join-the-channel promo carrying `TRIVIA_CHANNEL_NAME` and `TRIVIA_ADD_LINK`. They can't be
+merged — the add link alone is ~100 B — and a third would be an imposition. This is encoded
+as `monthly.MAX_PRIMARY_MESSAGES`, asserted in composition and enforced by tests, so it
+can't drift into "just one more message".
+
+**Byte budget, in bytes.** The copy's emoji are 3–4 UTF-8 bytes each, so composition
+measures `len(text.encode("utf-8"))` and degrades until it fits: the winner phrasing shrinks
+(`Ann & Bob` → `Ann +1` → `a 4-way tie`), then the promo prefix shrinks through a
+longest-first list. The link is **never** truncated — a cut channel URL is a dead invite —
+and in the pathological case where the link alone exceeds the budget the promo is dropped
+entirely (one honest message beats two, one of which is broken).
+
+**Archive before reset, as one call.** `archive()` snapshots the month's standings into
+`history` and only then drops the live scores. There is deliberately no public "reset" that
+skips the snapshot: a reset without an archive is data loss, so they are the same operation.
+
+**Idempotency via a persisted ledger, committed before sending.** `announced` (in
+`state.json`) lists months already crowned; `pending_months()` consults it, so a second run
+is a no-op. The run order is compose → archive → mark → **persist** → send, so a crash
+mid-announcement costs at most one announcement and can never produce a duplicate or lose
+the archived standings. Because the check is polled rather than cron'd, a box that was
+asleep at local midnight on the 1st simply announces on its next poll — "late" and "on
+time" are the same code path. A `MONTHLY_MAX_LOOKBACK_MONTHS` window (default 2) archives
+anything older *silently*, so enabling the feature after a long gap can't crown a champion
+nobody remembers.
+
+**Local time, not UTC.** `MONTHLY_TIMEZONE` (e.g. `America/Phoenix`) defines the boundary;
+answers are bucketed by *their own* timestamp's month, so a round straddling local midnight
+on the 1st credits each answer correctly. A UTC boundary would roll the board over 7 hours
+early in Arizona — on the wrong local day. An invalid zone raises at startup instead of
+silently drifting.
+
+**Ties are shared, not broken.** Two players on 41 correct are both champions and both are
+named. The per-game board breaks ties on "who got there first" (see *Ties on the
+leaderboard*), but over a whole month that's a timing artifact, not a better month —
+splitting it would manufacture a loser. If the name list won't fit, it degrades to
+`Ann, Bob +2` and finally `a 5-way tie`: the tie stays visible even when the names don't.
+
+**Empty months are silent.** No players — or players but nobody ever correct — means no
+champion. The month is archived and marked done so it isn't reconsidered forever, and
+*nothing* is transmitted. Spamming the primary channel with an empty podium is worse than
+saying nothing.
+
+**Never mid-round, never over the flood floor.** The wrap-up waits for any running game to
+end, and if the rolling `MAX_SENDS_PER_MINUTE` window can't fit the whole announcement it
+defers to a later poll *without* committing the reset — better a few minutes late than
+crowned-and-reset with the packets dropped.
+
+**Preview instead of testing on the air.** `scripts/preview_monthly.py` renders the exact
+packets (every copy variant, with byte counts) and constructs no transport at all, so there
+is no code path from it to the radio. `MONTHLY_DRY_RUN=true` is the in-bot equivalent and
+deliberately does *not* mark the month announced, so the real announcement still happens
+when it's switched off.
+
 ## Mesh byte budget
 
 Every outbound message is validated against `MAX_PAYLOAD_BYTES` (default 200, the

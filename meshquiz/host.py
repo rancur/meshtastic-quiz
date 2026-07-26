@@ -117,5 +117,49 @@ AMBIENT_REMINDER = [
 ]
 
 
+# --- Monthly champion + board reset (v1.11.0, see monthly.py / DECISIONS.md) ------------
+# Copy for the end-of-month wrap. Placeholders: {month} (e.g. JULY), {who} (champion or
+# co-champions), {n} (correct answers), {next_month}, {ch} (trivia channel name).
+#
+# BYTE DISCIPLINE: these are the LONGEST form of each line. monthly.compose_* measures the
+# rendered UTF-8 length and falls back to shorter winner phrasings ("A, B +2", "a 4-way
+# tie") if a long name list would push a packet over budget, so every line here can afford
+# to read naturally. tests/test_monthly.py renders all of them against worst-case names.
+
+# Trivia channel: the players' own wrap-up. One packet.
+MONTHLY_TRIVIA = [
+    "🏆 {month} CHAMPION: {who} — {n} correct! Board resets for {next_month}, everyone back to 0. Go get it.",
+    "🏆 That's {month} done! {who} takes it with {n} correct. Fresh board for {next_month} — new month, new champ.",
+    "🏆 {month} champ: {who}, {n} correct. Scores wiped for {next_month} — everybody starts level. Tap in!",
+]
+
+# PRIMARY channel message 1 of 2: the crown. Read by the whole mesh, so it says what Buzz
+# is as well as who won.
+MONTHLY_PRIMARY_WINNER = [
+    "🏆 Buzz Trivia — {month} champion: {who}, {n} correct! New month, board's reset, everyone starts at 0.",
+    "🏆 {month} Buzz Trivia champion: {who} ({n} correct). Board's been reset — this month is anyone's.",
+]
+
+# PRIMARY channel message 2 of 2: the recruiting pitch. The channel-add link is appended by
+# monthly._compose_promo on its own line, so these are PREFIXES only, ordered longest-first
+# — the first one that leaves room for the link (link length varies by channel) is used.
+MONTHLY_PRIMARY_PROMO = [
+    "🎮 Want in on next month? Buzz runs trivia 24/7 on the '{ch}' channel. Add it:",
+    "🎮 Play next month — Buzz runs trivia on the '{ch}' channel. Add it:",
+    "🎮 Join trivia on '{ch}':",
+    "🎮 Trivia channel:",
+]
+
+
 def pick(lines: List[str], **fmt) -> str:
     return random.choice(lines).format(**fmt)
+
+
+def template(lines: List[str]) -> str:
+    """Pick a RAW line, leaving its placeholders unfilled.
+
+    Used where the caller must render the same template several times at different lengths
+    (the monthly composer tries progressively shorter winner phrasings until one fits the
+    packet), which `pick` — which formats immediately — can't express.
+    """
+    return random.choice(lines)
