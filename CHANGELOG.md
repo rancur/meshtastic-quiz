@@ -3,6 +3,28 @@
 All notable changes to this project are documented here. This project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.11.1] - 2026-07-25
+
+### Fixed
+- **A restart no longer replays the channel's history.** `fetch_messages` asks the server
+  for messages `since` the persisted cursor, but that filter is best-effort: a MeshMonitor
+  that ignores it returns its whole recent page instead (observed live: ~1000 messages,
+  two weeks deep, returned for *every* value of `since`, including the current second).
+  The only thing preventing a replay was `_processed_pkts` — an **in-memory** set that is
+  empty on every boot. Net effect: each restart re-executed every `!starttrivia`, `!help`
+  and `!leaderboard` still in that page, so a routine redeploy put a burst of packets on
+  the air and could **start a game nobody asked for**. The cursor is now enforced
+  **client-side** as well, treating the transport's filter as advisory — the right posture
+  for any remote filter we don't control.
+- **Bounded catch-up after downtime.** New `MAX_MESSAGE_AGE_S` (default 300s) caps how old
+  a message may be and still be acted on. The cursor alone would happily fire a five-hour-
+  old `!starttrivia` from a bot that had been down; normal operation (messages seconds
+  old) is completely unaffected, and `0` restores pure cursor-only behavior.
+- 5 new tests (`tests/test_replay_guard.py`) drive a transport that deliberately ignores
+  `since`, exactly as the live server does, and pin: no replay on restart, fresh commands
+  still work, slightly-late delivery is never dropped, and the catch-up bound is honored
+  and disableable.
+
 ## [1.11.0] - 2026-07-25
 
 ### Added

@@ -126,6 +126,15 @@ class Config:
     # --- Mesh limits ---
     max_payload_bytes: int = field(default_factory=lambda: _env_int("MAX_PAYLOAD_BYTES", 200))
 
+    # --- Catch-up bound after downtime (v1.11.1) ---
+    # The oldest a message may be and still be ACTED ON, in seconds. The cursor already
+    # says "don't reprocess what we've seen"; this additionally says "don't act on a
+    # command that has gone cold." Without it, a bot that was down for hours comes back and
+    # fires a `!starttrivia` nobody is waiting for any more. Applied on top of the cursor,
+    # so normal operation (messages seconds old) is completely unaffected. 0 disables the
+    # bound and restores pure cursor-only behavior.
+    max_message_age_s: int = field(default_factory=lambda: _env_int("MAX_MESSAGE_AGE_S", 300))
+
     # --- Ambient mode (rolling solo questions, 24/7, mesh-friendly) ---
     # When enabled, Buzz drops ONE standalone question into the trivia channel on a slow
     # cadence (default: hourly) at a fixed off-:00 minute, so the channel stays alive
