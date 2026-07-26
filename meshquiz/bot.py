@@ -124,6 +124,7 @@ class TriviaBot:
         # once instead of on every 4s poll (dry-run never marks a month announced).
         self._monthly_previewed: set = set()
         self._processed_pkts: set = set()  # reactions/commands already handled
+        self._first_poll_done = False      # first poll is where a replay would show up
         self._names: Dict[str, str] = {}
         self._restore()
 
@@ -308,6 +309,7 @@ class TriviaBot:
             except Exception as e:
                 log.error("fetch failed (channel %s): %s", ch, e)
         msgs.sort(key=lambda m: m.timestamp_ms)
+        msgs = self._drop_stale(msgs, since_ms, now_s)
 
         for m in msgs:
             if m.timestamp_ms > self._cursor_ms:
@@ -326,6 +328,44 @@ class TriviaBot:
         self._maybe_monthly(now_s)
         self._persist()
         self._gc_processed()
+
+    def _drop_stale(self, msgs: List[MeshMessage], since_ms: int,
+                    now_s: float) -> List[MeshMessage]:
+        """Discard history the cursor already covers, and commands that have gone cold.
+
+        WHY THIS EXISTS: ``fetch_messages`` asks the server for messages ``since`` the
+        cursor, but a MeshMonitor that ignores/loosens that parameter simply returns its
+        whole recent page (observed live: ~1000 messages, two weeks deep, for every value
+        of ``since`` including the current second). The only thing standing between that
+        and a replay was ``_processed_pkts`` — an IN-MEMORY set that is empty on every
+        boot. Net effect: each restart re-executed every `!starttrivia`, `!help` and
+        `!leaderboard` still in the server's page, so a routine redeploy put a burst of
+        packets on the air and could start a game nobody asked for.
+
+        So the cursor is now enforced CLIENT-SIDE too — the transport is treated as
+        best-effort, which is the right posture for any remote filter we don't control.
+
+        Two independent floors, both applied:
+        1. ``since_ms`` — the persisted cursor (with the caller's small overlap for
+           out-of-order delivery). This is the fix for the replay itself.
+        2. ``max_message_age_s`` — a catch-up bound, so a bot returning from hours of
+           downtime doesn't act on commands that have long gone stale. The cursor alone
+           would happily fire a five-hour-old `!starttrivia`.
+        """
+        floor_ms = since_ms
+        if self.cfg.max_message_age_s > 0:
+            floor_ms = max(floor_ms, int((now_s - self.cfg.max_message_age_s) * 1000))
+        if floor_ms <= 0:
+            return msgs
+        fresh = [m for m in msgs if m.timestamp_ms >= floor_ms]
+        dropped = len(msgs) - len(fresh)
+        if dropped:
+            # Loud on the first poll of a process (that's the replay case), quiet after.
+            log.log(logging.INFO if self._first_poll_done else logging.WARNING,
+                    "ignoring %d message(s) older than the cursor/catch-up floor "
+                    "(transport returned history the cursor already covers)", dropped)
+        self._first_poll_done = True
+        return fresh
 
     def _gc_processed(self):
         # keep the processed-set bounded
