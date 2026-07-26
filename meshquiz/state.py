@@ -41,7 +41,8 @@ def load_state(path: str) -> Dict:
 def save_state(path: str, *, cursor_ms: int, was_running: bool,
                leaderboard: Optional[list] = None,
                ambient_stats: Optional[list] = None,
-               ask_history: Optional[dict] = None) -> None:
+               ask_history: Optional[dict] = None,
+               monthly: Optional[dict] = None) -> None:
     _atomic_write(path, {
         "cursor_ms": cursor_ms,
         "was_running": was_running,
@@ -53,4 +54,9 @@ def save_state(path: str, *, cursor_ms: int, was_running: bool,
         # the 365-day window holds across reboots/redeploys. Written atomically (temp file +
         # os.replace) so a crash mid-write can never corrupt it.
         "ask_history": ask_history or {},
+        # Monthly championship board (v1.11.0): live per-month scores, the ARCHIVE of
+        # finished months (written before any reset, so a reset can never lose a month),
+        # and the ledger of months already announced (the idempotency key — it is what
+        # stops a double-announce if the job runs twice or fires late).
+        "monthly": monthly or {},
     })

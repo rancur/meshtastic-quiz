@@ -71,6 +71,11 @@ class Config:
         "TRIVIA_ADD_LINK",
         "https://meshtastic.org/e/?add=true#CgsSATEaBnRyaXZpYRIYCAEY-gEgCygFOAFAB0gBUB5YFGgByAYB",
     ))
+    # Human-readable NAME of the trivia channel, exactly as it appears in a Meshtastic
+    # client's channel list. Advertised alongside the add link so someone can also add the
+    # channel by hand. Must match the name encoded in TRIVIA_ADD_LINK.
+    trivia_channel_name: str = field(
+        default_factory=lambda: _env("TRIVIA_CHANNEL_NAME", "trivia"))
 
     # --- Game timing ---
     question_window_s: int = field(default_factory=lambda: _env_int("QUESTION_WINDOW_S", 90))
@@ -185,6 +190,42 @@ class Config:
     max_sends_per_minute: int = field(
         default_factory=lambda: _env_int("MAX_SENDS_PER_MINUTE", 6))
 
+    # --- Monthly champion + leaderboard reset (v1.11.0; see monthly.py + DECISIONS.md) ---
+    # At the end of every calendar month Buzz crowns the month's champion (most correct
+    # answers across BOTH the rapid game and the 24/7 ambient track), announces it on the
+    # trivia channel AND the primary channel (at most TWO packets there: champion + a
+    # join-the-channel promo carrying the channel name and add link), archives that month's
+    # standings, and resets the monthly board to zero.
+    #
+    # SAFETY DEFAULT: OFF. Monthly SCORES are always recorded (so the board is already
+    # populated whenever an operator opts in mid-month), but nothing is ever announced,
+    # archived, or reset until this is explicitly turned on. A fresh install never posts to
+    # a stranger's primary channel.
+    monthly_recap_enabled: bool = field(
+        default_factory=lambda: _env_bool("MONTHLY_RECAP_ENABLED", False))
+    # PREVIEW MODE. When true the month-end run composes the exact packets and LOGS them
+    # (with byte counts) instead of transmitting, and does NOT archive, reset, or mark the
+    # month announced — so the real announcement still happens once you turn this off.
+    monthly_dry_run: bool = field(
+        default_factory=lambda: _env_bool("MONTHLY_DRY_RUN", False))
+    # Also announce on the PRIMARY channel (the whole point: reach people who aren't in the
+    # trivia channel yet). Set false to keep the wrap-up inside the trivia channel only.
+    monthly_announce_primary: bool = field(
+        default_factory=lambda: _env_bool("MONTHLY_ANNOUNCE_PRIMARY", True))
+    # IANA timezone that defines the month boundary, e.g. "America/Phoenix". Blank = the
+    # process's local time (the container's TZ). Naming the zone explicitly is strongly
+    # preferred: a UTC month boundary fires on the wrong LOCAL day (7h early in Arizona).
+    monthly_timezone: str = field(
+        default_factory=lambda: _env("MONTHLY_TIMEZONE", "").strip())
+    # How many finished months of standings to keep archived in state.json.
+    monthly_history_months: int = field(
+        default_factory=lambda: _env_int("MONTHLY_HISTORY_MONTHS", 12))
+    # An unannounced month older than this many months is archived SILENTLY rather than
+    # crowned — so enabling the feature (or booting after a long outage) can't suddenly
+    # announce a champion from months ago.
+    monthly_max_lookback_months: int = field(
+        default_factory=lambda: _env_int("MONTHLY_MAX_LOOKBACK_MONTHS", 2))
+
     # --- Fallback answering ---
     allow_typed_answers: bool = field(default_factory=lambda: _env_bool("ALLOW_TYPED_ANSWERS", True))
 
@@ -268,6 +309,21 @@ class Config:
             raise ValueError("MAX_SENDS_PER_MINUTE must be >= 1")
         if not (0 <= self.game_math_max_pct <= 100):
             raise ValueError("GAME_MATH_MAX_PCT must be 0..100")
+        if self.monthly_timezone:
+            # Fail LOUDLY at startup on a typo'd zone rather than silently drifting the
+            # month boundary onto the wrong local day.
+            try:
+                from zoneinfo import ZoneInfo
+                ZoneInfo(self.monthly_timezone)
+            except Exception as e:
+                raise ValueError(
+                    f"MONTHLY_TIMEZONE={self.monthly_timezone!r} is not a valid IANA "
+                    f"timezone ({e})")
+        if self.monthly_recap_enabled and self.monthly_announce_primary \
+                and not self.add_link:
+            raise ValueError(
+                "MONTHLY_ANNOUNCE_PRIMARY needs TRIVIA_ADD_LINK set (the promo message "
+                "hands out the trivia channel's add link)")
         if self.quiz_difficulty not in VALID_DIFFICULTIES:
             raise ValueError(
                 f"QUIZ_DIFFICULTY must be one of {sorted(VALID_DIFFICULTIES)}, "

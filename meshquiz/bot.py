@@ -17,7 +17,7 @@ from typing import Dict, List, Optional
 
 from dataclasses import asdict, fields
 
-from . import host, state
+from . import host, monthly, state
 from .config import ANSWER_EMOJI, ANSWER_TYPED, Config
 from .engine import AmbientStats, GameEngine, SendText, StartQuestion
 from .questions import (
@@ -120,6 +120,9 @@ class TriviaBot:
         self._pending_ambient_q: Optional[Question] = None  # question awaiting packet-id reg
         self._pending_ambient_lead: Optional[str] = None  # lead emoji used on the pending Q
         self._rng = random.Random()
+        # Months already previewed this process run, so MONTHLY_DRY_RUN logs the packets
+        # once instead of on every 4s poll (dry-run never marks a month announced).
+        self._monthly_previewed: set = set()
         self._processed_pkts: set = set()  # reactions/commands already handled
         self._names: Dict[str, str] = {}
         self._restore()
@@ -157,6 +160,10 @@ class TriviaBot:
                     self._ask_history[key] = float(ts)
                 except (TypeError, ValueError):
                     continue
+        # Monthly board: live per-month scores, the archive of finished months, and the
+        # announced ledger. Restoring the ledger is what makes the month-end job idempotent
+        # across restarts (a redeploy on the 1st must not re-announce).
+        self.engine.monthly.load(st.get("monthly"))
 
     def _persist(self):
         board = [{"node_id": p.node_id, "name": p.name, "score": p.score}
@@ -164,7 +171,8 @@ class TriviaBot:
         ambient = [asdict(s) for s in self.engine.ambient_stats.values()]
         state.save_state(self.cfg.state_path, cursor_ms=self._cursor_ms,
                          was_running=self.engine.running, leaderboard=board,
-                         ambient_stats=ambient, ask_history=self._ask_history)
+                         ambient_stats=ambient, ask_history=self._ask_history,
+                         monthly=self.engine.monthly.to_dict())
 
     # ---------- sending (byte budget + flood control) ----------
     def _send(self, text: str, channel: Optional[int] = None) -> Optional[int]:
@@ -314,6 +322,8 @@ class TriviaBot:
         # ambient mode: drop a standalone teaser question on its slow off-:00 cadence,
         # but ONLY when no rapid game is running (no stacking).
         self._maybe_ambient(now_s)
+        # month-end: crown the champion, archive + reset the board (gated, idempotent).
+        self._maybe_monthly(now_s)
         self._persist()
         self._gc_processed()
 
@@ -656,6 +666,109 @@ class TriviaBot:
                     and qtext in line:
                 self.engine.on_ambient_sent(pkt)
                 qtext = None  # only register once
+
+    # ---------- monthly champion + board reset (v1.11.0) ----------
+    def _send_budget(self) -> int:
+        """Sends still available inside the rolling 60s anti-flood window."""
+        now_m = time.monotonic()
+        recent = [t for t in self._send_times if now_m - t < 60.0]
+        return max(0, self.cfg.max_sends_per_minute - len(recent))
+
+    def build_monthly_announcement(self, key: str) -> monthly.MonthlyAnnouncement:
+        """Compose a month's packets WITHOUT sending, archiving, or resetting anything.
+
+        This is the seam the preview script and the tests use: it is the exact text that
+        would be transmitted, so a dry run can never diverge from the real thing.
+        """
+        return monthly.build_announcement(
+            self.engine.monthly, key,
+            limit=self.cfg.max_payload_bytes,
+            trivia_template=host.template(host.MONTHLY_TRIVIA),
+            winner_template=host.template(host.MONTHLY_PRIMARY_WINNER),
+            promo_templates=host.MONTHLY_PRIMARY_PROMO,
+            channel_name=self.cfg.trivia_channel_name,
+            add_link=self.cfg.add_link,
+        )
+
+    def _maybe_monthly(self, now_s: float) -> None:
+        """End-of-month: crown the champion, announce, archive, reset. Once. Ever.
+
+        Ordering is deliberate and is the whole idempotency story:
+
+          1. compose the packets from the month's standings,
+          2. ARCHIVE the standings (snapshot) and drop the live scores — the reset,
+          3. mark the month announced,
+          4. PERSIST state to disk,
+          5. only then transmit.
+
+        Steps 2-4 land on disk before a single byte goes out, so a crash mid-send costs at
+        most one announcement — never a duplicate, and never the archived standings. The
+        job is polled (not cron'd), so a box that was asleep at midnight on the 1st simply
+        announces on its next poll: "late" is indistinguishable from "on time".
+        """
+        if not self.cfg.monthly_recap_enabled:
+            return
+        # Never interleave with a live !starttrivia game — the wrap-up would land in the
+        # middle of a round. It'll fire on a later poll.
+        if self.engine.running:
+            return
+        board = self.engine.monthly
+        # Months too old to crown are archived silently: enabling the feature after a long
+        # gap must not suddenly announce a champion from months ago.
+        for stale in board.stale_months(now_s):
+            log.info("monthly: %s is beyond the %d-month lookback; archiving silently",
+                     stale, board.max_lookback_months)
+            board.archive(stale)
+            board.mark_announced(stale)
+        pending = board.pending_months(now_s)
+        if not pending:
+            return
+        key = pending[0]  # oldest first; one month per poll keeps airtime predictable
+
+        ann = self.build_monthly_announcement(key)
+        if ann.empty:
+            # Nobody scored. Archive + mark announced so we stop reconsidering it, and send
+            # NOTHING — an empty month must never spam the primary channel.
+            log.info("monthly: %s had no scoring activity; archived, nothing sent", key)
+            board.archive(key)
+            board.mark_announced(key)
+            self._persist()
+            return
+
+        msgs = self._monthly_send_plan(ann)
+        if self.cfg.monthly_dry_run:
+            if key not in self._monthly_previewed:
+                self._monthly_previewed.add(key)
+                log.warning("MONTHLY_DRY_RUN — nothing will be transmitted:\n%s",
+                            ann.describe())
+            return
+        # Don't commit the reset unless the whole announcement can actually go out under
+        # the anti-flood cap; otherwise defer to a later poll with the month still pending.
+        if self._send_budget() < len(msgs):
+            log.info("monthly: deferring %s — only %d of %d sends available this minute",
+                     key, self._send_budget(), len(msgs))
+            return
+
+        # ---- commit BEFORE transmitting (see docstring) ----
+        board.archive(key)          # snapshot the standings, then clear them = safe reset
+        board.mark_announced(key)   # the idempotency ledger
+        self._persist()             # on disk before the first packet leaves
+
+        log.info("monthly: crowning %s — champion(s)=%s score=%d (%d packet(s))",
+                 key, ", ".join(ann.champions), ann.score, len(msgs))
+        for text, channel in msgs:
+            self._send(text, channel=channel)
+
+    def _monthly_send_plan(self, ann: "monthly.MonthlyAnnouncement") -> List:
+        """(text, channel) pairs for an announcement — the trivia wrap plus <=2 primary."""
+        plan = [(ann.trivia_message, self.cfg.trivia_channel_index)]
+        primary = self.cfg.primary_channel_index
+        # If primary IS the trivia channel there is nothing to cross-post to; posting the
+        # promo again would just repeat the wrap-up to the same audience.
+        if self.cfg.monthly_announce_primary and primary != self.cfg.trivia_channel_index:
+            for text in ann.primary_messages[: monthly.MAX_PRIMARY_MESSAGES]:
+                plan.append((text, primary))
+        return plan
 
     # ---------- run loop ----------
     def run(self):  # pragma: no cover - long-running loop
