@@ -203,6 +203,60 @@ packets** (vs 1 without personality). `MAX_SENDS_PER_MINUTE` remains the authori
 flood floor. Personality state (streaks, droughts, poke cooldowns) **persists across
 restarts** so running gags survive a reboot.
 
+## Monthly champion + board reset
+
+With `MONTHLY_RECAP_ENABLED=true`, Buzz closes out every calendar month: it crowns that
+month's **champion**, announces it on the **trivia channel** *and* the **primary channel**,
+archives the standings, and **resets the monthly board** so the new month starts everyone
+at zero.
+
+**The month's currency is correct answers** — across *both* the rapid `!starttrivia` game
+and the 24/7 ambient track. Correct-answer count is the one unit both tracks share (game
+points don't exist on the ambient track), so an ambient regular and a game sprinter compete
+on the same board.
+
+**Exactly three packets a month, worst case:**
+
+| Channel | Messages | Content |
+| --- | --- | --- |
+| Trivia | 1 | The champion + "board's reset for `<next month>`". |
+| Primary | **2, hard cap** | 1. the champion; 2. a join-us promo carrying `TRIVIA_CHANNEL_NAME` **and** `TRIVIA_ADD_LINK` (the channel key). |
+
+The primary-channel cap is a structural invariant (`monthly.MAX_PRIMARY_MESSAGES`), not a
+convention — composition asserts it and the tests enforce it. Each packet is composed
+against `MAX_PAYLOAD_BYTES` in **UTF-8 bytes** (the emoji in this copy are 3–4 bytes each),
+and the copy degrades — shorter winner phrasing, then a shorter promo prefix — until it
+fits. The add link is **never** truncated; a cut link is a dead link, so the prefix gives
+way instead.
+
+Behavior worth knowing:
+
+- **A reset can never lose data.** The month's standings are archived into `state.json`
+  *before* the live scores are cleared — it's one call, so there is no path that resets
+  without a snapshot. `MONTHLY_HISTORY_MONTHS` (default 12) bounds the archive.
+- **Idempotent.** Announced months are recorded in a ledger that persists across restarts.
+  Running twice, restarting on the 1st, or firing days late (box asleep at month-end) all
+  announce and reset exactly **once**. State is committed to disk *before* the first packet
+  goes out, so a crash mid-send can't produce a duplicate.
+- **Local time, not UTC.** Set `MONTHLY_TIMEZONE` (e.g. `America/Phoenix`). A UTC month
+  boundary ends the month on the wrong local day.
+- **Ties are shared.** Everyone level on top is announced as co-champion; if the name list
+  won't fit a packet it degrades to `Ann, Bob +2` and then `a 5-way tie` — the tie stays
+  visible either way.
+- **Empty months are silent.** No players, or players but nobody ever correct, means no
+  champion: the month is archived and marked done, and **nothing is sent**.
+- **Never mid-round.** The wrap-up waits until no `!starttrivia` game is running.
+
+Preview it before you enable it — this constructs no transport and cannot transmit:
+
+```bash
+python3 scripts/preview_monthly.py --demo      # synthetic standings
+python3 scripts/preview_monthly.py 2026-07     # a real month from state.json
+```
+
+`MONTHLY_DRY_RUN=true` does the same inside the running bot: it logs the exact packets and
+leaves the month un-announced and un-reset.
+
 ## How it works
 
 ```
@@ -332,7 +386,9 @@ pytest
 The suite covers scoring math, speed/first-correct bonuses, dedupe-by-hex, timer expiry,
 the anti-runup guard, idempotent start, channel gating, command + emoji parsing, byte-limit
 validation of every question, full simulated game sessions over the mock transport, and
-crash recovery.
+crash recovery — plus the monthly wrap-up's byte budget, two-message primary cap,
+archive-before-reset, local-time month boundary, tie handling, and idempotency across both
+a restart and a mid-send crash.
 
 ## License
 

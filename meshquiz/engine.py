@@ -17,6 +17,7 @@ from typing import Dict, List, Optional
 
 from . import host
 from .config import Config
+from .monthly import MonthlyBoard
 from .personality import QuipEngine
 from .questions import Question, is_math
 
@@ -125,6 +126,16 @@ class GameEngine:
         self.ambient_stats: Dict[str, AmbientStats] = {}
         # quip engine: deterministic rotation. Inert unless cfg.personality_enabled.
         self.quips = QuipEngine(seed=0)
+        # --- monthly board (v1.11.0) ---
+        # Every scored answer on EITHER track is credited to the month its timestamp falls
+        # in (local time). Recording is unconditional and cheap; only the month-end
+        # ANNOUNCEMENT + reset is gated by MONTHLY_RECAP_ENABLED, so an operator who opts
+        # in mid-month already has a full board rather than a half-empty one.
+        self.monthly = MonthlyBoard(
+            tz_name=getattr(cfg, "monthly_timezone", ""),
+            history_months=getattr(cfg, "monthly_history_months", 12),
+            max_lookback_months=getattr(cfg, "monthly_max_lookback_months", 2),
+        )
 
     # ---------------- lifecycle ----------------
     @property
@@ -294,6 +305,9 @@ class GameEngine:
         for a in ordered:
             p = self.players[a.node_id]
             p.answers += 1
+            # Credit the MONTHLY board (v1.11.0). Bucketed by the answer's own timestamp so
+            # a round that straddles local midnight on the 1st lands in the right month.
+            self.monthly.record(a.node_id, p.name, a.option == q.answer, a.ts_s)
             if a.option == q.answer:
                 pts = self._score_for(a.ts_s)
                 if self._first_correct_node is None:
@@ -431,6 +445,10 @@ class GameEngine:
                 st = AmbientStats(node_id=a.node_id, first_seen_slot=cur_slot)
                 self.ambient_stats[a.node_id] = st
             st.answered += 1
+            # Monthly board (v1.11.0): ambient correct answers count toward the month's
+            # championship exactly like rapid-game ones — same currency, one board.
+            self.monthly.record(a.node_id, st.name or a.node_id,
+                                a.option == q.answer, a.ts_s)
             if a.option == q.answer:
                 st.correct += 1
                 drought = (cur_slot - st.last_correct_slot) if st.last_correct_slot >= 0 else 0

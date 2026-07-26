@@ -3,6 +3,66 @@
 All notable changes to this project are documented here. This project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.11.0] - 2026-07-25
+
+### Added
+- **Monthly champion + leaderboard reset.** At the end of every calendar month Buzz crowns
+  that month's trivia champion, announces it on the **trivia channel** *and* the **primary
+  channel**, archives the month's standings, and resets the monthly board so the next month
+  starts everyone at zero. The primary-channel announcement doubles as recruitment: the
+  second message carries the trivia channel's **name and channel-add link**.
+  - **Two messages on the primary channel, maximum** — champion + promo. This is a
+    structural invariant (`monthly.MAX_PRIMARY_MESSAGES`), asserted in composition and
+    enforced by tests, not a convention that can drift.
+  - **Single-packet copy.** Every message is composed against `MAX_PAYLOAD_BYTES` measured
+    in **UTF-8 bytes** (the copy's emoji are 3–4 bytes each), degrading the winner phrasing
+    and then the promo prefix until it fits. The add link is never truncated — a cut link
+    is a dead link, so the prefix gives way instead. Measured against a representative ~100 B
+    channel-add link: 100–108 B champion lines, 170 B promo, against a 200 B budget.
+  - **The reset can never lose data.** Standings are archived into `state.json` *before*
+    the live scores are cleared, in a single `archive()` call — there is no code path that
+    resets without a snapshot. `MONTHLY_HISTORY_MONTHS` (default 12) bounds the archive.
+  - **Idempotent.** A persisted ledger of announced months means running twice, restarting
+    on the 1st, or firing days late (box asleep at month-end) all announce + reset exactly
+    once. State is committed to disk *before* the first packet is sent, so a crash
+    mid-announcement can't yield a duplicate on the next boot.
+  - **Local month boundary.** `MONTHLY_TIMEZONE` (e.g. `America/Phoenix`) defines the
+    month; a UTC boundary would end the month on the wrong local day. Invalid zones fail
+    at startup rather than drifting silently.
+  - **Ties are shared, not broken:** everyone level on top is announced as co-champion,
+    degrading to `Ann, Bob +2` and then `a 5-way tie` as the byte budget tightens.
+  - **Empty months stay silent:** no players — or players but nobody ever correct — means
+    no champion; the month is archived and marked done and *nothing* is transmitted.
+  - Scoring currency is **correct answers across both tracks** (rapid game + 24/7 ambient),
+    the one unit the two tracks share.
+- **Preview mode.** `scripts/preview_monthly.py` prints the exact packets a month-end run
+  would transmit, with per-packet byte counts, for every copy variant. It constructs no
+  transport, so it cannot reach the mesh. `MONTHLY_DRY_RUN=true` does the same from inside
+  the running bot and leaves the month un-announced and un-reset.
+- New env knobs: `MONTHLY_RECAP_ENABLED` (**default false**), `MONTHLY_DRY_RUN`,
+  `MONTHLY_ANNOUNCE_PRIMARY`, `MONTHLY_TIMEZONE`, `MONTHLY_HISTORY_MONTHS`,
+  `MONTHLY_MAX_LOOKBACK_MONTHS`, and `TRIVIA_CHANNEL_NAME`.
+- 36 new tests (`tests/test_monthly.py`) covering the byte budget (incl. multi-byte emoji
+  and a hostile 120-char name), the two-message cap, idempotency across restart and a
+  mid-send crash, archive-before-reset, the local-vs-UTC boundary, ties, and empty months.
+
+### Safety
+- The feature is **OFF by default**. Monthly scores are always *recorded* (so opting in
+  mid-month yields a complete board), but nothing is announced, archived, or reset until
+  `MONTHLY_RECAP_ENABLED=true`. A fresh install never posts to a stranger's primary
+  channel.
+- An unannounced month older than `MONTHLY_MAX_LOOKBACK_MONTHS` (default 2) is archived
+  silently, so enabling the feature — or booting after a long outage — can't suddenly
+  announce a champion from months ago.
+- The announcement never lands mid-round (it waits for any `!starttrivia` game to end) and
+  defers to a later poll if the rolling `MAX_SENDS_PER_MINUTE` window can't fit all of it,
+  rather than committing the reset and then losing packets to the flood floor.
+
+### Unchanged
+- Game/ambient scoring, the math-caps, the 365-day no-repeat, wrong-answer feedback, the
+  question bank, and the `!trivia` advert are all untouched. With the feature off, behavior
+  is byte-for-byte v1.10.0.
+
 ## [1.10.0] - 2026-07-09
 
 ### Added
