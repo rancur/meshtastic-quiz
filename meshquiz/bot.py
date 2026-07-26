@@ -359,11 +359,15 @@ class TriviaBot:
             return msgs
         fresh = [m for m in msgs if m.timestamp_ms >= floor_ms]
         dropped = len(msgs) - len(fresh)
-        if dropped:
-            # Loud on the first poll of a process (that's the replay case), quiet after.
-            log.log(logging.INFO if self._first_poll_done else logging.WARNING,
-                    "ignoring %d message(s) older than the cursor/catch-up floor "
-                    "(transport returned history the cursor already covers)", dropped)
+        if dropped and not self._first_poll_done:
+            # Report ONCE per process, on the first poll — that is the replay this guards
+            # against, and it's the number worth seeing in the logs. A server that ignores
+            # `since` returns the same page on every subsequent poll too, so logging per
+            # poll would emit this ~12x/minute forever; those go to DEBUG.
+            log.info("ignoring %d message(s) older than the cursor/catch-up floor "
+                     "(transport returned history the cursor already covers)", dropped)
+        elif dropped:
+            log.debug("ignoring %d message(s) below the cursor/catch-up floor", dropped)
         self._first_poll_done = True
         return fresh
 
