@@ -16577,9 +16577,9 @@
     "question": "What is the currency of Japan?",
     "options": [
       "Yen",
-      "Tugrik",
-      "Baht",
-      "Euro"
+      "Franc",
+      "Sol",
+      "Won"
     ],
     "answer": 0
   },
@@ -16588,10 +16588,10 @@
     "difficulty": "hard",
     "question": "What is the currency of China?",
     "options": [
-      "Sol",
-      "Taka",
+      "Krona",
+      "Cedi",
       "Yuan",
-      "Ruble"
+      "Rupiah"
     ],
     "answer": 2
   },
@@ -16601,9 +16601,9 @@
     "question": "What is the currency of United Kingdom?",
     "options": [
       "Pound",
-      "Tugrik",
-      "Won",
-      "Krone"
+      "Dollar",
+      "Hryvnia",
+      "Birr"
     ],
     "answer": 0
   },
@@ -16612,10 +16612,10 @@
     "difficulty": "hard",
     "question": "What is the currency of India?",
     "options": [
-      "Leu",
-      "Franc",
+      "Pound",
+      "Dirham",
       "Rupee",
-      "Naira"
+      "Ruble"
     ],
     "answer": 2
   },
@@ -16625,9 +16625,9 @@
     "question": "What is the currency of Russia?",
     "options": [
       "Ruble",
-      "Real",
-      "Bolivar",
-      "Forint"
+      "Shilling",
+      "Dong",
+      "Franc"
     ],
     "answer": 0
   },
@@ -16638,8 +16638,8 @@
     "options": [
       "Dollar",
       "Dinar",
-      "Tenge",
-      "Cedi"
+      "Tugrik",
+      "Lira"
     ],
     "answer": 0
   },
@@ -16649,9 +16649,9 @@
     "question": "What is the currency of Mexico?",
     "options": [
       "Peso",
-      "Won",
-      "Yen",
-      "Rupee"
+      "Euro",
+      "Krona",
+      "Baht"
     ],
     "answer": 0
   },
@@ -16660,10 +16660,10 @@
     "difficulty": "hard",
     "question": "What is the currency of Brazil?",
     "options": [
-      "Won",
+      "Shilling",
       "Real",
-      "Franc",
-      "Riyal"
+      "Euro",
+      "Shekel"
     ],
     "answer": 1
   },
@@ -16672,10 +16672,10 @@
     "difficulty": "hard",
     "question": "What is the currency of South Korea?",
     "options": [
-      "Ruble",
+      "Sol",
       "Won",
-      "Pound",
-      "Euro"
+      "Baht",
+      "Tugrik"
     ],
     "answer": 1
   },
@@ -16685,9 +16685,9 @@
     "question": "What is the currency of Thailand?",
     "options": [
       "Baht",
-      "Naira",
-      "Birr",
-      "Dirham"
+      "Ruble",
+      "Forint",
+      "Rupee"
     ],
     "answer": 0
   },
@@ -16696,10 +16696,10 @@
     "difficulty": "hard",
     "question": "What is the currency of Vietnam?",
     "options": [
-      "Riyal",
+      "Taka",
       "Dong",
-      "Bolivar",
-      "Koruna"
+      "Peso",
+      "Dinar"
     ],
     "answer": 1
   },
@@ -16709,9 +16709,9 @@
     "question": "What is the currency of Sweden?",
     "options": [
       "Krona",
-      "Krone",
-      "Taka",
-      "Forint"
+      "Birr",
+      "Cedi",
+      "Franc"
     ],
     "answer": 0
   },
@@ -16720,10 +16720,10 @@
     "difficulty": "hard",
     "question": "What is the currency of Norway?",
     "options": [
-      "Cedi",
-      "Dollar",
+      "Lira",
+      "Naira",
       "Krone",
-      "Yuan"
+      "Cedi"
     ],
     "answer": 2
   },
@@ -16732,10 +16732,10 @@
     "difficulty": "hard",
     "question": "What is the currency of Denmark?",
     "options": [
-      "Peso",
+      "Real",
       "Krone",
-      "Shekel",
-      "Won"
+      "Yen",
+      "Shilling"
     ],
     "answer": 1
   },
@@ -16745,9 +16745,9 @@
     "question": "What is the currency of Switzerland?",
     "options": [
       "Franc",
-      "Tenge",
-      "Euro",
-      "Krona"
+      "Tugrik",
+      "Won",
+      "Koruna"
     ],
     "answer": 0
   },
@@ -16756,10 +16756,10 @@
     "difficulty": "hard",
     "question": "What is the currency of Poland?",
     "options": [
-      "Krone",
+      "Birr",
       "Zloty",
-      "Pound",
-      "Birr"
+      "Baht",
+      "Forint"
     ],
     "answer": 1
   },
@@ -16769,9 +16769,9 @@
     "question": "What is the currency of Turkey?",
     "options": [
       "Lira",
-      "Rupee",
-      "Krona",
-      "Birr"
+      "Yuan",
+      "Koruna",
+      "Taka"
     ],
     "answer": 0
   },
@@ -16780,9 +16780,9 @@
     "difficulty": "hard",
     "question": "What is the currency of Israel?",
     "options": [
-      "Euro",
-      "Franc",
       "Won",
+      "Dirham",
+      "Hryvnia",
       "Shekel"
     ],
     "answer": 3
@@ -16792,10 +16792,10 @@
     "difficulty": "hard",
     "question": "What is the currency of Saudi Arabia?",
     "options": [
-      "Shilling",
-      "Peso",
+      "Taka",
+      "Real",
       "Riyal",
-      "Dirham"
+      "Krone"
     ],
     "answer": 2
   },
@@ -16804,9 +16804,9 @@
     "difficulty": "hard",
     "question": "What is the currency of Qatar?",
     "options": [
-      "Krone",
-      "Euro",
-      "Shilling",
+      "Birr",
+      "Won",
+      "Taka",
       "Riyal"
     ],
     "answer": 3
@@ -16817,9 +16817,9 @@
     "question": "What is the currency of United Arab Emirates?",
     "options": [
       "Dirham",
-      "Ruble",
-      "Bolivar",
-      "Euro"
+      "Rupiah",
+      "Dong",
+      "Won"
     ],
     "answer": 0
   },
@@ -16828,10 +16828,10 @@
     "difficulty": "hard",
     "question": "What is the currency of South Africa?",
     "options": [
-      "Pound",
-      "Koruna",
+      "Riyal",
+      "Tenge",
       "Rand",
-      "Rupiah"
+      "Zloty"
     ],
     "answer": 2
   },
@@ -16841,9 +16841,9 @@
     "question": "What is the currency of Nigeria?",
     "options": [
       "Naira",
-      "Shekel",
       "Krone",
-      "Real"
+      "Krona",
+      "Bolivar"
     ],
     "answer": 0
   },
@@ -16852,10 +16852,10 @@
     "difficulty": "hard",
     "question": "What is the currency of Ghana?",
     "options": [
+      "Leu",
       "Rand",
-      "Peso",
       "Cedi",
-      "Shekel"
+      "Naira"
     ],
     "answer": 2
   },
@@ -16864,10 +16864,10 @@
     "difficulty": "hard",
     "question": "What is the currency of Kenya?",
     "options": [
-      "Birr",
+      "Forint",
       "Shilling",
-      "Shekel",
-      "Peso"
+      "Naira",
+      "Real"
     ],
     "answer": 1
   },
@@ -16876,9 +16876,9 @@
     "difficulty": "hard",
     "question": "What is the currency of Indonesia?",
     "options": [
-      "Pound",
-      "Krone",
-      "Dong",
+      "Baht",
+      "Birr",
+      "Yuan",
       "Rupiah"
     ],
     "answer": 3
@@ -16889,9 +16889,9 @@
     "question": "What is the currency of Malaysia?",
     "options": [
       "Ringgit",
-      "Ruble",
-      "Yuan",
-      "Tugrik"
+      "Rupiah",
+      "Shilling",
+      "Yuan"
     ],
     "answer": 0
   },
@@ -16901,9 +16901,9 @@
     "question": "What is the currency of Pakistan?",
     "options": [
       "Rupee",
-      "Naira",
-      "Real",
-      "Birr"
+      "Ruble",
+      "Shilling",
+      "Forint"
     ],
     "answer": 0
   },
@@ -16912,10 +16912,10 @@
     "difficulty": "hard",
     "question": "What is the currency of Bangladesh?",
     "options": [
-      "Bolivar",
-      "Peso",
+      "Dong",
+      "Real",
       "Taka",
-      "Rupee"
+      "Yuan"
     ],
     "answer": 2
   },
@@ -16924,10 +16924,10 @@
     "difficulty": "hard",
     "question": "What is the currency of Iraq?",
     "options": [
-      "Pound",
+      "Baht",
       "Dinar",
-      "Rupee",
-      "Taka"
+      "Riyal",
+      "Cedi"
     ],
     "answer": 1
   },
@@ -16937,9 +16937,9 @@
     "question": "What is the currency of Kuwait?",
     "options": [
       "Dinar",
-      "Zloty",
-      "Franc",
-      "Euro"
+      "Peso",
+      "Dirham",
+      "Won"
     ],
     "answer": 0
   },
@@ -16948,9 +16948,9 @@
     "difficulty": "hard",
     "question": "What is the currency of Czechia?",
     "options": [
-      "Riyal",
-      "Krona",
-      "Yen",
+      "Taka",
+      "Ruble",
+      "Ringgit",
       "Koruna"
     ],
     "answer": 3
@@ -16960,10 +16960,10 @@
     "difficulty": "hard",
     "question": "What is the currency of Hungary?",
     "options": [
-      "Shekel",
-      "Ruble",
+      "Krone",
+      "Rupiah",
       "Forint",
-      "Dollar"
+      "Yen"
     ],
     "answer": 2
   },
@@ -16972,9 +16972,9 @@
     "difficulty": "hard",
     "question": "What is the currency of Ukraine?",
     "options": [
-      "Lira",
-      "Yuan",
-      "Sol",
+      "Dirham",
+      "Bolivar",
+      "Krona",
       "Hryvnia"
     ],
     "answer": 3
@@ -16984,10 +16984,10 @@
     "difficulty": "hard",
     "question": "What is the currency of Argentina?",
     "options": [
-      "Yuan",
+      "Shilling",
       "Peso",
-      "Bolivar",
-      "Ringgit"
+      "Dong",
+      "Yen"
     ],
     "answer": 1
   },
@@ -16996,10 +16996,10 @@
     "difficulty": "hard",
     "question": "What is the currency of Chile?",
     "options": [
-      "Rupee",
-      "Hryvnia",
+      "Baht",
+      "Rand",
       "Peso",
-      "Forint"
+      "Dollar"
     ],
     "answer": 2
   },
@@ -17008,10 +17008,10 @@
     "difficulty": "hard",
     "question": "What is the currency of Peru?",
     "options": [
-      "Shekel",
+      "Yen",
       "Sol",
-      "Ringgit",
-      "Naira"
+      "Krone",
+      "Ruble"
     ],
     "answer": 1
   },
@@ -17020,10 +17020,10 @@
     "difficulty": "hard",
     "question": "What is the currency of Canada?",
     "options": [
-      "Baht",
-      "Naira",
+      "Sol",
+      "Ruble",
       "Dollar",
-      "Cedi"
+      "Lira"
     ],
     "answer": 2
   },
@@ -17032,9 +17032,9 @@
     "difficulty": "hard",
     "question": "What is the currency of Australia?",
     "options": [
-      "Cedi",
-      "Dong",
-      "Hryvnia",
+      "Lira",
+      "Riyal",
+      "Rand",
       "Dollar"
     ],
     "answer": 3
@@ -17044,10 +17044,10 @@
     "difficulty": "hard",
     "question": "What is the currency of New Zealand?",
     "options": [
-      "Peso",
+      "Real",
       "Dollar",
-      "Rupee",
-      "Dong"
+      "Baht",
+      "Riyal"
     ],
     "answer": 1
   },
@@ -17057,9 +17057,9 @@
     "question": "What is the currency of Iceland?",
     "options": [
       "Krona",
-      "Sol",
-      "Birr",
-      "Pound"
+      "Ringgit",
+      "Forint",
+      "Baht"
     ],
     "answer": 0
   },
@@ -17069,9 +17069,9 @@
     "question": "What is the currency of Romania?",
     "options": [
       "Leu",
-      "Ringgit",
-      "Hryvnia",
-      "Naira"
+      "Yen",
+      "Pound",
+      "Ruble"
     ],
     "answer": 0
   },
@@ -17081,9 +17081,9 @@
     "question": "What is the currency of Serbia?",
     "options": [
       "Dinar",
+      "Baht",
       "Pound",
-      "Leu",
-      "Forint"
+      "Franc"
     ],
     "answer": 0
   },
@@ -17092,10 +17092,10 @@
     "difficulty": "hard",
     "question": "What is the currency of France?",
     "options": [
-      "Tugrik",
+      "Dollar",
       "Euro",
-      "Krona",
-      "Rand"
+      "Koruna",
+      "Birr"
     ],
     "answer": 1
   },
@@ -17104,9 +17104,9 @@
     "difficulty": "hard",
     "question": "What is the currency of Germany?",
     "options": [
-      "Shilling",
-      "Cedi",
-      "Naira",
+      "Shekel",
+      "Lira",
+      "Ruble",
       "Euro"
     ],
     "answer": 3
@@ -17116,10 +17116,10 @@
     "difficulty": "hard",
     "question": "What is the currency of Italy?",
     "options": [
-      "Krona",
-      "Shekel",
+      "Koruna",
+      "Yen",
       "Euro",
-      "Lira"
+      "Hryvnia"
     ],
     "answer": 2
   },
@@ -17128,10 +17128,10 @@
     "difficulty": "hard",
     "question": "What is the currency of Spain?",
     "options": [
-      "Pound",
+      "Baht",
       "Euro",
-      "Peso",
-      "Tenge"
+      "Real",
+      "Won"
     ],
     "answer": 1
   },
@@ -17140,10 +17140,10 @@
     "difficulty": "hard",
     "question": "What is the currency of Greece?",
     "options": [
-      "Riyal",
-      "Rupiah",
+      "Taka",
+      "Zloty",
       "Euro",
-      "Naira"
+      "Ruble"
     ],
     "answer": 2
   },
@@ -17152,10 +17152,10 @@
     "difficulty": "hard",
     "question": "What is the currency of Ethiopia?",
     "options": [
-      "Krona",
-      "Rupee",
+      "Koruna",
+      "Baht",
       "Birr",
-      "Shekel"
+      "Naira"
     ],
     "answer": 2
   },
@@ -17164,10 +17164,10 @@
     "difficulty": "hard",
     "question": "What is the currency of Egypt?",
     "options": [
-      "Forint",
+      "Franc",
       "Pound",
-      "Cedi",
-      "Euro"
+      "Lira",
+      "Won"
     ],
     "answer": 1
   },
@@ -17176,10 +17176,10 @@
     "difficulty": "hard",
     "question": "What is the currency of Morocco?",
     "options": [
-      "Lira",
+      "Euro",
       "Dirham",
-      "Peso",
-      "Koruna"
+      "Real",
+      "Tenge"
     ],
     "answer": 1
   },
@@ -17188,10 +17188,10 @@
     "difficulty": "hard",
     "question": "What is the currency of Philippines?",
     "options": [
-      "Bolivar",
+      "Dong",
       "Peso",
-      "Euro",
-      "Tugrik"
+      "Tugrik",
+      "Yuan"
     ],
     "answer": 1
   },
@@ -17200,10 +17200,10 @@
     "difficulty": "hard",
     "question": "What is the currency of Mongolia?",
     "options": [
-      "Won",
+      "Euro",
       "Tugrik",
-      "Sol",
-      "Ruble"
+      "Birr",
+      "Sol"
     ],
     "answer": 1
   },
@@ -17212,9 +17212,9 @@
     "difficulty": "hard",
     "question": "What is the currency of Kazakhstan?",
     "options": [
-      "Leu",
-      "Birr",
-      "Won",
+      "Pound",
+      "Forint",
+      "Hryvnia",
       "Tenge"
     ],
     "answer": 3
@@ -17224,10 +17224,10 @@
     "difficulty": "hard",
     "question": "What is the currency of Venezuela?",
     "options": [
-      "Shilling",
-      "Taka",
+      "Shekel",
+      "Leu",
       "Bolivar",
-      "Dong"
+      "Yuan"
     ],
     "answer": 2
   },
@@ -19036,9 +19036,9 @@
     "difficulty": "hard",
     "question": "In which country is the Eiffel Tower?",
     "options": [
-      "United Arab Emirates",
       "Spain",
-      "Japan",
+      "Mexico",
+      "Jordan",
       "France"
     ],
     "answer": 3
@@ -19049,9 +19049,9 @@
     "question": "In which country is the Colosseum?",
     "options": [
       "Italy",
-      "Japan",
-      "China",
-      "Greece"
+      "Jordan",
+      "Peru",
+      "Japan"
     ],
     "answer": 0
   },
@@ -19060,10 +19060,10 @@
     "difficulty": "hard",
     "question": "In which country is the Great Wall?",
     "options": [
-      "Australia",
+      "Greece",
       "Cambodia",
       "China",
-      "Egypt"
+      "United Kingdom"
     ],
     "answer": 2
   },
@@ -19073,9 +19073,9 @@
     "question": "In which country is the Taj Mahal?",
     "options": [
       "Greece",
-      "United States",
+      "China",
       "India",
-      "Peru"
+      "Brazil"
     ],
     "answer": 2
   },
@@ -19084,10 +19084,10 @@
     "difficulty": "hard",
     "question": "In which country is the Statue of Liberty?",
     "options": [
-      "Germany",
-      "Mexico",
+      "Egypt",
+      "United Arab Emirates",
       "United States",
-      "Denmark"
+      "Peru"
     ],
     "answer": 2
   },
@@ -19096,9 +19096,9 @@
     "difficulty": "hard",
     "question": "In which country is Christ the Redeemer?",
     "options": [
-      "Italy",
-      "Japan",
-      "United States",
+      "Denmark",
+      "Jordan",
+      "India",
       "Brazil"
     ],
     "answer": 3
@@ -19108,8 +19108,8 @@
     "difficulty": "hard",
     "question": "In which country is Machu Picchu?",
     "options": [
-      "United Kingdom",
-      "Russia",
+      "Mexico",
+      "Australia",
       "Peru",
       "Cambodia"
     ],
@@ -19120,9 +19120,9 @@
     "difficulty": "hard",
     "question": "In which country is the Pyramids of Giza?",
     "options": [
-      "Jordan",
-      "Germany",
-      "Italy",
+      "Russia",
+      "France",
+      "United Kingdom",
       "Egypt"
     ],
     "answer": 3
@@ -19132,10 +19132,10 @@
     "difficulty": "hard",
     "question": "In which country is the Sydney Opera House?",
     "options": [
-      "Turkey",
+      "France",
       "Australia",
-      "United Kingdom",
-      "China"
+      "Mexico",
+      "Germany"
     ],
     "answer": 1
   },
@@ -19144,10 +19144,10 @@
     "difficulty": "hard",
     "question": "In which country is the Leaning Tower of Pisa?",
     "options": [
-      "Australia",
-      "Peru",
+      "Denmark",
+      "Brazil",
       "Italy",
-      "Germany"
+      "Egypt"
     ],
     "answer": 2
   },
@@ -19156,8 +19156,8 @@
     "difficulty": "hard",
     "question": "In which country is the Acropolis?",
     "options": [
-      "China",
-      "United Kingdom",
+      "Peru",
+      "Egypt",
       "Greece",
       "Turkey"
     ],
@@ -19168,10 +19168,10 @@
     "difficulty": "hard",
     "question": "In which country is Petra?",
     "options": [
-      "Australia",
+      "Japan",
       "Jordan",
-      "France",
-      "Germany"
+      "United Arab Emirates",
+      "France"
     ],
     "answer": 1
   },
@@ -19180,10 +19180,10 @@
     "difficulty": "hard",
     "question": "In which country is Angkor Wat?",
     "options": [
-      "United States",
+      "India",
       "Cambodia",
-      "Jordan",
-      "Japan"
+      "Russia",
+      "Jordan"
     ],
     "answer": 1
   },
@@ -19193,9 +19193,9 @@
     "question": "In which country is Stonehenge?",
     "options": [
       "United Kingdom",
-      "Denmark",
-      "Mexico",
-      "South Africa"
+      "United States",
+      "Germany",
+      "Italy"
     ],
     "answer": 0
   },
@@ -19204,10 +19204,10 @@
     "difficulty": "hard",
     "question": "In which country is the Sagrada Familia?",
     "options": [
-      "Mexico",
+      "United Arab Emirates",
       "Spain",
-      "South Africa",
-      "Brazil"
+      "Turkey",
+      "South Africa"
     ],
     "answer": 1
   },
@@ -19217,9 +19217,9 @@
     "question": "In which country is the Brandenburg Gate?",
     "options": [
       "Germany",
-      "China",
-      "Japan",
-      "Denmark"
+      "Peru",
+      "Jordan",
+      "United States"
     ],
     "answer": 0
   },
@@ -19229,9 +19229,9 @@
     "question": "In which country is the Burj Khalifa?",
     "options": [
       "Turkey",
-      "Peru",
+      "Brazil",
       "United Arab Emirates",
-      "Russia"
+      "Australia"
     ],
     "answer": 2
   },
@@ -19240,9 +19240,9 @@
     "difficulty": "hard",
     "question": "In which country is Mount Fuji?",
     "options": [
-      "United States",
-      "Germany",
-      "South Africa",
+      "India",
+      "Turkey",
+      "United Arab Emirates",
       "Japan"
     ],
     "answer": 3
@@ -19253,9 +19253,9 @@
     "question": "In which country is the Kremlin?",
     "options": [
       "Russia",
-      "United States",
       "India",
-      "Egypt"
+      "United Kingdom",
+      "China"
     ],
     "answer": 0
   },
@@ -19264,10 +19264,10 @@
     "difficulty": "hard",
     "question": "In which country is the Golden Gate Bridge?",
     "options": [
-      "Greece",
-      "Germany",
+      "Japan",
+      "Egypt",
       "United States",
-      "Peru"
+      "Brazil"
     ],
     "answer": 2
   },
@@ -19276,10 +19276,10 @@
     "difficulty": "hard",
     "question": "In which country is the Little Mermaid statue?",
     "options": [
-      "South Africa",
+      "United Arab Emirates",
       "Denmark",
-      "Turkey",
-      "Australia"
+      "Italy",
+      "Greece"
     ],
     "answer": 1
   },
@@ -19288,9 +19288,9 @@
     "difficulty": "hard",
     "question": "In which country is Table Mountain?",
     "options": [
-      "Peru",
-      "Turkey",
-      "Mexico",
+      "Brazil",
+      "Italy",
+      "Germany",
       "South Africa"
     ],
     "answer": 3
@@ -19301,9 +19301,9 @@
     "question": "In which country is the Blue Mosque?",
     "options": [
       "Turkey",
-      "Mexico",
-      "France",
-      "United States"
+      "Germany",
+      "United Arab Emirates",
+      "India"
     ],
     "answer": 0
   },
@@ -19312,9 +19312,9 @@
     "difficulty": "hard",
     "question": "In which country is Chichen Itza?",
     "options": [
-      "Egypt",
-      "Brazil",
-      "Russia",
+      "China",
+      "South Africa",
+      "Australia",
       "Mexico"
     ],
     "answer": 3

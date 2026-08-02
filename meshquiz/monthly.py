@@ -51,6 +51,36 @@ MAX_PRIMARY_MESSAGES = 2
 # silently rather than announcing a champion nobody remembers.
 DEFAULT_MAX_LOOKBACK_MONTHS = 2
 
+# Minutes after LOCAL midnight on the 1st before a finished month may be crowned.
+# The poll loop wakes every few seconds, so without this the announcement lands on
+# whichever poll happens to straddle midnight (~00:00:0x) — a time nobody chose and that
+# drifts by seconds every month. Holding for a fixed offset makes the crowning land at a
+# deliberate wall-clock time (00:05 local) instead of on a poll boundary.
+DEFAULT_ANNOUNCE_DELAY_MINUTES = 5
+
+
+def announce_hold(now_s: float, tz_name: str = "",
+                  delay_minutes: int = DEFAULT_ANNOUNCE_DELAY_MINUTES) -> bool:
+    """True while the month-end announcement must still be WITHHELD.
+
+    The hold is deliberately NARROW: it applies only inside the first ``delay_minutes``
+    of local day 1. It is a *start* gate, never a deadline —
+
+    - a box that was asleep at midnight and boots at 03:00 on the 1st is NOT held (the
+      "late is indistinguishable from on time" property in ``_maybe_monthly`` survives),
+    - any day other than the 1st is NOT held,
+    - ``delay_minutes <= 0`` disables the hold entirely.
+
+    It is a pure function of the injected clock, so the exact firing instant is provable
+    by evaluation rather than by enabling the feature and watching the mesh.
+    """
+    if delay_minutes <= 0:
+        return False
+    lt = _localtime(now_s, tz_name)
+    if lt.day != 1:
+        return False
+    return (lt.hour * 60 + lt.minute) < delay_minutes
+
 
 def month_key(ts_s: float, tz_name: str = "") -> str:
     """Return the ``YYYY-MM`` month bucket for ``ts_s`` in the configured local timezone.
