@@ -128,6 +128,21 @@ def _month_ord(key: str) -> int:
     return year * 12 + (mon - 1)
 
 
+def _record_weight(rows: Sequence[dict]) -> tuple:
+    """How "full" an archived month is: (total correct, player count).
+
+    Used only to compare two candidate snapshots of the SAME month so a reset can never
+    downgrade one. Total correct leads because that is the month's currency.
+    """
+    total = 0
+    for r in rows or []:
+        try:
+            total += int(r.get("correct") or 0)
+        except (TypeError, ValueError):
+            continue
+    return (total, len(rows or []))
+
+
 @dataclass
 class MonthlyScore:
     """One player's running total for one month.
@@ -143,6 +158,16 @@ class MonthlyScore:
     correct: int = 0
     answered: int = 0
     last_correct_ts: float = 0.0   # tie-break metadata + "when did they lock their total"
+    # WITHIN-MONTH streak (v1.12.0). ``ambient_stats`` keeps a LIFETIME running streak that
+    # is never snapshotted, so "best streak in month X" was unrecoverable once the month
+    # rolled. These two fields make it a first-class part of the month's record, archived
+    # with everything else, which is what the year-end award needs.
+    #   streak      = the current consecutive-correct run, reset by any wrong answer
+    #   best_streak = the longest such run seen THIS month (never decreases)
+    # Both count correct answers on the MONTHLY board's currency: rapid-game and ambient
+    # answers interleaved in timestamp order, exactly like ``correct`` itself.
+    streak: int = 0
+    best_streak: int = 0
 
 
 class MonthlyBoard:
@@ -164,11 +189,34 @@ class MonthlyBoard:
         self.announced: List[str] = []
 
     # ---------------- recording ----------------
+    def is_closed(self, key: str) -> bool:
+        """True once ``key`` has been archived and/or announced — the month is FINAL.
+
+        A month is closed the moment its standings are snapshotted into ``history`` (and it
+        is marked announced). Nothing may be added to a closed month afterwards.
+        """
+        return key in self.history or key in self.announced
+
     def record(self, node_id: str, name: str, correct: bool, ts_s: float) -> None:
         """Credit one answer to the month that ``ts_s`` falls in (local time)."""
         if not node_id:
             return
         key = month_key(ts_s, self.tz_name)
+        # LATE ANSWER FOR A CLOSED MONTH -> DROP IT. A tapback that lands after the month
+        # was archived and crowned carries last month's timestamp, so it used to
+        # RESURRECT a live bucket for an already-finished month (this really happened:
+        # a one-row "2026-07" reappeared minutes after July was crowned).
+        # A resurrected bucket is pure downside:
+        #   - it can never be announced (``pending_months`` skips announced months), so it
+        #     just accretes forever, and
+        #   - any path that does reach ``archive()`` would write that one-row remnant over
+        #     a full month of genuine standings.
+        # The month's champion is already crowned and published; silently editing a
+        # published result is worse than dropping one late tapback.
+        if key not in self.months and self.is_closed(key):
+            log.info("monthly: dropping a late answer for %s from %s — that month is "
+                     "already archived/announced and stays final", key, node_id)
+            return
         bucket = self.months.setdefault(key, {})
         s = bucket.get(node_id)
         if s is None:
@@ -179,7 +227,12 @@ class MonthlyBoard:
         s.answered += 1
         if correct:
             s.correct += 1
+            s.streak += 1
+            if s.streak > s.best_streak:
+                s.best_streak = s.streak
             s.last_correct_ts = max(s.last_correct_ts, ts_s)
+        else:
+            s.streak = 0   # any miss ends the run; best_streak keeps the high-water mark
 
     # ---------------- standings ----------------
     def standings(self, key: str) -> List[MonthlyScore]:
@@ -259,6 +312,21 @@ class MonthlyBoard:
         Returns the archived rows.
         """
         rows = [asdict(s) for s in self.standings(key)]
+        prior = self.history.get(key)
+        # NEVER downgrade an existing archive. ``history[key] = rows`` is a straight
+        # overwrite, so archiving a thin/remnant bucket over a real month would silently
+        # destroy it. Records only ever grow, so a snapshot that is SMALLER than what is
+        # already filed is by definition not the real month: keep the fuller one.
+        if prior is not None and _record_weight(rows) < _record_weight(prior):
+            log.warning(
+                "monthly: refusing to overwrite history[%s] (%d player(s), %d correct) "
+                "with a smaller snapshot (%d player(s), %d correct) — keeping the fuller "
+                "record and discarding the remnant bucket",
+                key, len(prior), _record_weight(prior)[0],
+                len(rows), _record_weight(rows)[0])
+            self.months.pop(key, None)      # still clear the live bucket: it is the remnant
+            self._trim_history()
+            return list(prior)
         self.history[key] = rows
         self.months.pop(key, None)          # <- the reset, only ever after the snapshot
         self._trim_history()
@@ -288,7 +356,8 @@ class MonthlyBoard:
         """Restore from ``state.json``. Malformed rows are skipped, never fatal."""
         if not isinstance(data, dict):
             return
-        valid = {"node_id", "name", "correct", "answered", "last_correct_ts"}
+        valid = {"node_id", "name", "correct", "answered", "last_correct_ts",
+                 "streak", "best_streak"}
         for key, rows in (data.get("months") or {}).items():
             bucket: Dict[str, MonthlyScore] = {}
             for row in rows or []:

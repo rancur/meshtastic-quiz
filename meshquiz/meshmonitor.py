@@ -96,7 +96,15 @@ class MeshMonitorTransport(Transport):
         # the caller manages overlap.
         since_s = int(since_ms // 1000)
         params = {"channel": channel, "since": since_s, "limit": min(limit, 1000)}
-        r = self.s.get(f"{self.api}/messages", params=params, timeout=self.timeout)
+        # IDENTITY SCOPE ON READS (MeshMonitor >= 4.14). The unscoped GET /api/v1/messages
+        # route was REMOVED upstream and now returns 404 with a valid token, which silently
+        # froze the read cursor: Buzz kept posting its hourly question but scored nobody,
+        # because no answer was ever fetched. Reads now go through the same source-scoped
+        # route that sends and node lookups already use. The unscoped path is kept as a
+        # fallback for older MeshMonitor builds where no source can be resolved.
+        src = self._resolve_source_id()
+        url = f"{self.api}/sources/{src}/messages" if src else f"{self.api}/messages"
+        r = self.s.get(url, params=params, timeout=self.timeout)
         r.raise_for_status()
         rows = r.json().get("data", [])
         out: List[MeshMessage] = []
