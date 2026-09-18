@@ -17,7 +17,12 @@ ROOT = os.path.dirname(HERE)
 sys.path.insert(0, ROOT)
 sys.path.insert(0, HERE)
 
-from meshquiz.questions import Question, validate_bank  # noqa: E402
+from meshquiz.questions import (  # noqa: E402
+    Question,
+    load_single_answer_review,
+    validate_bank,
+    validate_single_answer,
+)
 
 # Each entry: (category, difficulty, question, [opt1,opt2,opt3,opt4], answer_index)
 # Keep questions + options SHORT — they must render within 200 UTF-8 bytes.
@@ -113,7 +118,10 @@ add("Tech", "med", "GPU is best at?", ["Storage", "Graphics", "Cooling", "Audio"
 add("Pop", "easy", "Wizard boy with a scar?", ["Frodo", "Harry P", "Percy", "Luke"], 1)
 add("Pop", "med", "Who sang Thriller?", ["Prince", "Jackson", "Bowie", "Sting"], 1)
 add("Pop", "easy", "Yellow cartoon family?", ["Griffins", "Simpsons", "Belchers", "Smiths"], 1)
-add("Pop", "med", "Star Wars hero with lightsaber?", ["Han", "Luke", "Yoda", "Leia"], 1)
+# v1.12.0: replaced a broken category question. "Star Wars hero with lightsaber?" keyed to
+# Luke, but Luke, Yoda AND Leia all wield lightsabers in canon and Han ignites one on Hoth —
+# three defensible answers. Replaced with a single-valued relation (one trainer, on Dagobah).
+add("Pop", "med", "Who trained Luke on Dagobah?", ["Obi-Wan", "Yoda", "Vader", "Han"], 1)
 add("Pop", "hard", "Director of Titanic film?", ["Spielberg", "Cameron", "Nolan", "Scott"], 1)
 add("Pop", "easy", "Mickey is a?", ["Dog", "Mouse", "Duck", "Bear"], 1)
 add("Pop", "med", "Friends was set in?", ["LA", "NYC", "Chicago", "Boston"], 1)
@@ -173,7 +181,9 @@ add("Music", "med", "Instrument with 88 keys?", ["Guitar", "Piano", "Harp", "Dru
 add("Music", "hard", "Queen's lead singer?", ["Bowie", "Mercury", "Plant", "Daltrey"], 1)
 add("Music", "easy", "A drum is what type of instrument?", ["String", "Percussion", "Wind", "Brass"], 1)
 add("Music", "med", "Genre of Bob Marley?", ["Jazz", "Reggae", "Rock", "Pop"], 1)
-add("Music", "hard", "How many notes in an octave?", ["6", "7", "8", "12"], 2)
+# v1.12.0: "How many notes in an octave?" had three defensible answers (7 distinct diatonic,
+# 8 counting the repeated tonic, 12 chromatic). Semitones per octave is exactly 12.
+add("Music", "hard", "How many semitones in an octave?", ["6", "7", "8", "12"], 3)
 add("Music", "easy", "Which is a brass instrument?", ["Violin", "Trumpet", "Flute", "Piano"], 1)
 
 # ---------------- MATH / LOGIC ----------------
@@ -286,7 +296,9 @@ add("Food", "easy", "What is the main grain in bread?", ["Rice", "Wheat", "Corn"
 add("Food", "med", "Which country is famous for pasta?", ["France", "Italy", "Spain", "Greece"], 1)
 add("Food", "med", "What is tofu made from?", ["Milk", "Soy", "Egg", "Wheat"], 1)
 add("Food", "hard", "Which spice is the most expensive?", ["Pepper", "Saffron", "Cumin", "Salt"], 1)
-add("Food", "easy", "Which is a breakfast food?", ["Steak", "Pancakes", "Soup", "Salad"], 1)
+# v1.12.0: "Which is a breakfast food?" — steak (steak and eggs), soup and salad are all
+# breakfast somewhere. Re-pinned to a property only pancakes have among these four.
+add("Food", "easy", "Which is served with maple syrup?", ["Steak", "Pancakes", "Soup", "Salad"], 1)
 add("Food", "med", "Sourdough is a type of?", ["Soup", "Bread", "Cheese", "Sauce"], 1)
 
 # MUSIC 2
@@ -425,7 +437,10 @@ add("Tech", "med", "What does 'URL' point you to?", ["A file", "A web address", 
 add("Tech", "hard", "What company created the iPhone?", ["Samsung", "Apple", "Nokia", "HTC"], 1)
 add("Tech", "hard", "What does 'AI' stand for?", ["Auto Input", "Artificial Intel", "App Index", "Alt Icon"], 1)
 add("Tech", "med", "A QR code is scanned with a?", ["Printer", "Camera", "Speaker", "Mic"], 1)
-add("Tech", "hard", "Which is an open-source OS kernel?", ["Windows", "Linux", "macOS", "iOS"], 1)
+# v1.12.0: "Which is an open-source OS kernel?" — macOS and iOS both run XNU/Darwin, which
+# Apple publishes as open source, so three options were defensible. The GPLv2 licence is
+# true of Linux alone here (XNU is APSL, Windows is proprietary).
+add("Tech", "hard", "Which OS kernel is licensed GPLv2?", ["Windows", "Linux", "macOS", "iOS"], 1)
 add("Tech", "med", "Email '@' separates user and?", ["Password", "Domain", "Subject", "Folder"], 1)
 
 # ---- POP / MOVIES (skew hard) ----
@@ -457,7 +472,9 @@ add("Nature", "hard", "Fastest bird in a dive?", ["Eagle", "Falcon", "Hawk", "Sw
 add("Food", "med", "Which nut is in classic pesto?", ["Almond", "Pine nut", "Cashew", "Walnut"], 1)
 add("Food", "hard", "Country where the croissant is iconic?", ["Italy", "France", "Spain", "Belgium"], 1)
 add("Food", "med", "Hummus is mainly made from?", ["Lentil", "Chickpea", "Bean", "Pea"], 1)
-add("Food", "hard", "What gives paprika its red color base?", ["Chili", "Pepper", "Beet", "Tomato"], 1)
+# v1.12.0: "Chili" and "Pepper" both named the same plant (Capsicum annuum) — two options,
+# one answer. Dropped the duplicate distractor.
+add("Food", "hard", "What gives paprika its red color base?", ["Beet", "Pepper", "Tomato", "Carrot"], 1)
 add("Food", "med", "Which is a fermented soybean paste?", ["Miso", "Roux", "Pesto", "Aioli"], 0)
 
 # ---- MUSIC (skew hard) ----
@@ -892,7 +909,9 @@ add("General", "med", "Primary language of Brazil?", ["Spanish", "Portuguese", "
 add("AZ", "med", "Capital of Arizona?", ["Tucson", "Phoenix", "Mesa", "Flagstaff"], 1)
 add("AZ", "med", "Which famous canyon is in Arizona?", ["Bryce", "Grand Canyon", "Zion", "Waimea"], 1)
 add("AZ", "hard", "Arizona's official nickname is the ___ State?", ["Golden", "Grand Canyon", "Sunshine", "Silver"], 1)
-add("AZ", "med", "Which iconic cactus is native to Arizona?", ["Prickly pear", "Saguaro", "Barrel", "Cholla"], 1)
+# v1.12.0: prickly pear, barrel and cholla are ALL native to Arizona — the stem named a set
+# containing every option. "Tallest" pins exactly one.
+add("AZ", "med", "Tallest cactus native to Arizona?", ["Prickly pear", "Saguaro", "Barrel", "Cholla"], 1)
 add("AZ", "hard", "Arizona became a US state in which century?", ["18th", "19th", "20th", "21st"], 2)
 
 
@@ -908,6 +927,11 @@ gen_bank.generate(add)
 def main():
     questions = [Question(**q) for q in Q]
     problems = validate_bank(questions, max_bytes=200)
+    # Single-defensible-answer gate (v1.12.0): a question whose stem asks for membership of a
+    # SET must have exactly one option in that set. The shape check is mechanical; the
+    # adjudication is recorded per question in meshquiz/data/single_answer_review.json. An
+    # unreviewed category question FAILS THE BUILD — it does not merely warn.
+    problems += validate_single_answer(questions, reviewed=load_single_answer_review())
     if problems:
         print("VALIDATION FAILED:", file=sys.stderr)
         for p in problems:

@@ -113,3 +113,93 @@ def test_typed_digit_answers_still_match():
     # and the keycap tapback maps to the same index as the rendered prefix
     for kc, idx in [("1️⃣", 0), ("2️⃣", 1), ("3️⃣", 2), ("4️⃣", 3)]:
         assert emoji_to_option(kc) == idx
+
+
+# --- Single-defensible-answer gate (v1.12.0) ------------------------------------------
+# A good question has EXACTLY ONE defensible answer. The recurring failure is the
+# "category question": the stem names a SET ("Star Wars hero with lightsaber?") and more
+# than one option belongs to that set. No regex can know that Yoda owns a lightsaber, so
+# the gate is mechanical on the SHAPE and forces a recorded human adjudication per
+# question: category-shaped questions must appear in the review registry or the build
+# fails. See meshquiz/data/single_answer_review.json.
+
+from meshquiz.questions import (  # noqa: E402
+    is_category_question,
+    load_single_answer_review,
+    validate_single_answer,
+)
+
+
+def _q(question, options, answer=0):
+    return Question("Test", "med", question, options, answer)
+
+
+def test_detects_the_star_wars_shape():
+    """The exact question that shipped broken: a set-membership stem, no uniqueness marker."""
+    q = _q("Star Wars hero with lightsaber?", ["Han", "Luke", "Yoda", "Leia"], 1)
+    assert is_category_question(q)
+
+
+def test_detects_bare_which_is_a_membership():
+    assert is_category_question(_q("Which is a citrus fruit?", ["Apple", "Lemon", "Pear", "Plum"], 1))
+    assert is_category_question(
+        _q("Which iconic cactus is native to Arizona?",
+           ["Prickly pear", "Saguaro", "Barrel", "Cholla"], 1))
+
+
+def test_uniqueness_markers_exempt_a_question():
+    """Superlatives, ordinals, 'only', explicit negation and functional relations all pin a
+    single answer, so they are NOT category questions."""
+    assert not is_category_question(_q("Largest planet?", ["Earth", "Mars", "Jupiter", "Neptune"], 2))
+    assert not is_category_question(
+        _q("Only mammal that can truly fly?", ["Squirrel", "Bat", "Sugar glider", "Lemur"], 1))
+    assert not is_category_question(_q("Capital of France?", ["Lyon", "Paris", "Nice", "Rome"], 1))
+    assert not is_category_question(
+        _q("Which element has the symbol Fe?", ["Iron", "Tin", "Zinc", "Lead"], 0))
+    assert not is_category_question(
+        _q("Which is NOT a primary color of light?", ["Red", "Green", "Blue", "Yellow"], 3))
+
+
+def test_numeric_answers_are_not_category_questions():
+    """A numeric answer is a value, not a set membership."""
+    assert not is_category_question(_q("What is 7 x 8?", ["54", "56", "58", "64"], 1))
+
+
+def test_unreviewed_category_question_fails_validation():
+    """The gate: a NEW category-shaped question cannot enter the bank unadjudicated."""
+    q = _q("Star Wars hero with lightsaber?", ["Han", "Luke", "Yoda", "Leia"], 1)
+    problems = validate_single_answer([q], reviewed={})
+    assert problems, "an unreviewed category question must fail the build"
+    assert "Star Wars hero" in problems[0]
+
+
+def test_reviewed_category_question_passes():
+    q = _q("Which is a citrus fruit?", ["Apple", "Lemon", "Pear", "Plum"], 1)
+    reviewed = {"which is a citrus fruit?": "Only Lemon is citrus; apple/pear/plum are pome or stone fruit."}
+    assert validate_single_answer([q], reviewed=reviewed) == []
+
+
+def test_stale_review_entries_are_reported():
+    """A registry entry for a question no longer in the bank must surface, so the file
+    cannot rot into a rubber stamp."""
+    reviewed = {"a question that no longer exists?": "whatever"}
+    problems = validate_single_answer([], reviewed=reviewed)
+    assert any("stale" in p for p in problems), problems
+
+
+def test_bank_has_no_unreviewed_category_questions():
+    """THE regression test for the live bank."""
+    qs = load_questions(BANK)
+    problems = validate_single_answer(qs, reviewed=load_single_answer_review())
+    assert problems == [], "single-answer review problems:\n" + "\n".join(problems)
+
+
+def test_the_broken_star_wars_question_is_gone_from_the_bank():
+    """Regression: the shipped question had 3-4 defensible answers (Luke, Yoda and Leia all
+    wield lightsabers in canon; Han ignites one on Hoth)."""
+    qs = load_questions(BANK)
+    for q in qs:
+        if "lightsaber" in q.question.lower():
+            wielders = {"luke", "yoda", "leia", "han", "vader", "obi-wan", "rey", "anakin"}
+            hits = [o for o in q.options if o.strip().lower().split()[0] in wielders]
+            assert len(hits) <= 1, f"still multi-answer: {q.question!r} {q.options}"
