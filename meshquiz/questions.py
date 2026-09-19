@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import json
+import os as _os
+import re
 from dataclasses import dataclass
 from typing import List, Optional
 
@@ -183,4 +185,146 @@ def validate_bank(questions: List[Question], max_bytes: int = 200) -> List[str]:
         if key in seen:
             problems.append(f"#{i} duplicate question: {q.question!r}")
         seen.add(key)
+    return problems
+
+
+# --- Single-defensible-answer gate (v1.12.0) ------------------------------------------
+# WHY THIS EXISTS
+# ---------------
+# 2026-09-18 the ambient track served:
+#     "Star Wars hero with lightsaber?  1️⃣ Han 2️⃣ Luke 3️⃣ Yoda 4️⃣ Leia"
+# keyed to Luke. Luke, Yoda AND Leia all wield lightsabers in canon (and Han ignites one
+# on Hoth), so three of the four options were defensible and everyone who answered 3 or 4
+# was scored wrong by an arbitrary key.
+#
+# The general shape of that bug is the CATEGORY QUESTION: the stem names a SET
+# ("Star Wars heroes with lightsabers", "cacti native to Arizona", "citrus fruits") and
+# more than one option belongs to that set. What makes a question safe is a UNIQUENESS
+# MARKER that pins exactly one member: a superlative ("largest"), an ordinal ("third from
+# the Sun"), "only"/"first", an explicit negation ("which is NOT..."), a numeric answer, or
+# a functional relation whose right-hand side is single-valued ("capital of France",
+# "element with the symbol Fe", "who wrote X").
+#
+# WHAT IS AND IS NOT MECHANICAL
+# -----------------------------
+# No regex can know that Yoda owns a lightsaber — that is world knowledge. So the gate does
+# NOT try to decide correctness. It decides SHAPE, which is mechanical and deterministic:
+# a question that asks for set membership WITHOUT a uniqueness marker is a suspect, and
+# every suspect must carry a recorded adjudication in single_answer_review.json or the
+# build fails. That converts an unbounded semantic problem into a bounded, reviewed list,
+# and — the point — a NEW question of this shape cannot enter the bank unreviewed. It is a
+# gate, not an instruction: it fails the build, it does not merely advise.
+#
+# Deliberately NOT caught (documented limits, see DECISIONS.md):
+#   * a question with a uniqueness marker whose marker is a LIE ("Largest planet?" keyed to
+#     Mars) — that is a factual error, not an ambiguity shape;
+#   * two options that name the same thing ("Chili" vs "Pepper" for paprika) where the stem
+#     is not category-shaped;
+#   * a category question whose set genuinely has one member (most of the registry) — those
+#     are flagged and then cleared by review, which is the intended cost.
+
+
+# A marker that pins the answer to exactly one member => NOT a category question.
+_UNIQUENESS_MARKER = re.compile(r"""(?xi)
+      \b(?:\w+est|most|least|only|first|last|main|primary|chief|sole|fewest)\b
+    | \b(?:second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth)\b
+    | \bNOT\b
+    | \bhow\s+(?:many|much|long)\b
+    | \bwhat\s+year\b | \bwhich\s+year\b | \bin\s+what\s+year\b
+    | \bsymbol\b | \bstands?\s+for\b | \babbrev | \breal\s+name\b
+    | \bcapital\s+of\b | \bformula\b | \batomic\s+number\b | \broman\s+numeral\b
+    | \bcomes?\s+(?:immediately\s+)?(?:after|before)\b
+    | \bknown\s+as\b | \bcalled\b | \bnamed\b
+    | \binvented\b | \bdiscovered\b | \bwrote\b | \bpainted\b | \bdirected\b
+    | \bcomposer\s+of\b | \bauthor\s+of\b | \bco-?founded\b | \bfounded\b
+    | ['"‘’“”]   # a quoted title/phrase anchors the answer
+    | \d                              # a digit or identifier in the stem anchors it
+""")
+
+# Stems that ask "which member of this set?" — the shape that can hold several answers.
+_CATEGORY_SHAPES = (
+    ("which-is-a", re.compile(r"^which\s+(?:one\s+)?(?:of\s+(?:these|the\s+following)\s+)?is\s+(?:a|an)\b", re.I)),
+    ("which-of-these", re.compile(r"^which\s+of\s+(?:these|the\s+following)\b", re.I)),
+    ("which-*", re.compile(r"^which\b", re.I)),
+    ("X-with-Y", re.compile(r"\bwith\s+(?:a\s|an\s|the\s)?[\w\- ]{2,20}\?$", re.I)),
+    ("X-that-Y", re.compile(r"^[\w' \-]{2,40}\s+that\s+[\w' \-]{2,40}\?$", re.I)),
+    ("X-is-a-Y", re.compile(r"\bis\s+(?:a|an)\s+[\w\- ]{2,25}\?$", re.I)),
+)
+
+_NUMERIC_OPTION = re.compile(r"^[-+]?[\d.,/%]+\s*\w{0,4}$")
+
+# Where the recorded adjudications live (question text -> one-line justification).
+SINGLE_ANSWER_REVIEW_PATH = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                                          "data", "single_answer_review.json")
+
+
+def category_question_shape(q: "Question") -> Optional[str]:
+    """Return the name of the category-question shape ``q`` matches, else ``None``.
+
+    Returns ``None`` when the options are all numeric (a numeric answer is a value, not a
+    set membership) or when the stem carries a uniqueness marker.
+    """
+    text = (q.question or "").strip()
+    if all(_NUMERIC_OPTION.match(o.strip()) for o in q.options):
+        return None
+    if _UNIQUENESS_MARKER.search(text):
+        return None
+    for name, pattern in _CATEGORY_SHAPES:
+        if pattern.search(text):
+            return name
+    return None
+
+
+def is_category_question(q: "Question") -> bool:
+    """True iff ``q`` asks for membership of a set with no uniqueness marker to pin it."""
+    return category_question_shape(q) is not None
+
+
+def load_single_answer_review(path: Optional[str] = None) -> dict:
+    """Load the recorded adjudications: ``{normalized question text: justification}``.
+
+    A missing file is an EMPTY registry, not a pass — every category question then fails
+    the gate. Fail closed: a lost registry must break the build, never silently allow.
+    """
+    path = path or SINGLE_ANSWER_REVIEW_PATH
+    if not _os.path.exists(path):
+        return {}
+    with open(path, "r", encoding="utf-8") as f:
+        raw = json.load(f)
+    return {k.strip().lower(): v for k, v in (raw.get("reviewed") or {}).items()}
+
+
+def validate_single_answer(questions: List["Question"], reviewed: Optional[dict] = None) -> List[str]:
+    """Return human-readable problems. Empty list == every category question is adjudicated.
+
+    Two failure modes, both build-breaking:
+      * an UNREVIEWED category question — someone added a set-membership question and nobody
+        checked whether more than one option belongs to the set;
+      * a STALE registry entry — a justification for a question no longer in the bank, which
+        would otherwise let the file rot into a rubber stamp.
+    """
+    reviewed = load_single_answer_review() if reviewed is None else {
+        k.strip().lower(): v for k, v in reviewed.items()
+    }
+    problems: List[str] = []
+    present = set()
+    for i, q in enumerate(questions):
+        shape = category_question_shape(q)
+        if shape is None:
+            continue
+        key = question_key(q)
+        present.add(key)
+        entry = reviewed.get(key)
+        if not entry or not str(entry).strip():
+            problems.append(
+                f"#{i} [{q.category}] UNREVIEWED category question ({shape}): {q.question!r} "
+                f"{q.options} -> keyed {q.options[q.answer]!r}. Confirm exactly ONE option "
+                f"belongs to the set the question names, then record why in "
+                f"meshquiz/data/single_answer_review.json."
+            )
+    for key in sorted(set(reviewed) - present):
+        problems.append(
+            f"stale review entry (no such category question in the bank): {key!r} — "
+            f"remove it from meshquiz/data/single_answer_review.json"
+        )
     return problems
