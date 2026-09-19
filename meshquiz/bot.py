@@ -752,6 +752,14 @@ class TriviaBot:
         """
         if not self.cfg.monthly_recap_enabled:
             return
+        # START GATE: hold the crowning until MONTHLY_ANNOUNCE_DELAY_MINUTES past local
+        # midnight on the 1st, so it fires at a chosen wall-clock time (00:05) rather than
+        # on whichever poll straddles midnight. This gates the ANNOUNCEMENT only and is
+        # narrow (first N minutes of day 1) — a late run on the 1st, or any other day, is
+        # unaffected, so the late-announce guarantee below still holds.
+        if monthly.announce_hold(now_s, self.cfg.monthly_timezone,
+                                 self.cfg.monthly_announce_delay_minutes):
+            return
         # Never interleave with a live !starttrivia game — the wrap-up would land in the
         # middle of a round. It'll fire on a later poll.
         if self.engine.running:

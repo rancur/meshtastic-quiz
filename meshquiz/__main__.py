@@ -23,6 +23,7 @@ def main():
         token=cfg.meshmonitor_token,
         timeout_s=cfg.http_timeout_s,
         source_id=cfg.source_id,
+        send_source_id=cfg.send_source_id,
     )
     bot = TriviaBot(transport, cfg)
     bot.run()
