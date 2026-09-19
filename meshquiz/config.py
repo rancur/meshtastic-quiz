@@ -57,6 +57,12 @@ class Config:
     meshmonitor_token: str = field(default_factory=lambda: _env("MESHMONITOR_API_TOKEN", ""))
     # Optional explicit source id (multi-source MeshMonitor). Blank = use the primary source.
     source_id: str = field(default_factory=lambda: _env("MESHMONITOR_SOURCE_ID", ""))
+    # IDENTITY SCOPE FOR SENDS. On a multi-source MeshMonitor the UNSCOPED
+    # POST /api/v1/messages resolves to the PRIMARY source (the physical radio),
+    # returning 201 with no error while transmitting under the wrong node id.
+    # Set this to the source id of the identity this bot must post as (e.g. the
+    # Buzz Trivia virtual node). Blank = legacy unscoped behaviour.
+    send_source_id: str = field(default_factory=lambda: _env("MESHMONITOR_SEND_SOURCE_ID", ""))
     http_timeout_s: float = field(default_factory=lambda: _env_float("HTTP_TIMEOUT_S", 15.0))
 
     # --- Channel / gating ---
@@ -234,6 +240,12 @@ class Config:
     # announce a champion from months ago.
     monthly_max_lookback_months: int = field(
         default_factory=lambda: _env_int("MONTHLY_MAX_LOOKBACK_MONTHS", 2))
+    # Minutes past LOCAL midnight on the 1st before the finished month is crowned. The
+    # poll loop runs every few seconds, so 0 would announce at ~00:00:0x — a time that
+    # drifts with the poll phase. 5 pins the announcement to 00:05 local. Only the first
+    # N minutes of the 1st are held; a late/recovered run is never blocked.
+    monthly_announce_delay_minutes: int = field(
+        default_factory=lambda: _env_int("MONTHLY_ANNOUNCE_DELAY_MINUTES", 5))
 
     # --- Fallback answering ---
     allow_typed_answers: bool = field(default_factory=lambda: _env_bool("ALLOW_TYPED_ANSWERS", True))

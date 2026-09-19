@@ -38,12 +38,14 @@ def _packet_id_from_message_id(message_id: str) -> Optional[int]:
 
 class MeshMonitorTransport(Transport):
     def __init__(self, base_url: str, token: str, timeout_s: float = 15.0,
-                 source_id: str = "", session: Optional[requests.Session] = None):
+                 source_id: str = "", session: Optional[requests.Session] = None,
+                 send_source_id: str = ""):
         self.base = base_url.rstrip("/")
         self.api = f"{self.base}/api/v1"
         self.token = token
         self.timeout = timeout_s
         self._source_id = source_id or None
+        self._send_source_id = send_source_id or None
         self.s = session or requests.Session()
         self.s.headers.update({"Authorization": f"Bearer {token}",
                                "Content-Type": "application/json"})
@@ -69,7 +71,13 @@ class MeshMonitorTransport(Transport):
 
     # ---- Transport API ----
     def send_message(self, text: str, channel: int) -> int:
-        r = self.s.post(f"{self.api}/messages",
+        # IDENTITY SCOPE: post to the path-scoped source route when configured.
+        # The unscoped /api/v1/messages silently falls back to MeshMonitor's
+        # PRIMARY source (the physical radio) -> wrong sender on air, 201 and no
+        # error. Path scope beats body.sourceId: it cannot be ignored.
+        url = (f"{self.api}/sources/{self._send_source_id}/messages"
+               if self._send_source_id else f"{self.api}/messages")
+        r = self.s.post(url,
                         json={"text": text, "channel": channel},
                         timeout=self.timeout)
         if r.status_code not in (200, 201, 202):
@@ -88,7 +96,15 @@ class MeshMonitorTransport(Transport):
         # the caller manages overlap.
         since_s = int(since_ms // 1000)
         params = {"channel": channel, "since": since_s, "limit": min(limit, 1000)}
-        r = self.s.get(f"{self.api}/messages", params=params, timeout=self.timeout)
+        # IDENTITY SCOPE ON READS (MeshMonitor >= 4.14). The unscoped GET /api/v1/messages
+        # route was REMOVED upstream and now returns 404 with a valid token, which silently
+        # froze the read cursor: Buzz kept posting its hourly question but scored nobody,
+        # because no answer was ever fetched. Reads now go through the same source-scoped
+        # route that sends and node lookups already use. The unscoped path is kept as a
+        # fallback for older MeshMonitor builds where no source can be resolved.
+        src = self._resolve_source_id()
+        url = f"{self.api}/sources/{src}/messages" if src else f"{self.api}/messages"
+        r = self.s.get(url, params=params, timeout=self.timeout)
         r.raise_for_status()
         rows = r.json().get("data", [])
         out: List[MeshMessage] = []
