@@ -99,7 +99,7 @@ All notable changes to this project are documented here. This project follows
 
 ### Operational (deployment durability — not a code change)
 - The live deployment's leaderboard/state (`/app/data/state.json`) was moved from the
-  compose-managed named volume onto an explicit **host bind-mount** (`~/meshquiz-data`),
+  compose-managed named volume onto an explicit **host bind-mount** (e.g. `~/meshquiz-data`),
   seeded from the existing volume, so it is immune to `docker compose down -v`, volume renames,
   and compose project-name drift. A daily backup cron snapshots it (keep last 14). Scores are
   cumulative and survive all rebuilds/updates. (This lives in a gitignored
