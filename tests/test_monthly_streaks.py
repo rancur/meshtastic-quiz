@@ -73,11 +73,11 @@ def test_late_answer_cannot_resurrect_an_archived_month():
     """The exact 2026-07 incident: a tapback landing after the crowning."""
     b = board()
     for _ in range(71):
-        b.record("!champ", "Utopia", True, ts(2026, 7, 20))
+        b.record("!champ", "Champ", True, ts(2026, 7, 20))
     b.archive("2026-07")
     b.mark_announced("2026-07")
 
-    b.record("!champ", "Utopia", True, ts(2026, 7, 31, 23))   # the late tapback
+    b.record("!champ", "Champ", True, ts(2026, 7, 31, 23))   # the late tapback
 
     assert "2026-07" not in b.months, "archived month was resurrected"
     assert b.history["2026-07"][0]["correct"] == 71
@@ -92,12 +92,12 @@ def test_archive_refuses_to_overwrite_a_fuller_record():
     """
     b = board()
     for _ in range(71):
-        b.record("!champ", "Utopia", True, ts(2026, 7, 20))
+        b.record("!champ", "Champ", True, ts(2026, 7, 20))
     b.record("!other", "Other", True, ts(2026, 7, 21))
     b.archive("2026-07")
     assert len(b.history["2026-07"]) == 2
 
-    b.months["2026-07"] = {"!champ": MonthlyScore("!champ", "Utopia", 1, 1, ts(2026, 7, 31))}
+    b.months["2026-07"] = {"!champ": MonthlyScore("!champ", "Champ", 1, 1, ts(2026, 7, 31))}
 
     kept = b.archive("2026-07")
 
